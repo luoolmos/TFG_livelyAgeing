@@ -1,3 +1,9 @@
+-- docker cp ./TFG_livelyAgeing/create_table.sql timescaledb:/tmp/create_table.sql
+-- docker exec -it timescaledb bash 
+-- psql -U postgres -d postgres -f /tmp/create_table.sql
+
+
+
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Users Table

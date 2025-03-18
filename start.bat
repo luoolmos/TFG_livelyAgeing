@@ -14,9 +14,16 @@
 #connect to the container
 #docker exec -it timescaledb bash
 
+#as root
+#docker exec -it --user root timescaledb bash
+
 #remove the container
 #docker rm timescaledb
 
 #remove the image
 #docker rmi timescale/timescaledb-ha:pg17
+
+#connect to port 5433
+#psql -h localhost -p 5433 -U postgres
+
 
