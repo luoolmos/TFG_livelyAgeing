@@ -9,6 +9,7 @@ const querystring = require('querystring');
 const pool = require('./db');
 
 const app = express();
+const PORT = 3000;
 app.use(express.json());
 const CLIENT_ID = process.env.FITBIT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -127,6 +128,38 @@ app.get('/steps', async (req, res) => {
   }
 });
 
+//Modify
+async function getStepsAndSave() {
+    try {
+      const response = await axios.get('https://api.fitbit.com/1/user/-/activities/steps/date/today/1d.json', {
+        headers: { 'Authorization': `Bearer ${access_token}` }
+      });
+  
+      const steps = response.data['activities-steps'][0].value;
+      const date = response.data['activities-steps'][0].dateTime;
+      const user_id = "default_user"; // Puedes cambiarlo dinámicamente si tienes varios usuarios
+  
+      // Guardar en PostgreSQL
+      await pool.query(
+        'INSERT INTO fitbit_data (user_id, date, steps) VALUES ($1, $2, $3)',
+        [user_id, date, steps]
+      );
+  
+      console.log(`Pasos guardados: ${steps} el ${date}`);
+    } catch (error) {
+      console.error('Error obteniendo y guardando los pasos:', error.response ? error.response.data : error.message);
+    }
+}
+
+// Ruta para ejecutar la función
+app.get('/save-steps', async (req, res) => {
+    await getStepsAndSave();
+    res.send("Datos de pasos guardados en la base de datos.");
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
 
 //TOKENS OBTENIDOS:
 /*http://localhost:3000/callback?code=2c96cbbe642686e53cf5a8c6bb9f637a5b900b8c#_=_*/ 
