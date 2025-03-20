@@ -27,24 +27,66 @@ const SAMSUNG_TYPE = 'Samsung';
 //**USERS */
 /*************************************************************** */ 
 
+// Función para obtener el perfil del usuario
+async function getUserProfile(access_token) {
+  try {
+    const response = await axios.get('https://api.fitbit.com/1/user/-/profile.json', {
+      headers: {
+        'Authorization': `Bearer ${access_token}`
+    }
+    });
 
-/*************************************************************** */ 
+    //console.log('Perfil del usuario:', response.data);
+    return response.data.user; 
+} catch (error) {
+    console.error('Error obteniendo el perfil:', error.response ? error.response.data : error.message);
+}
+}
 
-//**DEVICES */
-/*************************************************************** */ 
+// Función para guardar el perfil del usuario en la BD
+async function saveUserProfile(access_token) {
+  try {
+    console.log('Obteniendo perfil del usuario...');
+    const userProfile = await getUserProfile(access_token);
+
+    if (!userProfile) {
+      console.error("No se pudo obtener el perfil del usuario.");
+      return;
+    }
+
+    //console.log('Perfil del usuario:', userProfile);
+
+    const name = userProfile.fullName;
+    const email = `${name}@gmail.com`; 
+    const date_of_birth = userProfile.dateOfBirth;
+    //const created_at = userProfile.memberSince;
 
 
-/*************************************************************** */ 
+    const userQuery = `
+      INSERT INTO users (name, email, date_of_birth) 
+      VALUES ($1, $2, $3) 
+      RETURNING user_id
+    `;
 
+    //console.log('User Query:', userQuery);
+    const userResult  = await pool.query(userQuery, [name, email, date_of_birth]);
+    //console.log(userResult);
 
-/*CREDENTIALS*/
-/*************************************************************** */ 
+    let user_id = null;
+    if (userResult.rows.length > 0) {
+      user_id = userResult.rows[0].user_id;
+    } else {
+      console.error("Error: No se pudo obtener el user_id.");
+      return;
+    }
 
-// Ruta para redirigir al usuario a Fitbit para la autenticación
-app.get('/auth/fitbit', (req, res) => {
-    const authUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=activity%20profile%20sleep`;
-    res.redirect(authUrl);
-  });
+    console.log(`Usuario guardado en la BD: ${name}, user_id: ${user_id}`);
+    return user_id;
+
+  } catch (error) {
+    console.error("Error guardando el perfil en BD:", error.message);
+  }
+}
 
 // Función para obtener datos de user 
 async function getUserId({ username , device_id }) {
@@ -75,6 +117,65 @@ async function getUserId({ username , device_id }) {
       throw error;
   }
 }
+
+
+/*************************************************************** */ 
+
+//**DEVICES */
+/*************************************************************** */ 
+
+// Función para guardar el perfil del usuario en la BD
+async function saveDeviceProfile(user_id, device_type, model, access_token) {
+  try {
+   
+    device_type = SAMSUNG_TYPE;
+    token = access_token;
+    model = SAMUSNG_MODEL;
+    
+    const deviceQuery = `INSERT INTO devices (user_id, device_type, token, model) 
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (token) DO NOTHING;`;
+
+    await pool.query(deviceQuery,
+      [user_id, device_type, token, model]
+    );
+
+    console.log(`Device guardado en la BD: ${model}`);
+
+  } catch (error) {
+    console.error("Error guardando el perfil en BD:", error.message);
+  }
+}
+
+
+// Función para actualizar el token en la BD
+async function updateTokensDB(username, device_id, access_token){
+  const user_id = await getUserId({ username, device_id });
+  
+  try{
+    await pool.query(
+      `UPDATE devices SET token = $1 WHERE user_id = $2;`,
+      [access_token, user_id]
+    );
+  }catch (error) {
+    console.error('Error actualizando el token en la BD:', error.message);
+  }
+}
+
+
+
+/*************************************************************** */ 
+
+
+/*CREDENTIALS*/
+/*************************************************************** */ 
+
+// Ruta para redirigir al usuario a Fitbit para la autenticación
+app.get('/auth/fitbit', (req, res) => {
+    const authUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=activity%20profile%20sleep`;
+    res.redirect(authUrl);
+  });
+
 
 //update the tokens in the .env file
 function updateEnvVariable(key, value) {
@@ -131,103 +232,6 @@ async function refreshAccessToken(refresh_token) {
     console.error('Error refrescando el token:', error.response ? error.response.data : error.message);
   }
 }
-  
-
-async function updateTokensDB(username, device_id, access_token){
-  const user_id = await getUserId({ username, device_id });
-  
-  try{
-    await pool.query(
-      `UPDATE devices SET token = $1 WHERE user_id = $2;`,
-      [access_token, user_id]
-    );
-  }catch (error) {
-    console.error('Error actualizando el token en la BD:', error.message);
-  }
-}
-
-// Función para obtener el perfil del usuario
-async function getUserProfile(access_token) {
-  try {
-    const response = await axios.get('https://api.fitbit.com/1/user/-/profile.json', {
-      headers: {
-        'Authorization': `Bearer ${access_token}`
-    }
-    });
-
-    //console.log('Perfil del usuario:', response.data);
-    return response.data.user; 
-} catch (error) {
-    console.error('Error obteniendo el perfil:', error.response ? error.response.data : error.message);
-}
-}
-
-// Función para guardar el perfil del usuario en la BD
-async function saveDeviceProfile(user_id, device_type, model, access_token) {
-  try {
-   
-    device_type = SAMSUNG_TYPE;
-    token = access_token;
-    model = SAMUSNG_MODEL;
-    
-    const deviceQuery = `INSERT INTO devices (user_id, device_type, token, model) 
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT (token) DO NOTHING;`;
-
-    await pool.query(deviceQuery,
-      [user_id, device_type, token, model]
-    );
-
-    console.log(`Device guardado en la BD: ${model}`);
-
-  } catch (error) {
-    console.error("Error guardando el perfil en BD:", error.message);
-  }
-}
-
-async function saveUserProfile(access_token) {
-  try {
-    console.log('Obteniendo perfil del usuario...');
-    const userProfile = await getUserProfile(access_token);
-
-    if (!userProfile) {
-      console.error("No se pudo obtener el perfil del usuario.");
-      return;
-    }
-
-    //console.log('Perfil del usuario:', userProfile);
-
-    const name = userProfile.fullName;
-    const email = `${name}@gmail.com`; 
-    const date_of_birth = userProfile.dateOfBirth;
-    //const created_at = userProfile.memberSince;
-
-
-    const userQuery = `
-      INSERT INTO users (name, email, date_of_birth) 
-      VALUES ($1, $2, $3) 
-      RETURNING user_id
-    `;
-
-    //console.log('User Query:', userQuery);
-    const userResult  = await pool.query(userQuery, [name, email, date_of_birth]);
-    //console.log(userResult);
-
-    let user_id = null;
-    if (userResult.rows.length > 0) {
-      user_id = userResult.rows[0].user_id;
-    } else {
-      console.error("Error: No se pudo obtener el user_id.");
-      return;
-    }
-
-    console.log(`Usuario guardado en la BD: ${name}, user_id: ${user_id}`);
-    return user_id;
-
-  } catch (error) {
-    console.error("Error guardando el perfil en BD:", error.message);
-  }
-}
 
 
 // Ruta para recibir el código de autorización y obtener los tokens de Fitbit
@@ -268,7 +272,7 @@ app.get('/callback', async (req, res) => {
     console.log('User Profile saved');
     //insert into the db
     // MODIFY THE USER... 
-    //updateTokensDB('Samsung Galaxy 4', 'Samsung', access_token);
+    updateTokensDB(SAMUSNG_MODEL, SAMSUNG_TYPE, access_token);
     
     
     res.send("Autenticación exitosa. Tokens obtenidos correctamente.");
@@ -348,7 +352,6 @@ async function getStepsAndSave({ username, device_id, access_token }) {
   }
 }
 
-
 // Ruta para ejecutar la función
 app.get('/save-steps', async (req, res) => {
     let username = SAMUSNG_MODEL;
@@ -411,9 +414,6 @@ app.get('/save-steps', async (req, res) => {
 /*************************************************************** */
 
 /*************************************************************** */ 
-
-
-
 
 
 
