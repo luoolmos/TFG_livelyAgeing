@@ -18,6 +18,10 @@ app.use(express.json());
 const CLIENT_ID = process.env.FITBIT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = 'http://localhost:3000/callback'; // URL de redirección
+
+//****SAMSUNG***** */
+const SAMUSNG_MODEL = 'Samsung Galaxy Watch 4';
+const SAMSUNG_TYPE = 'Samsung';
 //let access_token = process.env.ACCESS_TOKEN;
 
 //**USERS */
@@ -159,9 +163,31 @@ async function getUserProfile(access_token) {
 }
 
 // Función para guardar el perfil del usuario en la BD
+async function saveDeviceProfile(user_id, device_type, model, access_token) {
+  try {
+   
+    device_type = SAMSUNG_TYPE;
+    token = access_token;
+    model = SAMUSNG_MODEL;
+    
+    const deviceQuery = `INSERT INTO devices (user_id, device_type, token, model) 
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (token) DO NOTHING;`;
+
+    await pool.query(deviceQuery,
+      [user_id, device_type, token, model]
+    );
+
+    console.log(`Device guardado en la BD: ${model}`);
+
+  } catch (error) {
+    console.error("Error guardando el perfil en BD:", error.message);
+  }
+}
+
 async function saveUserProfile(access_token) {
   try {
-  
+    console.log('Obteniendo perfil del usuario...');
     const userProfile = await getUserProfile(access_token);
 
     if (!userProfile) {
@@ -169,34 +195,34 @@ async function saveUserProfile(access_token) {
       return;
     }
 
+    //console.log('Perfil del usuario:', userProfile);
 
     const name = userProfile.fullName;
-    const email = `${user_id}@gmail.com`; 
+    const email = `${name}@gmail.com`; 
     const date_of_birth = userProfile.dateOfBirth;
-    const created_at = userProfile.memberSince;
-    const device_type = 'Samsung';
-    const token = access_token;
-    const model = 'Samsung Galaxy 4';
+    //const created_at = userProfile.memberSince;
 
-    console.log(`Guardando en BD: ${name} (ID: ${user_id})`);
 
-    
-    //  Insertar en la BD
-    const query = `WITH new_user AS (
-        INSERT INTO users (name, email, date_of_birth) 
-        VALUES ($1, $2, $3) 
-        ON CONFLICT (email) DO UPDATE 
-        SET name = EXCLUDED.name, date_of_birth = EXCLUDED.date_of_birth
-        RETURNING user_id
-    )
-    INSERT INTO devices (user_id, device_type, token, model) 
-    SELECT user_id, $4, $5, $6 FROM new_user
-    ON CONFLICT (token) DO NOTHING;`;
-    await pool.query(query,
-      [name, email, date_of_birth, device_type, token, model]
-    );
+    const userQuery = `
+      INSERT INTO users (name, email, date_of_birth) 
+      VALUES ($1, $2, $3) 
+      RETURNING user_id
+    `;
 
-    console.log(`Usuario guardado en la BD: ${name}`);
+    //console.log('User Query:', userQuery);
+    const userResult  = await pool.query(userQuery, [name, email, date_of_birth]);
+    //console.log(userResult);
+
+    let user_id = null;
+    if (userResult.rows.length > 0) {
+      user_id = userResult.rows[0].user_id;
+    } else {
+      console.error("Error: No se pudo obtener el user_id.");
+      return;
+    }
+
+    console.log(`Usuario guardado en la BD: ${name}, user_id: ${user_id}`);
+    return user_id;
 
   } catch (error) {
     console.error("Error guardando el perfil en BD:", error.message);
@@ -237,7 +263,8 @@ app.get('/callback', async (req, res) => {
     process.env.REFRESH_TOKEN = refresh_token;
     
     //maybe insert the user... 
-    saveUserProfile(access_token);
+    const user_id = await saveUserProfile(access_token);
+    saveDeviceProfile(user_id, SAMSUNG_TYPE, SAMUSNG_MODEL, access_token);
     console.log('User Profile saved');
     //insert into the db
     // MODIFY THE USER... 
@@ -254,8 +281,8 @@ app.get('/callback', async (req, res) => {
 /********************************************************************** */
 
 
-//refreshAccessToken(process.env.REFRESH_TOKEN);
-//getUserProfile(process.env.ACCESS_TOKEN);
+refreshAccessToken(process.env.REFRESH_TOKEN);
+getUserProfile(process.env.ACCESS_TOKEN);
 
 
 //**STEPSSSS */
@@ -266,7 +293,7 @@ async function getSteps() {
   try {
     const response = await axios.get('https://api.fitbit.com/1/user/-/activities/steps/date/today/7d.json', {
       headers: {
-        'Authorization': `Bearer ${access_token}`
+        'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
       }
     });
 
@@ -324,8 +351,8 @@ async function getStepsAndSave({ username, device_id, access_token }) {
 
 // Ruta para ejecutar la función
 app.get('/save-steps', async (req, res) => {
-    let username = 'Samsung Galaxy 4';
-    let device_id = 'Samsung';
+    let username = SAMUSNG_MODEL;
+    let device_id = SAMSUNG_TYPE;
     const access_token = process.env.ACCESS_TOKEN;
     await getStepsAndSave({ username, device_id, access_token });
     res.send("Datos de pasos guardados en la base de datos.");
