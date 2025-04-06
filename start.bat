@@ -27,3 +27,11 @@
 #psql -h localhost -p 5433 -U postgres
 
 
+
+
+#### 
+pip install python-dotenv
+pip install psycopg2-binary
+
+npm install sqlite3
+

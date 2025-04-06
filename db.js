@@ -9,8 +9,6 @@ const pool = new Pool({
     },
   });
 
-pool.connect()
-  .then(() => console.log('Conectado a PostgreSQL en Neon.tech'))
-  .catch(err => console.error('Error de conexión', err));
+console.log('Pool de conexión a PostgreSQL configurado.');
 
 module.exports = pool;

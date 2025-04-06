@@ -17,6 +17,7 @@
     "pg-hstore": "^2.3.4",
     "querystring": "^0.2.1",
     "sequelize": "^6.37.6",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "sqlite3": "^5.1.7"
   }
 }
