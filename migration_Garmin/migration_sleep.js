@@ -1,16 +1,16 @@
-require('dotenv').config();
+require('dotenv').config({path: '../.env' });
 const { Pool } = require('pg');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const express = require('express');
-const pool = require('./db');
+const pool = require('../db');
 
 const app = express();
 const PORT = 3000;
 app.use(express.json());
 
 // Configuración de la base de datos SQLite
-const dbPath = path.resolve(process.env.SQLLITE_PATH);
+const dbPath = path.resolve(process.env.SQLLITE_PATH_GARMIN);
 const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
     if (err) {
         console.error('Error al conectar a SQLite:', err.message);
@@ -138,7 +138,6 @@ async function insertSleepData(client, values) {
     `;
     await client.query(query, values.flat());
 }
-
 
 /**
  * Función principal

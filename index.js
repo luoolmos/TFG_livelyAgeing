@@ -319,33 +319,43 @@ app.get('/steps', async (req, res) => {
 });
 
 
-// Función para obtener los pasos y guardarlos en la BD
-async function getStepsAndSave({ username, device_id, access_token }) {
+// Función para obtener todos los pasos hasta el día actual y guardarlos en la BD
+async function getStepsAndSave({ username, device_id, access_token, start_date, end_date }) {
   try {
       // Obtener user_id desde la BD
       const user_id = await getUserId({ username, device_id });
-
-      // Llamada a la API de Fitbit
+      start_date = '2025-04-07';
+      const today = new Date();
+      const end_date = today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+      console.log(`start_date: ${start_date}`);
+      console.log(`end_date: ${end_date}`);
+      // Llamada a la API de Fitbit para obtener pasos de los últimos 30 días
+      //`https://api.fitbit.com/1/user/-/activities/steps/date/${start_date}/${end_date}.json`
       const response = await axios.get(
-          'https://api.fitbit.com/1/user/-/activities/steps/date/today/1d.json',
+          `https://api.fitbit.com/1/user/-/activities/steps/date/${start_date}/1d/1min.json`,
           { headers: { 'Authorization': `Bearer ${access_token}` } }
       );
+      //https://api.fitbit.com/1/user/-/activities/steps/date/{date}/1d/1min.json
+      console.log('Response:', response.data);
+      const stepsData = response.data['activities-steps'];
 
-      const steps = parseInt(response.data['activities-steps'][0].value, 10);
-      const date = response.data['activities-steps'][0].dateTime;
-      const timestamp = new Date(`${date}T00:00:00Z`); // Convertir a TIMESTAMPTZ
+      for (const stepEntry of stepsData) {
+          const steps = parseInt(stepEntry.value, 10);
+          const date = stepEntry.dateTime;
+          const timestamp = new Date(`${date}T00:00:00Z`); // Convertir a TIMESTAMPTZ
 
-      console.log(`Pasos obtenidos: ${steps} el ${timestamp} para el usuario ${user_id}`);
-
-      // Insertar en la tabla activity_series
-      await pool.query(
-          `INSERT INTO activity_series (user_id, time, activity_type, steps, calories_burned, active_zone_minutes) 
-           VALUES ($1, $2, $3, $4, $5, $6) 
-           ON CONFLICT (user_id, time) DO UPDATE SET steps = EXCLUDED.steps;`,
-          [user_id, timestamp, 'steps', steps, null, null]
-      );
-
-      console.log(`Pasos guardados en la BD: ${steps} el ${timestamp} para el usuario ${user_id}`);
+          //console.log(`Pasos obtenidos: ${steps} el ${date} para el usuario ${user_id}`);
+        
+          // Insertar en la tabla activity_series
+          await pool.query(
+              `INSERT INTO activity_series (user_id, time, activity_type, steps, calories_burned, active_zone_minutes) 
+               VALUES ($1, $2, $3, $4, $5, $6) 
+               ON CONFLICT (user_id, time) DO UPDATE SET steps = EXCLUDED.steps;`,
+              [user_id, timestamp, 'steps', steps, null, null]
+          );
+      
+          console.log(`Pasos guardados en la BD: ${steps} el ${timestamp} para el usuario ${user_id}`);
+      }
   } catch (error) {
       console.error('Error obteniendo y guardando los pasos:', 
           error.response ? error.response.data : error.message);
@@ -365,6 +375,61 @@ app.get('/save-steps', async (req, res) => {
 
 //**ACTIVITY_SERIES */
 /*************************************************************** */ 
+async function getActivityAndSave({ username, device_id, access_token, start_date }) {
+  try {
+    const user_id = await getUserId({ username, device_id });
+    const today = new Date();
+    const start_date = '2025-04-07'; // Puedes parametrizar esto
+    const end_date = today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+    console.log(`Recuperando actividad desde ${start_date} hasta ${end_date}`);
+
+    // Llamada a la API de Fitbit para obtener datos de actividad
+    const response = await axios.get(
+      `https://api.fitbit.com/1/user/-/activities/date/${start_date}.json`,
+      { headers: { 'Authorization': `Bearer ${access_token}` } }
+    );
+    console.log('Response:', response.data);
+    const activityData = response.data.summary;
+    /*
+    // Insertar datos en la base de datos
+    await pool.query(
+      `INSERT INTO activity_series (user_id, time, activity_type, steps, calories_burned, active_zone_minutes, distance) 
+       VALUES ($1, $2, 'activity', $3, $4, $5, $6) 
+       ON CONFLICT (user_id, time) 
+       DO UPDATE SET 
+          steps = EXCLUDED.steps, 
+          calories_burned = EXCLUDED.calories_burned,
+          active_zone_minutes = EXCLUDED.active_zone_minutes,
+          distance = EXCLUDED.distance;`,
+      [
+        user_id,
+        new Date(`${start_date}T00:00:00Z`),
+        activityData.steps || 0,
+        activityData.caloriesOut || 0,
+        activityData.activeZoneMinutes || 0,
+        activityData.distances.find(d => d.activity === "total")?.distance || 0
+      ]
+    );
+
+    console.log(`Actividad guardada para ${start_date} del usuario ${user_id}`);
+    */
+  } catch (error) {
+    console.error('Error obteniendo y guardando la actividad:', 
+      error.response ? error.response.data : error.message);
+  }
+}
+
+// Ruta para obtener e insertar actividad
+app.get('/save-activity', async (req, res) => {
+  let username = SAMUSNG_MODEL;
+  let device_id = SAMSUNG_TYPE;
+  const access_token = process.env.ACCESS_TOKEN;
+  const start_date = "2025-04-07";  // Puedes parametrizar esto
+
+  await getActivityAndSave({ username, device_id, access_token, start_date });
+  res.send("Datos de actividad guardados en la base de datos.");
+});
 
 
 /*************************************************************** */ 
