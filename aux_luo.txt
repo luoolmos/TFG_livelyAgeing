@@ -1,0 +1,3 @@
+Samsung no puede accederse desde el pc via USB
+Samsung no se puede acceder mediante la web
+Sólo con la app

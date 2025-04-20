@@ -17,7 +17,7 @@ app.use(express.json());
 
 const CLIENT_ID = process.env.FITBIT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = 'http://localhost:3000/callback'; // URL de redirección
+const REDIRECT_URI = 'http://0.0.0.0:3000/callback'; // URL de redirección
 
 //****SAMSUNG***** */
 const SAMUSNG_MODEL = 'Samsung Galaxy Watch 4';
@@ -285,8 +285,8 @@ app.get('/callback', async (req, res) => {
 /********************************************************************** */
 
 
-refreshAccessToken(process.env.REFRESH_TOKEN);
-getUserProfile(process.env.ACCESS_TOKEN);
+//refreshAccessToken(process.env.REFRESH_TOKEN);
+//getUserProfile(process.env.ACCESS_TOKEN);
 
 
 //**STEPSSSS */
@@ -481,10 +481,40 @@ app.get('/save-activity', async (req, res) => {
 /*************************************************************** */ 
 
 
+app.post('/api/sync-steps', async (req, res) => {
+    const { user_id, steps, date } = req.body; // Obtener el nombre de usuario y el device_id del cuerpo de la solicitud
+    const access_token = process.env.ACCESS_TOKEN; // Obtener el token de acceso desde las variables de entorno
 
+    if (!user_id || !steps || !date) {
+      return res.status(400).json({ error: 'Faltan campos' });
+    }
+    try {
+      await pool.query(
+        `INSERT INTO actividad_fisica (id_usuario, fecha, pasos)
+         VALUES ($1, $2, $3)`,
+        [user_id, date, steps]
+      );
+      res.json({ message: 'Datos insertados correctamente' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al insertar en la base de datos' });
+    }
+});
 
-app.listen(PORT, () => {
+/*app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});*/
+
+
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'API funcionando',
+    message: 'Bienvenido a tu servidor backend'
+  });
+});
+
+app.listen(3000, '0.0.0.0', () => { // ¡Atención al '0.0.0.0'!
+    console.log('Servidor escuchando en http://0.0.0.0:3000');
 });
 
 //TOKENS OBTENIDOS:
