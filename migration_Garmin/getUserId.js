@@ -1,70 +1,58 @@
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
-const os = require('os');
-const { Pool } = require('pg');
+const pool = require('../db'); 
+const app = express();
+app.use(express.json());
 
-const pool = require('../db'); // Asegúrate de que la ruta sea correcta
-
-// Ruta al archivo .json
-const jsonFilePath = path.join( os.homedir(), '/HealthData/FitFiles/personal-information.json');
-
-// Función para leer el archivo .json
-function readJsonFile(filePath) {
-    return new Promise((resolve, reject) => {
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) {
-                return reject(err);
-            }
-            try {
-                const jsonData = JSON.parse(data);
-                resolve(jsonData);
-            } catch (parseError) {
-                reject(parseError);
-            }
-        });
-    });
-}
-
-// Función para recuperar el user_id desde la base de datos
-async function getUserIdFromDatabase(email) {
-    console.log('Conectando a la base de datos...');
-    const client = await pool.connect();
-    console.log('Conexión exitosa a la base de datos');
-    console.log('Recuperando user_id para el email:', email);
+/**
+ * Recupera un UUID de usuario de la base de datos PostgreSQL
+ */
+// Source: garminVenuSq2, garminForerunner255, garminVivoactive4, garminFenix7x...
+async function getUserDeviceInfo(source) {
     try {
-        const query = 'SELECT user_id FROM users WHERE email = $1';
-        const result = await client.query(query, [email]);
+        const query = `
+          SELECT ud.user_device_id, ud.last_sync_date
+          FROM user_device ud
+          JOIN device d ON ud.device_id = d.device_id
+          WHERE d.model = $1 AND ud.end_date IS NULL
+          ORDER BY ud.last_sync_date DESC
+          LIMIT 1
+        `;
+        
+        const result = await pool.query(query, [source]);
+        
         if (result.rows.length > 0) {
-            return result.rows[0].user_id;
+          const userDeviceId = result.rows[0].user_device_id;
+          const lastSyncDate = result.rows[0].last_sync_date;
+          
+          console.log('ID del dispositivo:', userDeviceId);
+          console.log('Última sincronización:', lastSyncDate);
+          
+          return { userDeviceId, lastSyncDate };
         } else {
-            throw new Error(`No se encontró un usuario con el email: ${email}`);
+          console.log('No se encontraron dispositivos');
+          return null;
         }
-    } catch (error) {
+      } catch (error) {
+        console.error('Error al ejecutar la consulta:', error);
         throw error;
-    } finally {
-        client.release();
-    }
+      }
 }
 
-// Función principal
-async function main() {
-    try {
-        // Leer el archivo .json
-        const jsonData = await readJsonFile(jsonFilePath);
-        //console.log('Datos del archivo JSON:', jsonData);
-
-        // Obtener el email del archivo .json
-        const email = jsonData.userInfo.email;
-
-        // Recuperar el user_id desde la base de datos
-        const userId = await getUserIdFromDatabase(email);
-
-        console.log(`El user_id recuperado es: ${userId}`);
-    } catch (error) {
-        console.error('Error:', error.message);
-    } finally {
-        pool.end();
-    }
+async function updateUserDeviceInfo(client, userId, deviceId) {
+    const query = `
+        UPDATE user_device
+        SET last_sync_date = NOW()
+        WHERE user_id = $1 AND device_id = $2;
+    `;
+    await client.query(query, [userId, deviceId]);
+    console.log(`Updated user_device for user_id: ${userId}, device_id: ${deviceId}`);
+    return true;
 }
 
-main();
+
+
+module.exports = {
+    getUserDeviceInfo,
+    updateUserDeviceInfo
+};
