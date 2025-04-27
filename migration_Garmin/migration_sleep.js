@@ -4,7 +4,8 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const express = require('express');
 const pool = require('../db');
-const {getUserDeviceInfo} = require('../migration_Garmin/getUserId.js'); 
+const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../migration_Garmin/getUserId.js'); 
+const { insertSleepSessions } = require('../migration_Garmin/insert.js');
 const constants = require('./constants.js');
 
 
@@ -31,7 +32,7 @@ function fetchSleepData(date) {
     //date to timestamptz
     return new Promise((resolve, reject) => {
         sqliteDb.all(
-            `SELECT start, end, score, day 
+            `SELECT start, end, score, day, avg_spo2, avg_rr, avg_stress, total_sleep
              FROM sleep 
              WHERE start >= ?`,
             [date], 
@@ -40,15 +41,8 @@ function fetchSleepData(date) {
     });
 }
 
-
-
 function fetchSleepEventsData(date) {
-    //dateIni and dateEnd to timestamp
-    //let dateEnd = new Date(date);
-    //dateEnd.setDate(dateEnd.getDate() + 1); // Sumar un día a la fecha de inicio
     const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
-    //const dateEnd_timestamp = new Date(dateEnd).toISOString(); // Convertir a formato ISO
-    //console.log('Fechas de inicio y fin:', dateIni, dateEnd);
   return new Promise((resolve, reject) => {
       sqliteDb.all(
           `SELECT timestamp, event, duration 
@@ -79,152 +73,202 @@ function formatToTimestamp(dateString) {
     return formattedDate;
 }
 
+function getObservationEventConceptId(event) {
+    event = event.toLowerCase(); 
+    const eventConceptMap = {
+        deep_sleep: constants.DEEP_SLEEP_DURATION_LOINC,
+        light_sleep: constants.LIGHT_SLEEP_DURATION_LOINC,
+        rem_sleep: constants.REM_SLEEP_DURATION_LOINC,
+        awake: constants.AWAKE_DURATION_LOINC
+    };
+    const sourceConceptMap = {
+        deep_sleep: constants.DEEP_SLEEP_DURATION_SOURCE_LOINC,
+        light_sleep: constants.LIGHT_SLEEP_DURATION_SOURCE_LOINC,
+        rem_sleep: constants.REM_SLEEP_DURATION_SOURCE_LOINC,
+        awake: constants.AWAKE_DURATION_SOURCE_LOINC
+    };
 
-/**
- * Formatea las etapas de sueño para la inserción en la tabla sleep_stages
- */
-function formatSleepStages(sleepStages, day) {
+    return {
+        eventConceptId: eventConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID,
+        sourceConceptId: sourceConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID
+    };
+}
 
-    // Filtrar las sesiones que estén dentro del rango
-    const filterStartTime = formatToTimestamp(day);
-    let filterEndTime = new Date(day);
-    filterEndTime.setDate(filterEndTime.getDate() + 1); // Sumar un día a la fecha de inicio
-    const filterEndTimeString = filterEndTime.toISOString;
-    const filterEndTimeTimestamp = formatToTimestamp(filterEndTimeString); // Convertir a formato ISO
 
-    //console.log('Fechas de inicio y fin:', filterStartTime, filterEndTimeTimestamp);
-    //console.log('Sleep stages:', sleepStages);
+async function formatStageData(data, userId) {
+    return data.map(row => {
+        const { observationConceptId, sourceConceptId } = getObservationEventConceptId(row.event); // Usar el mapa para obtener el concepto
+        if (!observationConceptId) throw new Error(`Concepto no encontrado para evento: ${row.event}`);
 
-    const filteredStages = sleepStages.filter(sleepStages => 
-        sleepStages.timestamp >= filterStartTime && sleepStages.timestamp <= filterEndTimeTimestamp);
-    
-    //console.log('Filtered stages:', filteredStages);
-   //make a JSON object with the sleepStages data
-   return filteredStages.map(stage => {
-        const startTime = formatToTimestamp(stage.timestamp); 
-        const duration = stage.duration; 
+        const observationDate = formatDate(row.start);
+        const observationDatetime = formatToTimestamp(row.timestamp);
+        const observationTypeConceptId = 789012; // LUO CAMBIAR
 
-        // Format startTime as YYYY-MM-DD HH:mm:ss.SSSSSS
-        const formattedStartTime = startTime.toString()
-            .replace('T', ' ')
-            .replace('Z', '000000')
-            .replace(/(\.\d{3})\d*/, '$1000000')
-            .substring(0, 26);
-        // Format startTime as YYYY-MM-DD HH:mm:ss.SSSSSS
-        const formattedDuration = duration.toString()
-            .replace('T', ' ')
-            .replace('Z', '000000')
-            .replace(/(\.\d{3})\d*/, '$1000000')
-            .substring(0, 26);
-        //console.log('Formatted start time:', formattedStartTime);
-        //console.log('Formatted duration:', formattedDuration);
+        const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
+        const valueAsString = typeof row.duration === 'string' ? row.duration : null;
+
+        const unit_source_value = 'min';
+        const valueSourceValue = 'duration';
+
         return {
-            type: stage.event ? stage.event.toUpperCase() : 'UNKNOWN', 
-            startTime: formattedStartTime,
-            duration: formattedDuration
+            person_id: userId,
+            observation_concept_id: observationConceptId,
+            observation_date: observationDate,
+            observation_datetime: observationDatetime,
+            observation_type_concept_id: observationTypeConceptId,
+            value_as_number: valueAsNumber,
+            value_as_string: valueAsString,
+            value_as_concept_id: null,
+            qualifier_concept_id: null,
+            unit_concept_id: constants.MINUTE_UCUM,
+            observation_source_value: row.event,
+            observation_source_concept_id: sourceConceptId,
+            unit_source_value: unit_source_value,
+            value_source_value: valueSourceValue
         };
     });
-
 }
 
-/**
- * Formatea los datos de sueño para la inserción en la tabla sleep_sessions
- */
-function formatSleepSessions(sleepRows, userDeviceId, sleepStages) {
+function getObservationEventConceptId(event) {
+    event = event.toLowerCase(); 
+    const eventConceptMap = {
+        score: constants.SLEEP_SCORE_LOINC,
+        duration: constants.SLEEP_DURATION_LOINC,
+        respiration_rate: constants.RESPIRATORY_RATE_LOINC,
+        sop2: constants.SPO2_LOINC,
+    };
+    const sourceConceptMap = {
+        score: constants.SLEEP_SCORE_SOURCE_LOINC,
+        duration: constants.SLEEP_DURATION_SOURCE_LOINC,
+        respiration_rate: constants.RESPIRATORY_RATE_SOURCE_LOINC,
+        sop2: constants.SPO2_SOURCE_LOINC,
+    };
+
+    return {
+        eventConceptId: eventConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID,
+        sourceConceptId: sourceConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID
+    };
+}
+
+function formatSleepSessions(sleepRows, userId) {
     return sleepRows.map(row => {
-        const startTime = new Date(row.start);
-        const endTime = new Date(row.end);
 
-        // Formatear las etapas de sueño y convertirlas a un string JSON limpio
-        const stages = formatSleepStages(sleepStages, startTime);
-        //console.log('Sleep stages HOLA:', stages);
-        //const jsonStages = stages ? JSON.stringify(stages) : '{}'; // Convertir a string JSON solo una vez
+        const observationDate = formatDate(row.start);
+        const observationDatetime = formatToTimestamp(row.day);
+        const observationTypeConceptId = 789012; // LUO CAMBIAR
 
-        if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {            return null; 
-        }
-        return {
-            userDeviceId: userDeviceId,
-            startTime,
-            endTime,
-            overallScore: row.score || 0, // Asignar 0 si no hay puntuación
-            sleep_stages: stages || '{}' // Asignar un JSON vacío si no hay etapas de sueño
+        const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
+        const valueAsString = typeof row.duration === 'string' ? row.duration : null;
+
+        const unit_source_value = 'min';
+        const valueSourceValue = 'duration';
+
+        const observationData = {
+            person_id: userId,
+            observation_concept_id: observationConceptId,
+            observation_date: observationDate,
+            observation_datetime: observationDatetime,
+            observation_type_concept_id: observationTypeConceptId,
+            value_as_number: valueAsNumber,
+            value_as_string: valueAsString,
+            value_as_concept_id: null,
+            qualifier_concept_id: null,
+            unit_concept_id: constants.MINUTE_UCUM,
+            provider_id: null,
+            visit_occurrence_id: null,
+            visit_detail_id: null,
+            observation_source_value: row.event,
+            observation_source_concept_id: sourceConceptId,
+            unit_source_value: unit_source_value,
+            qualifier_concept_id: null,
+            value_source_value: valueSourceValue,
+            observation_event_id: null,
+            observation_event_concept_id: null
         };
-    }).filter(Boolean);
+        const res = await insertObservation(observationData); // Insertar el registro en la base de datos 
+        return res ;
+
+    });
+}
+
+//start, end, score, day
+async function formatSleepData(data, userId, sleepSession ) {
+    const observationConceptId = constants.SLEEP_DURATION_LOINC;
+    const sourceConceptId = constants.SLEEP_DURATION_SOURCE_LOINC;
+    
+    return data.map(row => {
+
+        const observationDate = formatDate(row.start);
+        const observationDatetime = formatToTimestamp(row.day);
+        const observationTypeConceptId = 789012; // LUO CAMBIAR
+
+        const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
+        const valueAsString = typeof row.duration === 'string' ? row.duration : null;
+
+        const unit_source_value = 'min';
+        const valueSourceValue = 'duration';
+
+        return {
+            person_id: userId,
+            observation_concept_id: observationConceptId,
+            observation_date: observationDate,
+            observation_datetime: observationDatetime,
+            observation_type_concept_id: observationTypeConceptId,
+            value_as_number: valueAsNumber,
+            value_as_string: valueAsString,
+            value_as_concept_id: null,
+            qualifier_concept_id: null,
+            unit_concept_id: constants.MINUTE_UCUM,
+            provider_id: null,
+            visit_occurrence_id: null,
+            visit_detail_id: null,
+            observation_source_value: row.event,
+            observation_source_concept_id: sourceConceptId,
+            unit_source_value: unit_source_value,
+            qualifier_concept_id: null,
+            value_source_value: valueSourceValue,
+            observation_event_id: ,
+            observation_event_concept_id: null,
+        };
+    });
+}
+
+// Función auxiliar para formatear fechas como 'YYYY-MM-DD'
+function formatDate(date) {
+    const d = new Date(date);
+    return d.toISOString().split('T')[0]; // 'YYYY-MM-DD'
 }
 
 
-/**
- * Inserta los datos en la tabla sleep_sessions
- */
-async function insertSleepSessions(client, sessionsData) {
-    if (!sessionsData || sessionsData.length === 0) {
-        console.warn('No hay datos para insertar en sleep_sessions.');
-        return;
-    }
-
-    // Preparar los valores y los placeholders
-    const placeholders = [];
-    const values = [];
-    let paramIndex = 1;
-
-    for (const session of sessionsData) {
-        // Validar y transformar los datos de cada sesión
-        if (!session.userDeviceId || !session.startTime || !session.endTime) {
-            console.warn('Sesión incompleta, se omitirá:', session);
-            continue;
-        }
-
-        placeholders.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
-        
-        values.push(
-            session.userDeviceId,
-            new Date(session.startTime),
-            new Date(session.endTime),
-            session.overallScore || null, // Permite valores nulos si no existe
-            JSON.stringify(session.sleep_stages || []) // Asegura que sea un JSON válido
-        );
-    }
-
-    // Si no hay datos válidos después del filtrado
-    if (values.length === 0) {
-        console.warn('No hay datos válidos para insertar después del filtrado.');
-        return;
-    }
-
-    const query = `
-        INSERT INTO sleep_sessions (
-            user_device_id, 
-            timestamp, 
-            end_time, 
-            overall_score, 
-            sleep_stages
-        ) VALUES ${placeholders.join(', ')};
-    `;
-
+/*async function generateObservationId() {
+    const client = await pool.connect();
     try {
-        await client.query(query, values);
-        console.log(`Se insertaron ${placeholders.length} registros en sleep_sessions correctamente.`);
-    } catch (error) {
-        console.error('Error al insertar datos en sleep_sessions:', error);
-        throw error;
+        const value = Math.floor(Math.random() * 1000000);
+        //realizar un Select para ver si ese ID ya existe
+        const query = 'SELECT * FROM sleep WHERE observation_id = $1';
+        const result = await client.query(query, [value]);
+        // Si existe, generar otro ID
+        if (result.rows.length===0) return value;
+    
+        return generateObservationId();
+    } finally {
+        client.release();
     }
-}
+}*/
 
 /**
  * Migrar datos de sueño de SQLite a PostgreSQL
  */
-async function migrateSleepData(userDeviceId, lastSyncDate) {
+async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
     const client = await pool.connect();
     try {
         const sleepRows = await fetchSleepData(lastSyncDate);
         const sleepEventsRows = await fetchSleepEventsData(lastSyncDate);
-        //console.log('Sleep events:', sleepEventsRows);
-        const sessions = formatSleepSessions(sleepRows, userDeviceId, sleepEventsRows);
+        const sessions = formatStageData(sleepEventsRows, userId);
         console.log('Sleep sessions:', sessions);
         await insertSleepSessions(client, sessions);
 
 
-        console.log(`Migrados ${sessions.length} sesiones de sueño y ${stages.length} etapas de sueño`);
     } catch (error) {
         console.error('Error al migrar datos de sueño:', error);
     } finally {
@@ -232,32 +276,31 @@ async function migrateSleepData(userDeviceId, lastSyncDate) {
     }
 }
 
-/**
- * Get el ID del dispositivo del usuario y la última fecha de sincronización
- * @param {string} source - La fuente de datos (ej. 'garmin')
- */
-async function getId(source){
-    const { userDeviceId, lastSyncDate } = await getUserDeviceInfo(source); // Desestructuración del objeto
+async function updateSleepData(source){
+    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
+    await migrateSleepData( userDeviceId, lastSyncDate, userId);
+    await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
-    if (!userDeviceId) {
-        console.error('No se pudo obtener información del dispositivo del usuario.');
-        return;
-    }
-    //console.log('ID del dispositivo del usuario:', userDeviceId);
-    //console.log('Última fecha de sincronización:', lastSyncDate);    
-    return {userDeviceId, lastSyncDate};
+    sqliteDb.close();
+    await pool.end();
+    console.log('Conexiones cerradas');
 }
+
 
 /**
  * Función principal
 */
 async function main() { 
     const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
-    const { userDeviceId, lastSyncDate }  = await getId(SOURCE); 
-    await migrateSleepData(userDeviceId, lastSyncDate); 
-    sqliteDb.close();
-    await pool.end();
-    console.log('Conexiones cerradas');
+   updateSleepData(SOURCE).then(() => {
+        console.log('Migración de datos de sueño completada.');
+    }).catch(err => {
+        console.error('Error en la migración de datos de sueño:', err);
+    });
+    app.listen(PORT, () => {
+        console.log(`Servidor escuchando en http://localhost:${PORT}`);
+    });
 }
 
 main();
+module.exports = { updateSleepData };

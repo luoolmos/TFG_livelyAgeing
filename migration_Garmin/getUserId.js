@@ -11,7 +11,7 @@ app.use(express.json());
 async function getUserDeviceInfo(source) {
     try {
         const query = `
-          SELECT ud.user_device_id, ud.last_sync_date
+          SELECT ud.user_id, ud.last_sync_date, ud.user_device_id
           FROM user_device ud
           JOIN device d ON ud.device_id = d.device_id
           WHERE d.model = $1 AND ud.end_date IS NULL
@@ -23,12 +23,13 @@ async function getUserDeviceInfo(source) {
         
         if (result.rows.length > 0) {
           const userDeviceId = result.rows[0].user_device_id;
+          const userId = result.rows[0].user_id;
           const lastSyncDate = result.rows[0].last_sync_date;
           
           console.log('ID del dispositivo:', userDeviceId);
           console.log('Última sincronización:', lastSyncDate);
           
-          return { userDeviceId, lastSyncDate };
+          return { userId, lastSyncDate , userDeviceId };
         } else {
           console.log('No se encontraron dispositivos');
           return null;
@@ -39,20 +40,50 @@ async function getUserDeviceInfo(source) {
       }
 }
 
-async function updateUserDeviceInfo(client, userId, deviceId) {
+
+
+async function getDeviceInfo(source) {
+  try {
+      const query = `
+        SELECT ud.device_id,
+        FROM user_device ud
+        JOIN device d ON ud.device_id = d.device_id
+        WHERE d.model = $1 AND ud.end_date IS NULL
+        ORDER BY ud.last_sync_date DESC
+        LIMIT 1
+      `;
+      
+      const result = await pool.query(query, [source]);
+      
+      if (result.rows.length > 0) {
+        const deviceId = result.rows[0].device_id;
+
+        console.log('ID del dispositivo:', deviceId);
+        
+        return deviceId;
+      } else {
+        console.log('No se encontraron dispositivos');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error al ejecutar la consulta:', error);
+      throw error;
+    }
+}
+
+async function updateLastSyncUserDevice(userDeviceId) {
+
     const query = `
         UPDATE user_device
         SET last_sync_date = NOW()
-        WHERE user_id = $1 AND device_id = $2;
+        WHERE user_device_id = $1 ;
     `;
-    await client.query(query, [userId, deviceId]);
-    console.log(`Updated user_device for user_id: ${userId}, device_id: ${deviceId}`);
+    await pool.query(query, userDeviceId);
+    console.log(`Updated user_device for userDeviceid: ${userDeviceId}`);
     return true;
 }
 
-
-
 module.exports = {
     getUserDeviceInfo,
-    updateUserDeviceInfo
+    updateLastSyncUserDevice
 };
