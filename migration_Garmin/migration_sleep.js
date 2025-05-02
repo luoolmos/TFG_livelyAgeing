@@ -5,8 +5,8 @@ const path = require('path');
 const express = require('express');
 const pool = require('../db');
 const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../migration_Garmin/getUserId.js'); 
-const { insertSleepSessions } = require('../migration_Garmin/insert.js');
 const constants = require('./constants.js');
+const { insertMultipleObservation, insertObservation } = require('./inserts.js');
 
 
 const app = express();
@@ -24,6 +24,11 @@ const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
     console.log('Conexión exitosa a GarminDB (SQLite)');
 });
 
+// Función auxiliar para formatear fechas como 'YYYY-MM-DD'
+function formatDate(date) {
+    const d = new Date(date);
+    return d.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+}
 
 /**
  * Recupera los datos de sueño desde SQLite
@@ -94,167 +99,215 @@ function getObservationEventConceptId(event) {
     };
 }
 
+function generateObservationDurationData(userId, row, observationDate, observationDatetime) {
+    const valueAsNumber = typeof row.total_sleep === 'number' ? row.duration : null;
+    const valueAsString = typeof row.total_sleep === 'string' ? row.duration : null;
 
-async function formatStageData(data, userId) {
-    return data.map(row => {
-        const { observationConceptId, sourceConceptId } = getObservationEventConceptId(row.event); // Usar el mapa para obtener el concepto
-        if (!observationConceptId) throw new Error(`Concepto no encontrado para evento: ${row.event}`);
+    const unit_source_value = constants.HOURS_UCUM; // Cambia esto según la unidad que necesites
+    const valueSourceValue = 'hours';
 
-        const observationDate = formatDate(row.start);
-        const observationDatetime = formatToTimestamp(row.timestamp);
-        const observationTypeConceptId = 789012; // LUO CAMBIAR
-
-        const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
-        const valueAsString = typeof row.duration === 'string' ? row.duration : null;
-
-        const unit_source_value = 'min';
-        const valueSourceValue = 'duration';
-
-        return {
-            person_id: userId,
-            observation_concept_id: observationConceptId,
-            observation_date: observationDate,
-            observation_datetime: observationDatetime,
-            observation_type_concept_id: observationTypeConceptId,
-            value_as_number: valueAsNumber,
-            value_as_string: valueAsString,
-            value_as_concept_id: null,
-            qualifier_concept_id: null,
-            unit_concept_id: constants.MINUTE_UCUM,
-            observation_source_value: row.event,
-            observation_source_concept_id: sourceConceptId,
-            unit_source_value: unit_source_value,
-            value_source_value: valueSourceValue
-        };
-    });
+    return valuesScore =  {
+        person_id: userId,
+        observation_concept_id: constants.SLEEP_DURATION_LOINC,
+        observation_date: observationDate,
+        observation_datetime: observationDatetime,
+        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        value_as_number: valueAsNumber,
+        value_as_string: valueAsString,
+        value_as_concept_id: null,
+        qualifier_concept_id: null,
+        unit_concept_id: null,
+        provider_id: null,
+        visit_occurrence_id: null,
+        visit_detail_id: null,
+        observation_source_value: null,
+        observation_source_concept_id: constants.SLEEP_DURATION_SOURCE_LOINC,
+        unit_source_value: unit_source_value,
+        qualifier_source_value: "during sleep",
+        value_source_value: valueSourceValue,
+        observation_event_id: null,
+        obs_event_field_concept_id: null
+    };
 }
 
-function getObservationEventConceptId(event) {
-    event = event.toLowerCase(); 
-    const eventConceptMap = {
-        score: constants.SLEEP_SCORE_LOINC,
-        duration: constants.SLEEP_DURATION_LOINC,
-        respiration_rate: constants.RESPIRATORY_RATE_LOINC,
-        sop2: constants.SPO2_LOINC,
+function generateObservationScoreData(userId, row, observationDate, observationDatetime, sleepId) {
+    const valueAsNumber = typeof row.score === 'number' ? row.score : null;
+    const valueAsString = typeof row.score === 'string' ? row.score : null;
+
+    const unit_source_value = null; 
+    const valueSourceValue = null;
+
+    return valuesScore =  {
+        person_id: userId,
+        observation_concept_id: constants.SLEEP_SCORE_LOINC,
+        observation_date: observationDate,
+        observation_datetime: observationDatetime,
+        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        value_as_number: valueAsNumber,
+        value_as_string: valueAsString,
+        value_as_concept_id: null,
+        qualifier_concept_id: null,
+        unit_concept_id: null,
+        provider_id: null,
+        visit_occurrence_id: null,
+        visit_detail_id: null,
+        observation_source_value: null,
+        observation_source_concept_id: constants.SLEEP_SCORE_SOURCE_LOINC,
+        unit_source_value: unit_source_value,
+        qualifier_source_value: "during sleep",
+        value_source_value: valueSourceValue,
+        observation_event_id: null,
+        obs_event_field_concept_id: null
     };
-    const sourceConceptMap = {
-        score: constants.SLEEP_SCORE_SOURCE_LOINC,
-        duration: constants.SLEEP_DURATION_SOURCE_LOINC,
-        respiration_rate: constants.RESPIRATORY_RATE_SOURCE_LOINC,
-        sop2: constants.SPO2_SOURCE_LOINC,
+}
+
+function generateObservationStressData(userId, row, observationDate, observationDatetime, sleepId) {
+    const valueAsNumber = typeof row.avg_stress === 'number' ? row.score : null;
+    const valueAsString = typeof row.avg_stress === 'string' ? row.score : null;
+
+    const unit_source_value = null; 
+    const valueSourceValue = null;
+
+    return valuesScore =  {
+        person_id: userId,
+        observation_concept_id: constants.SLEEP_AVG_STRESS_LOINC,
+        observation_date: observationDate,
+        observation_datetime: observationDatetime,
+        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        value_as_number: valueAsNumber,
+        value_as_string: valueAsString,
+        value_as_concept_id: null,
+        qualifier_concept_id: null,
+        unit_concept_id: null,
+        provider_id: null,
+        visit_occurrence_id: null,
+        visit_detail_id: null,
+        observation_source_value: null,
+        observation_source_concept_id: constants.SLEEP_AVG_STRESS_SOURCE_LOINC,
+        unit_source_value: unit_source_value,
+        qualifier_source_value: "during sleep",
+        value_source_value: valueSourceValue,
+        observation_event_id: sleepId,
+        obs_event_field_concept_id: null
     };
+}
+
+function generateMeasureSPO2Data(userId, row, observationDate, observationDatetime) {
+    const valueAsNumber = typeof row.score === 'number' ? row.score : null;
+    const valueAsString = typeof row.score === 'string' ? row.score : null;
+
+    const unit_source_value = null; 
+    const valueSourceValue = null;
+
+    return valuesScore =  {
+        person_id: userId,
+        observation_concept_id: constants.SLEEP_SCORE_LOINC,
+        observation_date: observationDate,
+        observation_datetime: observationDatetime,
+        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        value_as_number: valueAsNumber,
+        value_as_string: valueAsString,
+        value_as_concept_id: null,
+        qualifier_concept_id: null,
+        unit_concept_id: null,
+        provider_id: null,
+        visit_occurrence_id: null,
+        visit_detail_id: null,
+        observation_source_value: null,
+        observation_source_concept_id: constants.SLEEP_SCORE_SOURCE_LOINC,
+        unit_source_value: unit_source_value,
+        qualifier_source_value: "during sleep",
+        value_source_value: valueSourceValue,
+        observation_event_id: null,
+        obs_event_field_concept_id: null
+    };
+}
+
+//start, end, score, day, avg_spo2, avg_rr, avg_stress, total_sleep
+async function formatSleepData(userId, data, sleepSession) {
+
+    for (const row of data) {
+        const observationDate = formatDate(row.day);
+        const observationDatetime = formatToTimestamp(row.start);
+
+        // Insert sleep duration
+        const durationValue = generateObservationDurationData(userId, row, observationDate, observationDatetime);
+        const insertedId = await insertObservation(durationValue);
+
+        console.log('Inserted sleep duration ID:', insertedId);
+        console.log('Row day:', row.day);
+
+        const sessionsForDay = sleepSession.filter(session => session.timestamp.slice(0, 10) === row.day);
+
+        let insertValue = [];
+        // Insert sleep stages
+        for (const session of sessionsForDay) {  
+            console.log('Session:', session);
+            console.log('Session day:', session.timestamp.slice(0, 10));
+            const valueStage = await formatStageData(session, userId, insertedId);
+            insertValue.push(valueStage);        
+        } 
+        const valuesScore = generateObservationScoreData(userId, row, observationDate, observationDatetime, insertedId);
+        insertValue.push(valuesScore);
+
+        // Insert average SPO2
+        const valuesSPO2 = generateMeasureSPO2Data(userId, row, observationDate, observationDatetime, insertedId);
+        insertValue.push(valuesSPO2);
+
+        // Insert average respiratory rate
+        const valuesRespiration = generateObservationRespirationData(userId, row, observationDate, observationDatetime, insertedId);
+        insertValue.push(valuesRespiration);
+
+        // Insert average stress
+        const valuesStress = generateObservationStressData(userId, row, observationDate, observationDatetime, insertedId);
+        insertValue.push(valuesStress);
+
+        await insertMultipleObservation(insertValue);
+
+    }
+    
+}
+
+// timestamp, event, duration
+async function formatStageData(row, userId,sleepId) {
+
+    const { observationConceptId, sourceConceptId } = getObservationEventConceptId(row.event); 
+    if (!observationConceptId) throw new Error(`Concepto no encontrado para evento: ${row.event}`);
+
+    const observationDate = formatDate(row.start);
+    const observationDatetime = formatToTimestamp(row.timestamp);
+
+    const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
+    const valueAsString = typeof row.duration === 'string' ? row.duration : null;
+
+    const unit_source_value = 'min';
+    const valueSourceValue = 'duration';
 
     return {
-        eventConceptId: eventConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID,
-        sourceConceptId: sourceConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID
+        person_id: userId,
+        observation_concept_id: observationConceptId,
+        observation_date: observationDate,
+        observation_datetime: observationDatetime,
+        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        value_as_number: valueAsNumber,
+        value_as_string: valueAsString,
+        value_as_concept_id: null,
+        qualifier_concept_id: null,
+        unit_concept_id: constants.MINUTE_UCUM,
+        provider_id: null,
+        visit_occurrence_id: null,
+        visit_detail_id: null,
+        observation_source_value: row.event,
+        observation_source_concept_id: sourceConceptId,
+        unit_source_value: unit_source_value,
+        qualifier_source_value: null,
+        value_source_value: valueSourceValue,
+        observation_event_id: sleepId,
+        obs_event_field_concept_id: null
     };
+  
 }
 
-function formatSleepSessions(sleepRows, userId) {
-    return sleepRows.map(row => {
-
-        const observationDate = formatDate(row.start);
-        const observationDatetime = formatToTimestamp(row.day);
-        const observationTypeConceptId = 789012; // LUO CAMBIAR
-
-        const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
-        const valueAsString = typeof row.duration === 'string' ? row.duration : null;
-
-        const unit_source_value = 'min';
-        const valueSourceValue = 'duration';
-
-        const observationData = {
-            person_id: userId,
-            observation_concept_id: observationConceptId,
-            observation_date: observationDate,
-            observation_datetime: observationDatetime,
-            observation_type_concept_id: observationTypeConceptId,
-            value_as_number: valueAsNumber,
-            value_as_string: valueAsString,
-            value_as_concept_id: null,
-            qualifier_concept_id: null,
-            unit_concept_id: constants.MINUTE_UCUM,
-            provider_id: null,
-            visit_occurrence_id: null,
-            visit_detail_id: null,
-            observation_source_value: row.event,
-            observation_source_concept_id: sourceConceptId,
-            unit_source_value: unit_source_value,
-            qualifier_concept_id: null,
-            value_source_value: valueSourceValue,
-            observation_event_id: null,
-            observation_event_concept_id: null
-        };
-        const res = await insertObservation(observationData); // Insertar el registro en la base de datos 
-        return res ;
-
-    });
-}
-
-//start, end, score, day
-async function formatSleepData(data, userId, sleepSession ) {
-    const observationConceptId = constants.SLEEP_DURATION_LOINC;
-    const sourceConceptId = constants.SLEEP_DURATION_SOURCE_LOINC;
-    
-    return data.map(row => {
-
-        const observationDate = formatDate(row.start);
-        const observationDatetime = formatToTimestamp(row.day);
-        const observationTypeConceptId = 789012; // LUO CAMBIAR
-
-        const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
-        const valueAsString = typeof row.duration === 'string' ? row.duration : null;
-
-        const unit_source_value = 'min';
-        const valueSourceValue = 'duration';
-
-        return {
-            person_id: userId,
-            observation_concept_id: observationConceptId,
-            observation_date: observationDate,
-            observation_datetime: observationDatetime,
-            observation_type_concept_id: observationTypeConceptId,
-            value_as_number: valueAsNumber,
-            value_as_string: valueAsString,
-            value_as_concept_id: null,
-            qualifier_concept_id: null,
-            unit_concept_id: constants.MINUTE_UCUM,
-            provider_id: null,
-            visit_occurrence_id: null,
-            visit_detail_id: null,
-            observation_source_value: row.event,
-            observation_source_concept_id: sourceConceptId,
-            unit_source_value: unit_source_value,
-            qualifier_concept_id: null,
-            value_source_value: valueSourceValue,
-            observation_event_id: ,
-            observation_event_concept_id: null,
-        };
-    });
-}
-
-// Función auxiliar para formatear fechas como 'YYYY-MM-DD'
-function formatDate(date) {
-    const d = new Date(date);
-    return d.toISOString().split('T')[0]; // 'YYYY-MM-DD'
-}
-
-
-/*async function generateObservationId() {
-    const client = await pool.connect();
-    try {
-        const value = Math.floor(Math.random() * 1000000);
-        //realizar un Select para ver si ese ID ya existe
-        const query = 'SELECT * FROM sleep WHERE observation_id = $1';
-        const result = await client.query(query, [value]);
-        // Si existe, generar otro ID
-        if (result.rows.length===0) return value;
-    
-        return generateObservationId();
-    } finally {
-        client.release();
-    }
-}*/
 
 /**
  * Migrar datos de sueño de SQLite a PostgreSQL
@@ -263,11 +316,11 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
     const client = await pool.connect();
     try {
         const sleepRows = await fetchSleepData(lastSyncDate);
+        console.log('Sleep rows:', sleepRows);
         const sleepEventsRows = await fetchSleepEventsData(lastSyncDate);
-        const sessions = formatStageData(sleepEventsRows, userId);
-        console.log('Sleep sessions:', sessions);
-        await insertSleepSessions(client, sessions);
-
+        console.log('Sleep events rows:', sleepEventsRows);
+        await formatSleepData(userId, sleepRows, sleepEventsRows);
+        console.log('Datos de sueño migrados exitosamente.');
 
     } catch (error) {
         console.error('Error al migrar datos de sueño:', error);
@@ -279,7 +332,7 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
 async function updateSleepData(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     await migrateSleepData( userDeviceId, lastSyncDate, userId);
-    await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
+    //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     sqliteDb.close();
     await pool.end();

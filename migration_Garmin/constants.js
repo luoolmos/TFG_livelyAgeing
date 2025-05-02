@@ -11,7 +11,7 @@ module.exports = {
     GARMIN_VENU_SQ2: 'Venus Sq2',
 
     
-
+    TYPE_CONCEPT_ID: 705183, //https://athena.ohdsi.org/search-terms/terms/705183
     DEEP_SLEEP_DURATION_LOINC: 1001932, //https://athena.ohdsi.org/search-terms/terms/1001932
     DEEP_SLEEP_DURATION_SOURCE_LOINC: '93831-6',
     LIGHT_SLEEP_DURATION_LOINC: 1001771, //https://athena.ohdsi.org/search-terms/terms/1001771
