@@ -4,10 +4,9 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const express = require('express');
 const pool = require('../db');
-const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../migration_Garmin/getUserId.js'); 
-const constants = require('./constants.js');
-const { insertMultipleObservation, insertObservation } = require('./inserts.js');
-
+const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js'); 
+const constants = require('../getDBinfo/constants.js');
+const inserts = require('../getDBinfo/inserts.js');
 
 const app = express();
 const PORT = 3000;
@@ -74,12 +73,13 @@ function formatToTimestamp(dateString) {
 
     // Formatear la fecha con microsegundos
     const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}000`;
-
+    console.log('Formatted date:', formattedDate);
     return formattedDate;
 }
 
 function getObservationEventConceptId(event) {
     event = event.toLowerCase(); 
+    console.log('event:', event);
     const eventConceptMap = {
         deep_sleep: constants.DEEP_SLEEP_DURATION_LOINC,
         light_sleep: constants.LIGHT_SLEEP_DURATION_LOINC,
@@ -93,37 +93,71 @@ function getObservationEventConceptId(event) {
         awake: constants.AWAKE_DURATION_SOURCE_LOINC
     };
 
+    const eventConceptId = eventConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID;
+    const sourceConceptId = sourceConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID;
     return {
-        eventConceptId: eventConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID,
-        sourceConceptId: sourceConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID
+        eventConceptId, sourceConceptId
     };
 }
+//duration: 00:10:00.000000 --> 10 
+function stringToMinutes(value) {
+    console.log('stringToMinutes value:', value);
+    if (value === null || value === undefined) return null; // Manejo de valores nulos o indefinidos
 
+    if (typeof value === 'string') {
+        // Dividir el valor en horas, minutos y segundos
+        const parts = value.split(':');
+        if (parts.length === 3) {
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            const seconds = parseFloat(parts[2]); // Incluye los microsegundos
+            // Convertir todo a minutos
+            return hours * 60 + minutes + Math.floor(seconds / 60);
+        } else if (parts.length === 2) {
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            return hours * 60 + minutes; // Convertir a minutos
+        } else if (parts.length === 1) {
+            return parseInt(parts[0], 10); // Si es solo un número, devolverlo como minutos
+        }
+    } else if (typeof value === 'number') { 
+        return value; // Si ya es un número, devolverlo directamente
+    } else return null; // Si no es un string o número, devolver null
+}
+
+// start, end, score, day, avg_spo2, avg_rr, avg_stress, total_sleep
 function generateObservationDurationData(userId, row, observationDate, observationDatetime) {
-    const valueAsNumber = typeof row.total_sleep === 'number' ? row.duration : null;
-    const valueAsString = typeof row.total_sleep === 'string' ? row.duration : null;
-
-    const unit_source_value = constants.HOURS_UCUM; // Cambia esto según la unidad que necesites
-    const valueSourceValue = 'hours';
+    
+    const observation_concept_id = constants.SLEEP_DURATION_LOINC; 
+    const observation_type_concept_id = constants.TYPE_CONCEPT_ID; 
+    const valueAsNumber = stringToMinutes(row.total_sleep); // Cambia esto según la unidad que necesites
+    const valueAsString = typeof row.total_sleep === 'string' ? row.total_sleep : null;
+    const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
+    const unit_concept_id = constants.MINUTE_UCUM; 
+    const observation_source_value = 'duration';
+    const observation_source_concept_id = constants.SLEEP_DURATION_SOURCE_LOINC;
+    const unit_source_value = constants.MINUTE_STRING; 
+    const qualifier_source_value = "during sleep"; 
+    const valueSourceValue = row.total_sleep; 
 
     return valuesScore =  {
         person_id: userId,
-        observation_concept_id: constants.SLEEP_DURATION_LOINC,
+        observation_concept_id: observation_concept_id,
         observation_date: observationDate,
         observation_datetime: observationDatetime,
-        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        observation_type_concept_id: observation_type_concept_id,
         value_as_number: valueAsNumber,
         value_as_string: valueAsString,
         value_as_concept_id: null,
-        qualifier_concept_id: null,
-        unit_concept_id: null,
+        qualifier_concept_id: qualifier_concept_id,
+        unit_concept_id: unit_concept_id,
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        observation_source_value: null,
-        observation_source_concept_id: constants.SLEEP_DURATION_SOURCE_LOINC,
+        observation_source_value: observation_source_value,
+        observation_source_concept_id: observation_source_concept_id,
         unit_source_value: unit_source_value,
-        qualifier_source_value: "during sleep",
+        qualifier_source_value: qualifier_source_value,
         value_source_value: valueSourceValue,
         observation_event_id: null,
         obs_event_field_concept_id: null
@@ -131,95 +165,156 @@ function generateObservationDurationData(userId, row, observationDate, observati
 }
 
 function generateObservationScoreData(userId, row, observationDate, observationDatetime, sleepId) {
+
+    const observation_concept_id = constants.SLEEP_SCORE_LOINC; 
+    const observation_type_concept_id = constants.TYPE_CONCEPT_ID; 
     const valueAsNumber = typeof row.score === 'number' ? row.score : null;
     const valueAsString = typeof row.score === 'string' ? row.score : null;
-
+    const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
+    const unit_concept_id = null; 
+    const observation_source_value = 'score';
+    const observation_source_concept_id = constants.SLEEP_SCORE_SOURCE_LOINC;
     const unit_source_value = null; 
-    const valueSourceValue = null;
+    const qualifier_source_value = "during sleep"; 
+    const valueSourceValue = row.score_category || valueAsNumber.toString();
 
     return valuesScore =  {
         person_id: userId,
-        observation_concept_id: constants.SLEEP_SCORE_LOINC,
+        observation_concept_id: observation_concept_id,
         observation_date: observationDate,
         observation_datetime: observationDatetime,
-        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        observation_type_concept_id: observation_type_concept_id,
         value_as_number: valueAsNumber,
         value_as_string: valueAsString,
         value_as_concept_id: null,
-        qualifier_concept_id: null,
-        unit_concept_id: null,
+        qualifier_concept_id: qualifier_concept_id,
+        unit_concept_id: unit_concept_id,
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        observation_source_value: null,
-        observation_source_concept_id: constants.SLEEP_SCORE_SOURCE_LOINC,
+        observation_source_value: observation_source_value,
+        observation_source_concept_id: observation_source_concept_id,
         unit_source_value: unit_source_value,
-        qualifier_source_value: "during sleep",
-        value_source_value: valueSourceValue,
-        observation_event_id: null,
-        obs_event_field_concept_id: null
-    };
-}
-
-function generateObservationStressData(userId, row, observationDate, observationDatetime, sleepId) {
-    const valueAsNumber = typeof row.avg_stress === 'number' ? row.score : null;
-    const valueAsString = typeof row.avg_stress === 'string' ? row.score : null;
-
-    const unit_source_value = null; 
-    const valueSourceValue = null;
-
-    return valuesScore =  {
-        person_id: userId,
-        observation_concept_id: constants.SLEEP_AVG_STRESS_LOINC,
-        observation_date: observationDate,
-        observation_datetime: observationDatetime,
-        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
-        value_as_number: valueAsNumber,
-        value_as_string: valueAsString,
-        value_as_concept_id: null,
-        qualifier_concept_id: null,
-        unit_concept_id: null,
-        provider_id: null,
-        visit_occurrence_id: null,
-        visit_detail_id: null,
-        observation_source_value: null,
-        observation_source_concept_id: constants.SLEEP_AVG_STRESS_SOURCE_LOINC,
-        unit_source_value: unit_source_value,
-        qualifier_source_value: "during sleep",
+        qualifier_source_value: qualifier_source_value,
         value_source_value: valueSourceValue,
         observation_event_id: sleepId,
         obs_event_field_concept_id: null
     };
 }
 
-function generateMeasureSPO2Data(userId, row, observationDate, observationDatetime) {
-    const valueAsNumber = typeof row.score === 'number' ? row.score : null;
-    const valueAsString = typeof row.score === 'string' ? row.score : null;
 
+function generateObservationStressData(userId, row, observationDate, observationDatetime, sleepId) {
+    
+    const observation_concept_id = constants.SLEEP_AVG_STRESS_LOINC; 
+    const observation_type_concept_id = constants.TYPE_CONCEPT_ID; 
+    const valueAsNumber = typeof row.avg_stress === 'number' ? row.score : null;
+    const valueAsString = typeof row.avg_stress === 'string' ? row.score : null;
+    const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
+    const unit_concept_id = null; 
+    const observation_source_value = 'stress';
+    const observation_source_concept_id = constants.SLEEP_AVG_STRESS_SOURCE_LOINC;
     const unit_source_value = null; 
-    const valueSourceValue = null;
+    const qualifier_source_value = "during sleep"; 
+    const valueSourceValue = row.avg_stress || valueAsNumber.toString();
+
 
     return valuesScore =  {
         person_id: userId,
-        observation_concept_id: constants.SLEEP_SCORE_LOINC,
+        observation_concept_id: observation_concept_id,
         observation_date: observationDate,
         observation_datetime: observationDatetime,
-        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
+        observation_type_concept_id: observation_type_concept_id,
         value_as_number: valueAsNumber,
         value_as_string: valueAsString,
         value_as_concept_id: null,
-        qualifier_concept_id: null,
-        unit_concept_id: null,
+        qualifier_concept_id: qualifier_concept_id,
+        unit_concept_id: unit_concept_id,
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        observation_source_value: null,
-        observation_source_concept_id: constants.SLEEP_SCORE_SOURCE_LOINC,
+        observation_source_value: observation_source_value,
+        observation_source_concept_id: observation_source_concept_id,
         unit_source_value: unit_source_value,
-        qualifier_source_value: "during sleep",
+        qualifier_source_value: qualifier_source_value,
         value_source_value: valueSourceValue,
-        observation_event_id: null,
+        observation_event_id: sleepId,
         obs_event_field_concept_id: null
+    };
+}
+
+//measurements: avg_spo2, avg_rr
+function generateMeasureRespirationData(userId, row, measurementDate, measurementDatetime, sleepId) {
+
+    const measurement_concept_id = constants.RESPIRATION_RATE_LOINC; 
+    const measurement_type_concept_id = constants.TYPE_CONCEPT_ID; 
+    const valueAsNumber = typeof row.avg_stress === 'number' ? row.avg_stress : null;
+    const valueAsString = typeof row.avg_stress === 'string' ? row.avg_stress : null;
+    const unit_concept_id = constants.BREATHS_PER_MIN; 
+    const measurement_source_value = 'rr';
+    const measurement_source_concept_id = constants.RESPIRATION_RATE_SOURCE_LOINC;
+    const unit_source_value = constants.BREATHS_PER_MIN_STRING; 
+    const valueSourceValue = row.avg_rr || null;
+
+
+    return valuesScore =  {
+        person_id: userId,
+        measurement_concept_id: measurement_concept_id,
+        measurement_date: observationDate,
+        measurement_datetime: observationDatetime,
+        measurement_type_concept_id: measurement_type_concept_id,
+        operator_concept_id: null,
+        value_as_number: valueAsNumber,
+        value_as_string: valueAsString,
+        value_as_concept_id: null,
+        unit_concept_id: unit_concept_id,
+        range_low: null,
+        range_high: null,
+        provider_id: null,
+        visit_occurrence_id: null,
+        visit_detail_id: null,
+        measurement_source_value: measurement_source_value,
+        measurement_source_concept_id: measurement_source_concept_id,
+        unit_source_value: unit_source_value,
+        value_source_value: valueSourceValue,
+        measurement_event_id: sleepId,
+        meas_event_field_concept_id: null
+    };
+}
+
+function generateMeasureSPO2Data(userId, row, observationDate, observationDatetime) {
+    const measurement_concept_id = constants.RESPIRATION_RATE_LOINC; 
+    const measurement_type_concept_id = constants.TYPE_CONCEPT_ID; 
+    const valueAsNumber = typeof row.avg_stress === 'number' ? row.avg_stress : null;
+    const valueAsString = typeof row.avg_stress === 'string' ? row.avg_stress : null;
+    const unit_concept_id = constants.BREATHS_PER_MIN; 
+    const measurement_source_value = 'rr';
+    const measurement_source_concept_id = constants.RESPIRATION_RATE_SOURCE_LOINC;
+    const unit_source_value = constants.BREATHS_PER_MIN_STRING; 
+    const valueSourceValue = row.avg_rr || null;
+
+
+    return valuesScore =  {
+        person_id: userId,
+        measurement_concept_id: measurement_concept_id,
+        measurement_date: observationDate,
+        measurement_datetime: observationDatetime,
+        measurement_type_concept_id: measurement_type_concept_id,
+        operator_concept_id: null,
+        value_as_number: valueAsNumber,
+        value_as_string: valueAsString,
+        value_as_concept_id: null,
+        unit_concept_id: unit_concept_id,
+        range_low: null,
+        range_high: null,
+        provider_id: null,
+        visit_occurrence_id: null,
+        visit_detail_id: null,
+        measurement_source_value: measurement_source_value,
+        measurement_source_concept_id: measurement_source_concept_id,
+        unit_source_value: unit_source_value,
+        value_source_value: valueSourceValue,
+        measurement_event_id: sleepId,
+        meas_event_field_concept_id: null
     };
 }
 
@@ -232,52 +327,63 @@ async function formatSleepData(userId, data, sleepSession) {
 
         // Insert sleep duration
         const durationValue = generateObservationDurationData(userId, row, observationDate, observationDatetime);
-        const insertedId = await insertObservation(durationValue);
+        console.log('Duration value:', durationValue);
+        const insertedId = await inserts.insertObservation(durationValue);
 
-        console.log('Inserted sleep duration ID:', insertedId);
-        console.log('Row day:', row.day);
+        //console.log('Inserted sleep duration ID:', insertedId);
+        //console.log('Row day:', row.day);
 
         const sessionsForDay = sleepSession.filter(session => session.timestamp.slice(0, 10) === row.day);
 
-        let insertValue = [];
+        let insertObservationValue = [];
+        let insertMeasureValue = [];
         // Insert sleep stages
         for (const session of sessionsForDay) {  
-            console.log('Session:', session);
-            console.log('Session day:', session.timestamp.slice(0, 10));
+            //console.log('Session:', session);
+            //console.log('Session day:', session.timestamp.slice(0, 10));
             const valueStage = await formatStageData(session, userId, insertedId);
-            insertValue.push(valueStage);        
+            console.log('Value stage:', valueStage);
+            insertObservationValue.push(valueStage);        
         } 
         const valuesScore = generateObservationScoreData(userId, row, observationDate, observationDatetime, insertedId);
-        insertValue.push(valuesScore);
+        insertObservationValue.push(valuesScore);
 
         // Insert average SPO2
         const valuesSPO2 = generateMeasureSPO2Data(userId, row, observationDate, observationDatetime, insertedId);
-        insertValue.push(valuesSPO2);
+        insertMeasureValue.push(valuesSPO2);
 
         // Insert average respiratory rate
-        const valuesRespiration = generateObservationRespirationData(userId, row, observationDate, observationDatetime, insertedId);
-        insertValue.push(valuesRespiration);
+        const valuesRespiration = generateMeasureRespirationData(userId, row, observationDate, observationDatetime, insertedId);
+        insertMeasureValue.push(valuesRespiration);
 
         // Insert average stress
         const valuesStress = generateObservationStressData(userId, row, observationDate, observationDatetime, insertedId);
-        insertValue.push(valuesStress);
+        insertObservationValue.push(valuesStress);
 
-        await insertMultipleObservation(insertValue);
-
+        console.log('Insert value:', insertObservationValue);
+        await inserts.insertMultipleObservation(insertObservationValue);
+        await inserts.insertMultipleMeasurement(insertMeasureValue);
+        
     }
-    
+    console.log('Inserted sleep data, end of formatSleepData function');
+    return;
 }
 
 // timestamp, event, duration
 async function formatStageData(row, userId,sleepId) {
-
+    //console.log('event:', row.event);
+    console.log('duration:', row.duration);
     const { observationConceptId, sourceConceptId } = getObservationEventConceptId(row.event); 
-    if (!observationConceptId) throw new Error(`Concepto no encontrado para evento: ${row.event}`);
-
-    const observationDate = formatDate(row.start);
+    
+    console.log('row.start):', row.timestamp);
+    const observationDate = formatDate(row.timestamp);
     const observationDatetime = formatToTimestamp(row.timestamp);
 
-    const valueAsNumber = typeof row.duration === 'number' ? row.duration : null;
+    //console.log('observationDate:', observationDate);
+    //console.log('observationDatetime:', observationDatetime);
+
+    const valueAsNumber = stringToMinutes(row.duration);
+    console.log('valueAsNumber:', valueAsNumber);
     const valueAsString = typeof row.duration === 'string' ? row.duration : null;
 
     const unit_source_value = 'min';
@@ -316,9 +422,9 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
     const client = await pool.connect();
     try {
         const sleepRows = await fetchSleepData(lastSyncDate);
-        console.log('Sleep rows:', sleepRows);
+        //console.log('Sleep rows:', sleepRows);
         const sleepEventsRows = await fetchSleepEventsData(lastSyncDate);
-        console.log('Sleep events rows:', sleepEventsRows);
+        //console.log('Sleep events rows:', sleepEventsRows);
         await formatSleepData(userId, sleepRows, sleepEventsRows);
         console.log('Datos de sueño migrados exitosamente.');
 
@@ -330,7 +436,10 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
 }
 
 async function updateSleepData(source){
-    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
+    //const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
+    userId = 1; // Cambia esto según sea necesario
+    lastSyncDate = '2023-10-01'; // Cambia esto según sea necesario
+    userDeviceId = 1; // Cambia esto según sea necesario
     await migrateSleepData( userDeviceId, lastSyncDate, userId);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     

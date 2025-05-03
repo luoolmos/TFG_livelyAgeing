@@ -12,11 +12,11 @@ async function getUserDeviceInfo(source) {
     try {
         const query = `
           SELECT ud.user_id, ud.last_sync_date, ud.user_device_id
-          FROM user_device ud
-          JOIN device d ON ud.device_id = d.device_id
+          FROM custom.user_device ud
+          JOIN custom.device d ON ud.device_id = d.device_id
           WHERE d.model = $1 AND ud.end_date IS NULL
           ORDER BY ud.last_sync_date DESC
-          LIMIT 1
+          LIMIT 1;
         `;
         
         const result = await pool.query(query, [source]);
