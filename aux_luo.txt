@@ -1,3 +1,56 @@
 Samsung no puede accederse desde el pc via USB
 Samsung no se puede acceder mediante la web
 Sólo con la app
+
+
+
+
+#!/bin/bash
+
+# --- CONFIGURACIÓN ---
+REPO_URL="https://github.com/luoolmos/TFG_livelyAgeing.git"  # Reemplaza con la URL real
+CLONE_DIR="$HOME/TFG_livelyAgeing"                             # Ruta donde clonar
+ENV_PATH_SAMSUNG="$CLONE_DIR/migration_Samsung/.env"                             # Ruta del archivo .env
+ENV_PATH_INDEX="$CLONE_DIR/.env"                             # Ruta del archivo .env
+
+# --- CLONACIÓN ---
+#--remove if exists
+rm -r "$CLONE_DIR"
+echo "Clonando repositorio en $CLONE_DIR..."
+git clone "$REPO_URL" "$CLONE_DIR"
+
+# --- CREACIÓN DE .env SAMSUNG ---
+echo "Creando archivo .env en $ENV_PATH_SAMSUNG..."
+cat <<EOL > "$ENV_PATH_SAMSUNG"
+ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1E1SjMiLCJzdWIiOiJDSjNZVEgiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyYWN0IHJzZXQgcm94eSBycmVzIHJociBycHJvIHJzbGUgcnRlbSIsImV4cCI6MTc0NjI5OTg4OCwiaWF0IjoxNzQ2MjcxMDg4fQ.EWUBlhIB0th7OitKhjWspY1_wa_BklwcxEtQJGlBUKw
+
+REFRESH_TOKEN=998e731f59c20c09b9941c299f16fa849e667732267561fbc0373fe9d882e38e
+
+FITBIT_CLIENT_ID=23Q5J3
+CLIENT_SECRET=88f63cced6eada0af36c33f116023657
+FITBIT_REDIRECT_URI=http://localhost:5003/callback
+EOL
+
+# --- CREACIÓN DE .env INDEX ---
+
+echo "Creando archivo .env en $ENV_PATH_INDEX..."
+cat <<EOL > "$ENV_PATH_INDEX"
+POSTGRESQL_ADDON_HOST=ep-dry-sky-a29hyuc0-pooler.eu-central-1.aws.neon.tech
+POSTGRESQL_ADDON_DB=neondb
+POSTGRESQL_ADDON_USER=neondb_owner
+##POSTGRESQL_ADDON_PORT=50013
+POSTGRESQL_ADDON_PASSWORD=npg_M2Xw4ohLuiOd
+POSTGRESQL_ADDON_URI=postgresql://neondb_owner:npg_M2Xw4ohLuiOd@ep-dry-sky-a29hyuc0-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require
+
+FITBIT_CLIENT_ID=23Q5J3
+CLIENT_SECRET=88f63cced6eada0af36c33f116023657
+FITBIT_REDIRECT_URI=http://localhost:5003/sensors/callback
+
+#SAMSUNG
+ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1E1SjMiLCJzdWIiOiJDSjNZVEgiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyYWN0IHJwcm8gcnNsZSIsImV4cCI6MTc0NDkyMTExMywiaWF0IjoxNzQ0ODkyMzEzfQ.Xpa_NgsWQdpG9MHGI9upjBhdScavyUCLBt7IokecIWw
+REFRESH_TOKEN=575873bf002e969d860fbc069827dfbd2599fd64a89859b845fe8f07d98a7aad
+
+
+
+echo "✅ Listo. Repositorio clonado y archivo .env creado en $ENV_PATH"
+

@@ -18,7 +18,7 @@ const update = require('../getDBinfo/upadte.js');
 
 
 const app = express();
-const PORT = 3000;
+const PORT = 5003;
 app.use(express.json());
 
 
@@ -106,7 +106,7 @@ async function saveDeviceProfile(user_id, device_type, model, access_token) {
 /*************************************************************** */ 
 
 // Ruta para redirigir al usuario a Fitbit para la autenticación
-app.get('/auth/fitbit', (req, res) => {
+app.get('/sensors/auth/fitbit', (req, res) => {
     // Define todos los scopes necesarios
     const scopes = [
         'activity',
@@ -184,7 +184,7 @@ async function refreshAccessToken(refresh_token) {
 
 
 // Ruta para recibir el código de autorización y obtener los tokens de Fitbit
-app.get('/callback', async (req, res) => {
+app.get('/sensors/callback', async (req, res) => {
   const { code } = req.query; 
   
   if (!code) {
@@ -197,7 +197,7 @@ app.get('/callback', async (req, res) => {
       client_secret: CLIENT_SECRET,
       code: code,
       grant_type: 'authorization_code',
-      redirect_uri: 'http://localhost:3000/callback'
+      redirect_uri: 'http://localhost:3000/sensors/callback'
     }), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -271,7 +271,7 @@ async function getSteps() {
 }
 
 // Ruta para obtener los pasos
-app.get('/steps', async (req, res) => {
+app.get('/sensors/steps', async (req, res) => {
   const stepsData = await getSteps();
   if (stepsData) {
     res.json(stepsData);
@@ -325,7 +325,7 @@ async function getStepsAndSave({ username, device_id, access_token, start_date, 
 }
 
 // Ruta para ejecutar la función
-app.get('/save-steps', async (req, res) => {
+app.get('/sensors/save-steps', async (req, res) => {
     let username = SAMUSNG_MODEL;
     let device_id = SAMSUNG_TYPE;
     const access_token = process.env.ACCESS_TOKEN;
@@ -383,7 +383,7 @@ async function getActivityAndSave({ username, device_id, access_token, start_dat
 }
 
 // Ruta para obtener e insertar actividad
-app.get('/save-activity', async (req, res) => {
+app.get('/sensors/save-activity', async (req, res) => {
   let username = SAMUSNG_MODEL;
   let device_id = SAMSUNG_TYPE;
   const access_token = process.env.ACCESS_TOKEN;
@@ -510,7 +510,7 @@ function getStageConceptId(stage) {
 }
 
 // Ruta para obtener e insertar datos de sueño
-app.get('/save-sleep', async (req, res) => {
+app.get('/sensors/save-sleep', async (req, res) => {
   try {
       const access_token = process.env.ACCESS_TOKEN;
       const start_date = "2024-01-01";  // O la fecha que necesites
@@ -557,15 +557,15 @@ app.post('/api/sync-steps', async (req, res) => {
 });*/
 
 
-app.get('/', (req, res) => {
+app.get('/sensors', (req, res) => {
   res.json({ 
     status: 'API funcionando',
     message: 'Bienvenido a tu servidor backend'
   });
 });
 
-app.listen(3000, '0.0.0.0', () => { // ¡Atención al '0.0.0.0'!
-    console.log('Servidor escuchando en http://0.0.0.0:3000');
+app.listen(5003, '0.0.0.0', () => { // ¡Atención al '0.0.0.0'!
+    console.log('Servidor escuchando en http://0.0.0.0:5003');
 });
 
 //TOKENS OBTENIDOS:
@@ -707,7 +707,7 @@ async function checkEndpointAvailability(access_token) {
 }
 
 // Nueva ruta para ejecutar el logging completo
-app.get('/log-all-data', async (req, res) => {
+app.get('/sensors/log-all-data', async (req, res) => {
     try {
         let access_token = process.env.ACCESS_TOKEN;
         

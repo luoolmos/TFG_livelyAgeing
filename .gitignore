@@ -1,4 +1,6 @@
 .env
+./fitbit_api_logs.json
+./migration_Samsung/.env
 garmindb.log
 node_modules
 package-lock.json

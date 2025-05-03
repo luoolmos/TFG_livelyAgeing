@@ -9,7 +9,7 @@ const constants = require('../getDBinfo/constants.js');
 const inserts = require('../getDBinfo/inserts.js');
 
 const app = express();
-const PORT = 3000;
+const PORT = 5003;
 app.use(express.json());
 
 
