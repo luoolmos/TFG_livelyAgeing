@@ -256,45 +256,63 @@ async function insertMeasurement(data) {
 }
 
 async function insertMultipleMeasurement(measurements) {
-  
   try {
     console.log('Inserting multiple measurements');
-    // SQL query para insertar los datos en la tabla 'measurements'
-    const insertQuery = `
-      INSERT INTO omop_cdm.measurement (
-        person_id, measurement_concept_id, measurement_date,
-        measurement_datetime, measurement_type_concept_id,
-        operator_concept_id, value_as_number, value_as_concept_id,
-        unit_concept_id, range_low, range_high,
-        provider_id, visit_occurrence_id, visit_detail_id,
-        measurement_source_value, measurement_source_concept_id,
-        unit_source_value, unit_source_concept_id, value_source_value,
-        measurement_event_id, meas_event_field_concept_id
-      ) 
-      VALUES 
-      ${measurements.map((_, i) => `
-        (${Array.from({ length: 21 }, (_, j) => `$${i * 21 + j + 1}`).join(', ')})`).join(',')}
-      RETURNING measurement_id;
+    console.log(`Total measurements to insert: ${measurements.length}`);
+
+    // Process in batches of 1000
+    const batchSize = 1000;
+    const totalBatches = Math.ceil(measurements.length / batchSize);
+
+    for (let batchNum = 0; batchNum < totalBatches; batchNum++) {
+      const start = batchNum * batchSize;
+      const end = Math.min(start + batchSize, measurements.length);
+      const batchMeasurements = measurements.slice(start, end);
+
+      console.log(`Processing batch ${batchNum + 1}/${totalBatches} (${batchMeasurements.length} measurements)`);
+
+      const insertQuery = `
+        INSERT INTO omop_cdm.measurement (
+          person_id, measurement_concept_id, measurement_date,
+          measurement_datetime, measurement_type_concept_id,
+          operator_concept_id, value_as_number, value_as_concept_id,
+          unit_concept_id, range_low, range_high,
+          provider_id, visit_occurrence_id, visit_detail_id,
+          measurement_source_value, measurement_source_concept_id,
+          unit_source_value, unit_source_concept_id, value_source_value,
+          measurement_event_id, meas_event_field_concept_id
+        ) 
+        VALUES 
+        ${batchMeasurements.map((_, i) => `
+          ($${i * 21 + 1}, $${i * 21 + 2}, $${i * 21 + 3}, $${i * 21 + 4}, $${i * 21 + 5},
+           $${i * 21 + 6}, $${i * 21 + 7}, $${i * 21 + 8}, $${i * 21 + 9}, $${i * 21 + 10},
+           $${i * 21 + 11}, $${i * 21 + 12}, $${i * 21 + 13}, $${i * 21 + 14}, $${i * 21 + 15},
+           $${i * 21 + 16}, $${i * 21 + 17}, $${i * 21 + 18}, $${i * 21 + 19}, $${i * 21 + 20},
+           $${i * 21 + 21})`).join(',')}
+        RETURNING measurement_id;
       `;
 
-    // Valores a insertar, los datos son tomados del parámetro 'data'
-    const values = measurements.flatMap(meas => [
-      meas.person_id, meas.measurement_concept_id, meas.measurement_date,
-      meas.measurement_datetime, meas.measurement_type_concept_id,
-      meas.operator_concept_id, meas.value_as_number, meas.value_as_concept_id,
-      meas.unit_concept_id, meas.range_low, meas.range_high,
-      meas.provider_id, meas.visit_occurrence_id, meas.visit_detail_id,
-      meas.measurement_source_value, meas.measurement_source_concept_id,
-      meas.unit_source_value, meas.unit_source_concept_id, meas.value_source_value,
-      meas.measurement_event_id, meas.meas_event_field_concept_id
-    ]);
+      const values = batchMeasurements.flatMap(meas => [
+        meas.person_id, meas.measurement_concept_id, meas.measurement_date,
+        meas.measurement_datetime, meas.measurement_type_concept_id,
+        meas.operator_concept_id, meas.value_as_number, meas.value_as_concept_id,
+        meas.unit_concept_id, meas.range_low, meas.range_high,
+        meas.provider_id, meas.visit_occurrence_id, meas.visit_detail_id,
+        meas.measurement_source_value, meas.measurement_source_concept_id,
+        meas.unit_source_value, meas.unit_source_concept_id, meas.value_source_value,
+        meas.measurement_event_id, meas.meas_event_field_concept_id
+      ]);
 
-    // Ejecutamos la consulta
-    const res = await pool.query(insertQuery, values);
-    // Retornamos el measurement_id generado
-    return res.rows.map(row => row.measurement_id);
+      console.log(`Executing batch insert with ${values.length} values`);
+      const res = await pool.query(insertQuery, values);
+      console.log(`Successfully inserted batch ${batchNum + 1}`);
+    }
+
+    console.log('All measurements inserted successfully');
+    return true;
   } catch (err) {
-    console.error('Error inserting observations:', err);
+    console.error('Error inserting measurements:', err);
+    throw err;
   }
 }
 

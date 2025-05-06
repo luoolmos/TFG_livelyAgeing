@@ -444,13 +444,10 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
 async function updateSleepData(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     console.log('userId:', userId);
-    let lastSyncDateG = '2025-03-01';
     console.log('lastSyncDate:', lastSyncDate);
     console.log('userDeviceId:', userDeviceId);
-    //userId = 1; // Cambia esto según sea necesario
-    //lastSyncDate = '2023-10-01'; // Cambia esto según sea necesario
-    //userDeviceId = 1; // Cambia esto según sea necesario
-    await migrateSleepData( userDeviceId, lastSyncDateG, userId);
+
+    await migrateSleepData( userDeviceId, lastSyncDate, userId);
     await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     sqliteDb.close();

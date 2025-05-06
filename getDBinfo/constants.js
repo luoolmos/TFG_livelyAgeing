@@ -26,7 +26,11 @@ module.exports = {
     HOURS_UCUM: 8505, //https://athena.ohdsi.org/search-terms/terms/1001931,
     HOURS_STRING: 'h',
     BREATHS_PER_MIN: 4117833, //https://athena.ohdsi.org/search-terms/terms/4117833,
-    BREATHS_PER_MIN_STRING: 'bpm',
+    BREATHS_PER_MIN_STRING: 'breaths/min',
+    BEATS_PER_MIN: 4118124, //https://athena.ohdsi.org/search-terms/terms/4118124,
+    BEATS_PER_MIN_STRING: 'beats/min',
+
+
 
     //TYPE  
     DURING_SLEEP_SNOMED: 4206153, //https://athena.ohdsi.org/search-terms/terms/4206153
@@ -57,6 +61,8 @@ module.exports = {
     //SLEEP_AVG_STRESS_SOURCE_LOINC: '36031524',
     RESPIRATION_RATE_LOINC: 1031770, //https://athena.ohdsi.org/search-terms/terms/1031770
     //RESPIRATION_RATE_SOURCE_LOINC: 'LP74299-6',
+    HEART_RATE_LOINC: 3027018, //https://athena.ohdsi.org/search-terms/terms/3027018    
+    //HEART_RATE_SOURCE_LOINC: '9843-3',
 
 
 };

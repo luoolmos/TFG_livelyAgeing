@@ -40,7 +40,15 @@ async function getUserDeviceInfo(source) {
       }
 }
 
-
+async function getUserAge(user_id) {
+    const query = `
+        SELECT p.year_of_birth
+        FROM omop_cdm.person p
+        WHERE p.person_id = $1;
+    `;
+    const result = await pool.query(query, [user_id]);
+    return result.rows[0].year_of_birth;
+}
 
 async function getDeviceInfo(source) {
   try {
@@ -85,5 +93,6 @@ async function updateLastSyncUserDevice(userDeviceId) {
 
 module.exports = {
     getUserDeviceInfo,
-    updateLastSyncUserDevice
+    updateLastSyncUserDevice,
+    getUserAge
 };
