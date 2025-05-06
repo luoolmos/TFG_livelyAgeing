@@ -2,15 +2,10 @@ require('dotenv').config({path: '../.env' });
 const { Pool } = require('pg');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const express = require('express');
-const pool = require('../db.js');
+const pool = require('../db');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');
 const inserts = require('../getDBinfo/inserts.js');
-
-const app = express();
-const PORT = 3000;
-app.use(express.json());
 
 // Helper function for timestamp formatting
 function formatToTimestamp(date) {
@@ -170,7 +165,7 @@ function fetchSpo2Data(date) {
 
 
 
-async function updatespo2Data(source){
+async function updateSpo2Data(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     //console.log('userId:', userId);
     let lastSyncDateG = '2025-03-01';
@@ -188,17 +183,13 @@ async function updatespo2Data(source){
  * Función principal
  */
 async function main() {
-    const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
-    ////console.log('SOURCE:', SOURCE);
-    updatespo2Data(SOURCE).then(() => {
-         //console.log('Migración de datos de spo2 completada.');
-     }).catch(espo2 => {
-         console.Error('Error en la migración de datos de spo2:', espo2);
-     });
-     app.listen(PORT, () => {
-         //console.log(`Servidor escuchando en http://localhost:${PORT}`);
-     });
+    const SOURCE = constants.GARMIN_VENU_SQ2;
+    updateSpo2Data(SOURCE).then(() => {
+        console.log('Migración de datos de SpO2 completada.');
+    }).catch(err => {
+        console.error('Error en la migración de datos de SpO2:', err);
+    });
 }
 
 main();
-module.exports = { updatespo2Data };
+module.exports = { updateSpo2Data };

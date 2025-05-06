@@ -2,15 +2,10 @@ require('dotenv').config({path: '../.env' });
 const { Pool } = require('pg');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const express = require('express');
-const pool = require('../db.js');
+const pool = require('../db');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');
 const inserts = require('../getDBinfo/inserts.js');
-
-const app = express();
-const PORT = 3000;
-app.use(express.json());
 
 // Helper function for timestamp formatting
 function formatToTimestamp(date) {
@@ -188,16 +183,12 @@ async function updateRrData(source){
  * Función principal
  */
 async function main() {
-    const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
-    ////console.log('SOURCE:', SOURCE);
+    const SOURCE = constants.GARMIN_VENU_SQ2;
     updateRrData(SOURCE).then(() => {
-         //console.log('Migración de datos de rr completada.');
-     }).catch(err => {
-         console.error('Error en la migración de datos de rr:', err);
-     });
-     app.listen(PORT, () => {
-         //console.log(`Servidor escuchando en http://localhost:${PORT}`);
-     });
+        console.log('Migración de datos de RR completada.');
+    }).catch(err => {
+        console.error('Error en la migración de datos de RR:', err);
+    });
 }
 
 main();

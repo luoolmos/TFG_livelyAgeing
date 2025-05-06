@@ -2,16 +2,12 @@ require('dotenv').config({path: '../.env' });
 const { Pool } = require('pg');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const express = require('express');
 const pool = require('../db');
-const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js'); 
 const constants = require('../getDBinfo/constants.js');
+const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js');
 const inserts = require('../getDBinfo/inserts.js');
 
-const app = express();
-const PORT = 5003;
-app.use(express.json());
-
+//const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js'); 
 
 // Configuración de la base de datos SQLite
 const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN);
@@ -467,15 +463,12 @@ async function updateSleepData(source){
 /**
  * Función principal
 */
-async function main() { 
-    const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
-   updateSleepData(SOURCE).then(() => {
-        console.log('Migración de datos de sueño completada.');
+async function main() {
+    const SOURCE = constants.GARMIN_VENU_SQ2;
+    updateSleepData(SOURCE).then(() => {
+        console.log('Migración de datos de Sleep completada.');
     }).catch(err => {
-        console.error('Error en la migración de datos de sueño:', err);
-    });
-    app.listen(PORT, () => {
-        console.log(`Servidor escuchando en http://localhost:${PORT}`);
+        console.error('Error en la migración de datos de Sleep:', err);
     });
 }
 

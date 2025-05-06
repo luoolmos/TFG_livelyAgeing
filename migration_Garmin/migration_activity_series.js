@@ -2,8 +2,10 @@ require('dotenv').config({path: '../.env' });
 const { Pool } = require('pg');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const express = require('express');
 const pool = require('../db');
+const constants = require('../getDBinfo/constants.js');
+const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');
+const inserts = require('../getDBinfo/inserts.js');
 
 const app = express();
 const PORT = 3000;
@@ -143,10 +145,13 @@ async function insertActivitiesData(client, values) {
  * Función principal
  */
 async function main() {
-    await migrateActivityData();
-    sqliteDb.close();
-    await pool.end();
-    console.log('Conexiones cerradas');
+    const SOURCE = constants.GARMIN_VENU_SQ2;
+    updateActivityData(SOURCE).then(() => {
+        console.log('Migración de datos de Activity completada.');
+    }).catch(err => {
+        console.error('Error en la migración de datos de Activity:', err);
+    });
 }
 
 main();
+module.exports = { updateActivityData };
