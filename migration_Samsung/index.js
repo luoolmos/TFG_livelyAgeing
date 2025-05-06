@@ -121,7 +121,7 @@ app.get('/sensors/auth/fitbit', (req, res) => {
     ].join('%20');  // Los unimos con espacios codificados
     console.log('getting auth url')
     const authUrl = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes}`;
-    console.log('URL de autorización:', authUrl);
+    //console.log('URL de autorización:', authUrl);
     res.redirect(authUrl);
 });
 
@@ -434,7 +434,8 @@ app.get('/sensors/save-activity', async (req, res) => {
 
 //**SLEEP*/
 /*************************************************************** */ 
-async function getSleepAndSave({ user_id, access_token, start_date }) {
+async function getSleepAndSave(user_id, access_token, start_date) {
+  console.log('start_date:', start_date);
   try {
       const response = await axios.get(
           `https://api.fitbit.com/1.2/user/-/sleep/date/${start_date}.json`,
@@ -518,7 +519,7 @@ app.get('/sensors/save-sleep', async (req, res) => {
       console.log('user_id:', user_id);
       console.log('last_sync_date:', last_sync_date);
 
-      await getSleepAndSave({ user_id, access_token, last_sync_date });
+      await getSleepAndSave(user_id, access_token, last_sync_date);
       res.send("Datos de sueño guardados en la base de datos.");
   } catch (error) {
       console.error('Error in save-sleep endpoint:', error);
