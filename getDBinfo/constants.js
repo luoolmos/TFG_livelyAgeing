@@ -5,10 +5,9 @@ module.exports = {
     //**************CONSTANTS**************
     SAMSUNG_TYPE: 'Samsung',
     GARMIN_TYPE: 'Garmin',
-    SAMSUNG_GALAXY_WATCH_4: 'Samsung Galaxy Watch 4',
+    SAMSUNG_GALAXY_WATCH_4: 'Galaxy Watch 4',
     SAMSUNG_SERIAL: 'RFAX21EF9JE',
-    GARMIN_FORERUNNER_255: 'Garmin Forerunner 255',
-    GARMIN_VENU_SQ2: 'Garmin Venu Sq2',
+    GARMIN_FORERUNNER_255: 'Forerunner 255',
 
     //**************PATHS**************
     SQLLITE_PATH_GARMIN: 'c:/Users/1308l/HealthData/DBs/garmin.db',

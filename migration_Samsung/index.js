@@ -13,6 +13,7 @@ const inserts = require('../getDBinfo/inserts.js');
 const constants = require('../getDBinfo/constants.js');
 const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js');
 const update = require('../getDBinfo/upadte.js');
+const { configDotenv } = require('dotenv');
 
 
 
@@ -171,8 +172,8 @@ async function refreshAccessToken(refresh_token) {
     //update the process.env
     process.env.ACCESS_TOKEN = response.data.access_token;
     process.env.REFRESH_TOKEN = response.data.refresh_token;
-    //console.log('Nuevo Access Token:', response.data.access_token);
-    //console.log('Nuevo Refresh Token:', response.data.refresh_token);
+    console.log('Nuevo Access Token:', response.data.access_token);
+    console.log('Nuevo Refresh Token:', response.data.refresh_token);
     console.log('Access token updated');
 
     
@@ -197,7 +198,7 @@ app.get('/sensors/callback', async (req, res) => {
       client_secret: CLIENT_SECRET,
       code: code,
       grant_type: 'authorization_code',
-      redirect_uri: 'http://localhost:3000/sensors/callback'
+      redirect_uri: REDIRECT_URI
     }), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -447,7 +448,6 @@ async function getSleepAndSave({ user_id, access_token, start_date }) {
       const sleepData = response.data.sleep;
       
       for (const sleep of sleepData) {
-          // Datos básicos del sueño
           const sleepDate = sleep.dateOfSleep;
           const duration = sleep.duration;
           const efficiency = sleep.efficiency;
@@ -466,7 +466,7 @@ async function getSleepAndSave({ user_id, access_token, start_date }) {
               observation_source_value: 'sleep_duration',
               value_source_value: `${duration}`
           });
-
+          console.log('sleep.levels:', sleep.levels);
           // Si hay datos de etapas de sueño
           if (sleep.levels && sleep.levels.summary) {
               const stages = sleep.levels.summary;
@@ -513,10 +513,12 @@ function getStageConceptId(stage) {
 app.get('/sensors/save-sleep', async (req, res) => {
   try {
       const access_token = process.env.ACCESS_TOKEN;
-      const start_date = "2024-01-01";  // O la fecha que necesites
-      const user_id = 1;  // O el ID del usuario que corresponda
+      const source = constants.SAMSUNG_GALAXY_WATCH_4;
+      const {user_id, last_sync_date} = await getUserDeviceInfo(source);
+      console.log('user_id:', user_id);
+      console.log('last_sync_date:', last_sync_date);
 
-      await getSleepAndSave({ user_id, access_token, start_date });
+      await getSleepAndSave({ user_id, access_token, last_sync_date });
       res.send("Datos de sueño guardados en la base de datos.");
   } catch (error) {
       console.error('Error in save-sleep endpoint:', error);
