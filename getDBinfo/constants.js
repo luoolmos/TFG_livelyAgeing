@@ -18,7 +18,22 @@ module.exports = {
     GARMIN_FORERUNNER_255: 'GarminForerunner255',
     GARMIN_VENU_SQ2: 'Venu Sq2',
 
-    //**************CONCEPTS**************
+    //**************CONCEPTS*************
+    // 
+    SPO2_STRING: 'spo2',
+    RR_STRING: 'rr',
+    HR_STRING: 'hr',
+    STRESS_STRING: 'stress',
+    SLEEP_DURATION_STRING: 'sleep_duration',
+    SLEEP_SCORE_STRING: 'sleep_score',
+    SLEEP_AVG_STRESS_STRING: 'sleep_avg_stress',
+    SLEEP_AVG_SPO2_STRING: 'sleep_avg_spo2',
+    SLEEP_AVG_RR_STRING: 'sleep_avg_rr',
+    SLEEP_REM_DURATION_STRING: 'sleep_rem_duration',
+    SLEEP_LIGHT_DURATION_STRING: 'sleep_light_duration',
+    SLEEP_DEEP_DURATION_STRING: 'sleep_deep_duration',
+    SLEEP_AWAKE_DURATION_STRING: 'sleep_awake_duration',
+
 
     //UNIT
     MINUTE_UCUM: 1001932, //https://athena.ohdsi.org/search-terms/terms/1001932,
@@ -29,6 +44,8 @@ module.exports = {
     BREATHS_PER_MIN_STRING: 'breaths/min',
     BEATS_PER_MIN: 4118124, //https://athena.ohdsi.org/search-terms/terms/4118124,
     BEATS_PER_MIN_STRING: 'beats/min',
+    PERCENT_UCUM: 4190629, //https://athena.ohdsi.org/search-terms/terms/4190629,
+    PERCENT_STRING: '%',
 
 
 

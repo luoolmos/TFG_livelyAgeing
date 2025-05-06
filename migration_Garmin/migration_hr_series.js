@@ -94,7 +94,7 @@ function generateMeasurementHrData(userId, row, measurementDate, measurementDate
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        measurement_source_value: 'garmin',
+        measurement_source_value: constants.HR_STRING,
         measurement_source_concept_id: null,
         unit_source_value: constants.BEATS_PER_MIN_STRING,
         unit_source_concept_id: null,

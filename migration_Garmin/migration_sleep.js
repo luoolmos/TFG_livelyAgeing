@@ -86,9 +86,16 @@ function getObservationEventConceptId(event) {
         rem_sleep: constants.REM_SLEEP_DURATION_LOINC,
         awake: constants.AWAKE_DURATION_LOINC
     };
+    const eventSourceValueMap = {
+        deep_sleep: constants.SLEEP_DEEP_DURATION_STRING,
+        light_sleep: constants.SLEEP_LIGHT_DURATION_STRING,
+        rem_sleep: constants.SLEEP_REM_DURATION_STRING,
+        awake: constants.SLEEP_AWAKE_DURATION_STRING
+    };
 
     const eventConceptId = eventConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID;
-    return eventConceptId;
+    const eventSourceValue = eventSourceValueMap[event] || null;
+    return {eventConceptId, eventSourceValue};
 }
 //duration: 00:10:00.000000 --> 10 
 function stringToMinutes(value) {
@@ -125,7 +132,7 @@ function generateObservationDurationData(userId, row, observationDate, observati
     const valueAsString = typeof row.total_sleep === 'string' ? row.total_sleep : null;
     const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
     const unit_concept_id = constants.MINUTE_UCUM; 
-    const observation_source_value = null;
+    const observation_source_value = constants.SLEEP_DURATION_STRING;
     const observation_source_concept_id = null;
     const unit_source_value = constants.MINUTE_STRING; 
     const qualifier_source_value = "during sleep"; 
@@ -163,7 +170,7 @@ function generateObservationScoreData(userId, row, observationDate, observationD
     const valueAsString = typeof row.score === 'string' ? row.score : null;
     const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
     const unit_concept_id = null; 
-    const observation_source_value = null;
+    const observation_source_value = constants.SLEEP_SCORE_STRING;
     const observation_source_concept_id = null;
     const unit_source_value = null; 
     const qualifier_source_value = "during sleep"; 
@@ -202,7 +209,7 @@ function generateObservationStressData(userId, row, observationDate, observation
     const valueAsString = typeof row.avg_stress === 'string' ? row.score : null;
     const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
     const unit_concept_id = null; 
-    const observation_source_value = null;
+    const observation_source_value = constants.SLEEP_AVG_STRESS_STRING;
     const observation_source_concept_id = null;
     const unit_source_value = null; 
     const qualifier_source_value = "during sleep"; 
@@ -241,7 +248,7 @@ function generateMeasureRespirationData(userId, row, measurementDate, measuremen
     const valueAsNumber = typeof row.avg_stress === 'number' ? row.avg_stress : null;
     const valueAsString = typeof row.avg_stress === 'string' ? row.avg_stress : null;
     const unit_concept_id = constants.BREATHS_PER_MIN; 
-    const measurement_source_value = null;
+    const measurement_source_value = constants.SLEEP_AVG_RR_STRING;
     const measurement_source_concept_id = null;
     const unit_source_value = constants.BREATHS_PER_MIN_STRING; 
     const valueSourceValue = row.avg_rr || null;
@@ -277,10 +284,10 @@ function generateMeasureSPO2Data(userId, row, observationDate, observationDateti
     const measurement_type_concept_id = constants.TYPE_CONCEPT_ID; 
     const valueAsNumber = typeof row.avg_stress === 'number' ? row.avg_stress : null;
     const valueAsString = typeof row.avg_stress === 'string' ? row.avg_stress : null;
-    const unit_concept_id = constants.BREATHS_PER_MIN; 
-    const measurement_source_value = null;
+    const unit_concept_id = constants.PERCENT_UCUM; 
+    const measurement_source_value = constants.SLEEP_AVG_SPO2_STRING;
     const measurement_source_concept_id = null;
-    const unit_source_value = constants.BREATHS_PER_MIN_STRING; 
+    const unit_source_value = constants.PERCENT_STRING; 
     const valueSourceValue = row.avg_rr || null;
 
 
@@ -300,7 +307,7 @@ function generateMeasureSPO2Data(userId, row, observationDate, observationDateti
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        measurement_source_value: measurement_source_value,
+        measurement_source_value: constants.SLEEP_AVG_SPO2_STRING,
         measurement_source_concept_id: measurement_source_concept_id,
         unit_source_value: unit_source_value,
         value_source_value: valueSourceValue,
@@ -378,7 +385,8 @@ async function formatSleepData(userId, data, sleepSession) {
 async function formatStageData(row, userId,sleepId, observationDate) {
     //console.log('event:', row.event);
     //console.log('duration:', row.duration);
-    const observationConceptId = getObservationEventConceptId(row.event); 
+    const {observationConceptId, observationSourceValue} = getObservationEventConceptId(row.event); 
+
     
     //console.log('row.start):', row.timestamp);
     const observationDatetime = formatToTimestamp(row.timestamp);
@@ -407,7 +415,7 @@ async function formatStageData(row, userId,sleepId, observationDate) {
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        observation_source_value: null,
+        observation_source_value: observationSourceValue,
         observation_source_concept_id: null,
         unit_source_value: unit_source_value,
         qualifier_source_value: null,

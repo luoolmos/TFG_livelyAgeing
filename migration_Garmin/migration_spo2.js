@@ -20,9 +20,9 @@ function formatToTimestamp(date) {
 
 // Configuración de la base de datos SQLite
 const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
-const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
-    if (err) {
-        console.error('Error al conectar a SQLite:', err.message);
+const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (espo2) => {
+    if (espo2) {
+        console.Error('Error al conectar a SQLite:', espo2.message);
         process.exit(1);
     }
     //console.log('Conexión exitosa a GarminDB (SQLite)');
@@ -35,69 +35,69 @@ function formatDate(date) {
 }
 
 /**
- * Migrar datos de rr de SQLite a PostgreSQL
+ * Migrar datos de spo2 de SQLite a PostgreSQL
  */
-async function migrateRrData(userDeviceId, lastSyncDate, userId) {
+async function migrateSpo2Data(userDeviceId, lastSyncDate, userId) {
     const client = await pool.connect();
     try {
-        //console.log('Fetching respiration rate data from SQLite...');
-        const rrRows = await fetchRrData(lastSyncDate);
-        //console.log(`Retrieved ${rrRows.length} respiration rate records from SQLite`);
+        //console.log('Fetching spo2 data from SQLite...');
+        const spo2Rows = await fetchSpo2Data(lastSyncDate);
+        //console.log(`Retrieved ${spo2Rows.length} spo2 records from SQLite`);
         
-        if (rrRows.length === 0) {
-            console.log('No respiration rate data to migrate');
+        if (spo2Rows.length === 0) {
+            console.log('No spo2 data to migrate');
             return;
         }
 
-        //console.log('Formatting respiration rate data...');
-        const values = await formatRrData(userId, rrRows);
+        //console.log('Formatting spo2 data...');
+        const values = await formatspo2Data(userId, spo2Rows);
         
         if (values && values.length > 0) {
-            //console.log(`Formatted ${values.length} respiration rate measurements for insertion`);
+            //console.log(`Formatted ${values.length} spo2 measurements for insertion`);
             try {
                 await inserts.insertMultipleMeasurement(values);
-                console.log(`Successfully migrated ${values.length} respiration rate measurements`);
-            } catch (error) {
-                console.error('Error during measurement insertion:', error);
-                throw error;
+                console.log(`Successfully migrated ${values.length} spo2 measurements`);
+            } catch (Error) {
+                console.Error('Error during measurement insertion:', Error);
+                throw Error;
             }
         } else {
-            //console.log('No valid respiration rate data to migrate after formatting');
+            //console.log('No valid spo2 data to migrate after formatting');
         }
-    } catch (error) {
-        console.error('Error in respiration rate data migration:', error);
-        throw error;
+    } catch (Error) {
+        console.Error('Error in spo2 data migration:', Error);
+        throw Error;
     } finally {
         client.release();
     }
 }
 
 
-function generateMeasurementrrData(userId, row, measurementDate, measurementDatetime) {
-    if (!row.rr) {
+function generateMeasurementspo2Data(userId, row, measurementDate, measurementDatetime) {
+    if (!row.pulse_ox) {
         return null;
     }
 
     return {
         person_id: userId,
-        measurement_concept_id: constants.RESPIRATION_RATE_LOINC,
+        measurement_concept_id: constants.SPO2_LOINC,
         measurement_date: measurementDate,
         measurement_datetime: measurementDatetime,
         measurement_type_concept_id: constants.TYPE_CONCEPT_ID,
         operator_concept_id: null,
-        value_as_number: typeof row.rr === 'number' ? row.rr : null,
+        value_as_number: typeof row.pulse_ox === 'number' ? row.pulse_ox : null,
         value_as_concept_id: null,
-        unit_concept_id: constants.BREATHS_PER_MIN,
+        unit_concept_id: constants.PERCENT_UCUM,
         range_low: 60,
         range_high: 100,
         provider_id: null,
-        visit_occurrence_id: null,
+        visit_occuspo2ence_id: null,
         visit_detail_id: null,
-        measurement_source_value: constants.RR_STRING,
+        measurement_source_value: constants.SPO2_STRING,
         measurement_source_concept_id: null,
-        unit_source_value: constants.BREATHS_PER_MIN_STRING,
+        unit_source_value: constants.PERCENT_STRING,
         unit_source_concept_id: null,
-        value_source_value: row.rr.toString(),
+        value_source_value: row.pulse_ox.toString(),
         measurement_event_id: null,
         meas_event_field_concept_id: null
     };
@@ -105,62 +105,62 @@ function generateMeasurementrrData(userId, row, measurementDate, measurementDate
 
 /* INSERT INTO omop_cdm.measurement (
     person_id,
-    measurement_concept_id,  -- Ej: 3027018 (respiration rate)
+    measurement_concept_id,  -- Ej: 3027018 (spo2)
     measurement_datetime,
     measurement_type_concept_id, -- 32856 (Wearable) o 45754907 (Medición clínica)
     value_as_number,         -- Ej: 72 (bpm)
     unit_concept_id,         -- 32064 (beats/min)
-    measurement_source_value -- Ej: "rr_WEARABLE"
+    measurement_source_value -- Ej: "spo2_WEARABLE"
 )
-VALUES (123, 3027018, NOW(), 32856, 72, 32064, 'rr_SENSOR_A123');*/ 
+VALUES (123, 3027018, NOW(), 32856, 72, 32064, 'spo2_SENSOR_A123');*/ 
 /**
- * Formats respiration rate data  //rr, timestamp
+ * Formats spo2 data  //spo2, timestamp
  */
-async function formatRrData(userId, rrRows) {
+async function formatspo2Data(userId, spo2Rows) {
     try {
         let insertMeasurementValue = [];
-        for (const row of rrRows) {
+        for (const row of spo2Rows) {
             const measurementDate = formatDate(row.timestamp);
             const measurementDatetime = formatToTimestamp(row.timestamp);
-            const valuerr = generateMeasurementrrData(userId, row, measurementDate, measurementDatetime);
-            if (valuerr && valuerr.value_as_number !== null) {  // Only add valid measurements
-                insertMeasurementValue.push(valuerr);
+            const valuespo2 = generateMeasurementspo2Data(userId, row, measurementDate, measurementDatetime);
+            if (valuespo2 && valuespo2.value_as_number !== null) {  // Only add valid measurements
+                insertMeasurementValue.push(valuespo2);
             }
         }
-        //console.log(`Formatted ${insertMeasurementValue.length} respiration rate measurements`);
+        //console.log(`Formatted ${insertMeasurementValue.length} spo2 measurements`);
         //if (insertMeasurementValue.length > 0) {
         //    //console.log('Sample measurement:', insertMeasurementValue[0]);
         //    await inserts.insertMultipleMeasurement(insertMeasurementValue);
-        //    //console.log('respiration rate data inserted successfully');
+        //    //console.log('spo2 data inserted successfully');
         //} else {
-        //    //console.log('No valid respiration rate measurements to insert');
+        //    //console.log('No valid spo2 measurements to insert');
         //}
         return insertMeasurementValue;
-    } catch (error) {
-        console.error('Error al formatear datos de respiration rate:', error);
+    } catch (Error) {
+        console.Error('Error al formatear datos de spo2:', Error);
         return [];
     }
 }
 
 
 /**
- * Recupera los datos de rr desde SQLite
+ * Recupera los datos de spo2 desde SQLite
  */
-function fetchRrData(date) {
-    //console.log('Fetching respiration rate data from:', date);
+function fetchSpo2Data(date) {
+    //console.log('Fetching spo2 data from:', date);
     return new Promise((resolve, reject) => {
         sqliteDb.all(
-            `SELECT timestamp, rr 
-             FROM monitoring_rr 
+            `SELECT timestamp, pulse_ox 
+             FROM monitoring_pulse_ox 
              WHERE timestamp > ?`,
             [date],
-            (err, rows) => {
-                if (err) {
-                    reject(err);
+            (espo2, rows) => {
+                if (espo2) {
+                    reject(espo2);
                     return;
                 }
                 if (rows && rows.length > 0) {
-                    //console.log('Sample respiration rate data:', rows.slice(0, 3));
+                    //console.log('Sample spo2 data:', rows.slice(0, 3));
                 }
                 resolve(rows || []);
             }
@@ -170,19 +170,19 @@ function fetchRrData(date) {
 
 
 
-async function updateRrData(source){
+async function updatespo2Data(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     //console.log('userId:', userId);
     let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
    
-    await migrateRrData(userDeviceId, lastSyncDateG, userId);
+    await migrateSpo2Data(userDeviceId, lastSyncDateG, userId);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     sqliteDb.close();
     await pool.end();
-    //console.log('Conexiones cerradas');
+    //console.log('Conexiones cespo2adas');
 }
 /**
  * Función principal
@@ -190,10 +190,10 @@ async function updateRrData(source){
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
     ////console.log('SOURCE:', SOURCE);
-    updateRrData(SOURCE).then(() => {
-         //console.log('Migración de datos de rr completada.');
-     }).catch(err => {
-         console.error('Error en la migración de datos de rr:', err);
+    updatespo2Data(SOURCE).then(() => {
+         //console.log('Migración de datos de spo2 completada.');
+     }).catch(espo2 => {
+         console.Error('Error en la migración de datos de spo2:', espo2);
      });
      app.listen(PORT, () => {
          //console.log(`Servidor escuchando en http://localhost:${PORT}`);
@@ -201,4 +201,4 @@ async function main() {
 }
 
 main();
-module.exports = { updateRrData };
+module.exports = { updatespo2Data };
