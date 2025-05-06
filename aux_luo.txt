@@ -52,5 +52,5 @@ REFRESH_TOKEN=575873bf002e969d860fbc069827dfbd2599fd64a89859b845fe8f07d98a7aad
 
 
 
-echo "✅ Listo. Repositorio clonado y archivo .env creado en $ENV_PATH"
+
 

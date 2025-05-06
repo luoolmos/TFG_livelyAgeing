@@ -73,35 +73,26 @@ function formatToTimestamp(dateString) {
 
     // Formatear la fecha con microsegundos
     const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}000`;
-    console.log('Formatted date:', formattedDate);
+    //console.log('Formatted date:', formattedDate);
     return formattedDate;
 }
 
 function getObservationEventConceptId(event) {
     event = event.toLowerCase(); 
-    console.log('event:', event);
+    //console.log('event:', event);
     const eventConceptMap = {
         deep_sleep: constants.DEEP_SLEEP_DURATION_LOINC,
         light_sleep: constants.LIGHT_SLEEP_DURATION_LOINC,
         rem_sleep: constants.REM_SLEEP_DURATION_LOINC,
         awake: constants.AWAKE_DURATION_LOINC
     };
-    const sourceConceptMap = {
-        deep_sleep: constants.DEEP_SLEEP_DURATION_SOURCE_LOINC,
-        light_sleep: constants.LIGHT_SLEEP_DURATION_SOURCE_LOINC,
-        rem_sleep: constants.REM_SLEEP_DURATION_SOURCE_LOINC,
-        awake: constants.AWAKE_DURATION_SOURCE_LOINC
-    };
 
     const eventConceptId = eventConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID;
-    const sourceConceptId = sourceConceptMap[event] || constants.DEFAULT_OBSERVATION_CONCEPT_ID;
-    return {
-        eventConceptId, sourceConceptId
-    };
+    return eventConceptId;
 }
 //duration: 00:10:00.000000 --> 10 
 function stringToMinutes(value) {
-    console.log('stringToMinutes value:', value);
+    //console.log('stringToMinutes value:', value);
     if (value === null || value === undefined) return null; // Manejo de valores nulos o indefinidos
 
     if (typeof value === 'string') {
@@ -134,8 +125,8 @@ function generateObservationDurationData(userId, row, observationDate, observati
     const valueAsString = typeof row.total_sleep === 'string' ? row.total_sleep : null;
     const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
     const unit_concept_id = constants.MINUTE_UCUM; 
-    const observation_source_value = 'duration';
-    const observation_source_concept_id = constants.SLEEP_DURATION_SOURCE_LOINC;
+    const observation_source_value = null;
+    const observation_source_concept_id = null;
     const unit_source_value = constants.MINUTE_STRING; 
     const qualifier_source_value = "during sleep"; 
     const valueSourceValue = row.total_sleep; 
@@ -172,8 +163,8 @@ function generateObservationScoreData(userId, row, observationDate, observationD
     const valueAsString = typeof row.score === 'string' ? row.score : null;
     const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
     const unit_concept_id = null; 
-    const observation_source_value = 'score';
-    const observation_source_concept_id = constants.SLEEP_SCORE_SOURCE_LOINC;
+    const observation_source_value = null;
+    const observation_source_concept_id = null;
     const unit_source_value = null; 
     const qualifier_source_value = "during sleep"; 
     const valueSourceValue = row.score_category || valueAsNumber.toString();
@@ -211,8 +202,8 @@ function generateObservationStressData(userId, row, observationDate, observation
     const valueAsString = typeof row.avg_stress === 'string' ? row.score : null;
     const qualifier_concept_id = constants.DURING_SLEEP_SNOMED; 
     const unit_concept_id = null; 
-    const observation_source_value = 'stress';
-    const observation_source_concept_id = constants.SLEEP_AVG_STRESS_SOURCE_LOINC;
+    const observation_source_value = null;
+    const observation_source_concept_id = null;
     const unit_source_value = null; 
     const qualifier_source_value = "during sleep"; 
     const valueSourceValue = row.avg_stress || valueAsNumber.toString();
@@ -250,8 +241,8 @@ function generateMeasureRespirationData(userId, row, measurementDate, measuremen
     const valueAsNumber = typeof row.avg_stress === 'number' ? row.avg_stress : null;
     const valueAsString = typeof row.avg_stress === 'string' ? row.avg_stress : null;
     const unit_concept_id = constants.BREATHS_PER_MIN; 
-    const measurement_source_value = 'rr';
-    const measurement_source_concept_id = constants.RESPIRATION_RATE_SOURCE_LOINC;
+    const measurement_source_value = null;
+    const measurement_source_concept_id = null;
     const unit_source_value = constants.BREATHS_PER_MIN_STRING; 
     const valueSourceValue = row.avg_rr || null;
 
@@ -259,8 +250,8 @@ function generateMeasureRespirationData(userId, row, measurementDate, measuremen
     return valuesScore =  {
         person_id: userId,
         measurement_concept_id: measurement_concept_id,
-        measurement_date: observationDate,
-        measurement_datetime: observationDatetime,
+        measurement_date: measurementDate,
+        measurement_datetime: measurementDatetime,
         measurement_type_concept_id: measurement_type_concept_id,
         operator_concept_id: null,
         value_as_number: valueAsNumber,
@@ -281,14 +272,14 @@ function generateMeasureRespirationData(userId, row, measurementDate, measuremen
     };
 }
 
-function generateMeasureSPO2Data(userId, row, observationDate, observationDatetime) {
+function generateMeasureSPO2Data(userId, row, observationDate, observationDatetime, sleepId) {
     const measurement_concept_id = constants.RESPIRATION_RATE_LOINC; 
     const measurement_type_concept_id = constants.TYPE_CONCEPT_ID; 
     const valueAsNumber = typeof row.avg_stress === 'number' ? row.avg_stress : null;
     const valueAsString = typeof row.avg_stress === 'string' ? row.avg_stress : null;
     const unit_concept_id = constants.BREATHS_PER_MIN; 
-    const measurement_source_value = 'rr';
-    const measurement_source_concept_id = constants.RESPIRATION_RATE_SOURCE_LOINC;
+    const measurement_source_value = null;
+    const measurement_source_concept_id = null;
     const unit_source_value = constants.BREATHS_PER_MIN_STRING; 
     const valueSourceValue = row.avg_rr || null;
 
@@ -320,70 +311,83 @@ function generateMeasureSPO2Data(userId, row, observationDate, observationDateti
 
 //start, end, score, day, avg_spo2, avg_rr, avg_stress, total_sleep
 async function formatSleepData(userId, data, sleepSession) {
+    //console.log('sleepSession:', sleepSession);
+    //console.log('timestamp:', sleepSession[0].timestamp.slice(0, 10));
+    try {
+        for (const row of data) {
+            const observationDate = formatDate(row.day);
+            const observationDatetime = formatToTimestamp(row.start);
 
-    for (const row of data) {
-        const observationDate = formatDate(row.day);
-        const observationDatetime = formatToTimestamp(row.start);
+            // Insert sleep duration
+            const durationValue = generateObservationDurationData(userId, row, observationDate, observationDatetime);
+            //console.log('Duration value:', durationValue);
+            const insertedId = await inserts.insertObservation(durationValue);
+            if (!insertedId) {
+                throw new Error('Failed to insert sleep duration observation');
+            }
+            console.log('Inserted sleep duration ID:', insertedId);
 
-        // Insert sleep duration
-        const durationValue = generateObservationDurationData(userId, row, observationDate, observationDatetime);
-        console.log('Duration value:', durationValue);
-        const insertedId = await inserts.insertObservation(durationValue);
+            
+            const sessionsForDay = sleepSession.filter(session => {
+                const sessionDate = new Date(session.timestamp);
+                const endDate = new Date(row.end);
+                const startDate = new Date(row.start);
+                return sessionDate < endDate && sessionDate > startDate;
+            });
+            console.log('**************************************************');
+            //console.log('sessionsForDay:', sessionsForDay);
+            console.log('row.end:', row.end);
+            console.log('row.start:', row.start);
+            console.log('**************************************************');
+            let insertObservationValue = [];
+            let insertMeasureValue = [];
+            // Insert sleep stages
+            for (const session of sessionsForDay) {  
+                const valueStage = await formatStageData(session, userId, insertedId, observationDate);
+                //console.log('Value stage:', valueStage);
+                insertObservationValue.push(valueStage);        
+            } 
+            const valuesScore = generateObservationScoreData(userId, row, observationDate, observationDatetime, insertedId);
+            insertObservationValue.push(valuesScore);
 
-        //console.log('Inserted sleep duration ID:', insertedId);
-        //console.log('Row day:', row.day);
+            // Insert average SPO2
+            const valuesSPO2 = generateMeasureSPO2Data(userId, row, observationDate, observationDatetime, insertedId);
+            insertMeasureValue.push(valuesSPO2);
 
-        const sessionsForDay = sleepSession.filter(session => session.timestamp.slice(0, 10) === row.day);
+            // Insert average respiratory rate
+            const valuesRespiration = generateMeasureRespirationData(userId, row, observationDate, observationDatetime, insertedId);
+            insertMeasureValue.push(valuesRespiration);
 
-        let insertObservationValue = [];
-        let insertMeasureValue = [];
-        // Insert sleep stages
-        for (const session of sessionsForDay) {  
-            //console.log('Session:', session);
-            //console.log('Session day:', session.timestamp.slice(0, 10));
-            const valueStage = await formatStageData(session, userId, insertedId);
-            console.log('Value stage:', valueStage);
-            insertObservationValue.push(valueStage);        
-        } 
-        const valuesScore = generateObservationScoreData(userId, row, observationDate, observationDatetime, insertedId);
-        insertObservationValue.push(valuesScore);
+            // Insert average stress
+            const valuesStress = generateObservationStressData(userId, row, observationDate, observationDatetime, insertedId);
+            insertObservationValue.push(valuesStress);
 
-        // Insert average SPO2
-        const valuesSPO2 = generateMeasureSPO2Data(userId, row, observationDate, observationDatetime, insertedId);
-        insertMeasureValue.push(valuesSPO2);
-
-        // Insert average respiratory rate
-        const valuesRespiration = generateMeasureRespirationData(userId, row, observationDate, observationDatetime, insertedId);
-        insertMeasureValue.push(valuesRespiration);
-
-        // Insert average stress
-        const valuesStress = generateObservationStressData(userId, row, observationDate, observationDatetime, insertedId);
-        insertObservationValue.push(valuesStress);
-
-        console.log('Insert value:', insertObservationValue);
-        await inserts.insertMultipleObservation(insertObservationValue);
-        await inserts.insertMultipleMeasurement(insertMeasureValue);
-        
+            //console.log('Insert value:', insertObservationValue);
+            await inserts.insertMultipleObservation(insertObservationValue);
+            await inserts.insertMultipleMeasurement(insertMeasureValue);
+        }
+        console.log('Inserted sleep data, end of formatSleepData function');
+    } catch (error) {
+        console.error('Error in formatSleepData:', error);
+        throw error; // Propagate the error up
     }
-    console.log('Inserted sleep data, end of formatSleepData function');
     return;
 }
 
 // timestamp, event, duration
-async function formatStageData(row, userId,sleepId) {
+async function formatStageData(row, userId,sleepId, observationDate) {
     //console.log('event:', row.event);
-    console.log('duration:', row.duration);
-    const { observationConceptId, sourceConceptId } = getObservationEventConceptId(row.event); 
+    //console.log('duration:', row.duration);
+    const observationConceptId = getObservationEventConceptId(row.event); 
     
-    console.log('row.start):', row.timestamp);
-    const observationDate = formatDate(row.timestamp);
+    //console.log('row.start):', row.timestamp);
     const observationDatetime = formatToTimestamp(row.timestamp);
 
     //console.log('observationDate:', observationDate);
     //console.log('observationDatetime:', observationDatetime);
 
     const valueAsNumber = stringToMinutes(row.duration);
-    console.log('valueAsNumber:', valueAsNumber);
+    //console.log('valueAsNumber:', valueAsNumber);
     const valueAsString = typeof row.duration === 'string' ? row.duration : null;
 
     const unit_source_value = 'min';
@@ -403,8 +407,8 @@ async function formatStageData(row, userId,sleepId) {
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        observation_source_value: row.event,
-        observation_source_concept_id: sourceConceptId,
+        observation_source_value: null,
+        observation_source_concept_id: null,
         unit_source_value: unit_source_value,
         qualifier_source_value: null,
         value_source_value: valueSourceValue,
@@ -425,6 +429,8 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
         //console.log('Sleep rows:', sleepRows);
         const sleepEventsRows = await fetchSleepEventsData(lastSyncDate);
         //console.log('Sleep events rows:', sleepEventsRows);
+        console.log('lastSyncDate:', lastSyncDate);
+        //console.log('sleepEventsRows:', sleepEventsRows);   
         await formatSleepData(userId, sleepRows, sleepEventsRows);
         console.log('Datos de sueño migrados exitosamente.');
 
@@ -436,12 +442,16 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId) {
 }
 
 async function updateSleepData(source){
-    //const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
-    userId = 1; // Cambia esto según sea necesario
-    lastSyncDate = '2023-10-01'; // Cambia esto según sea necesario
-    userDeviceId = 1; // Cambia esto según sea necesario
-    await migrateSleepData( userDeviceId, lastSyncDate, userId);
-    //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
+    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
+    console.log('userId:', userId);
+    let lastSyncDateG = '2025-03-01';
+    console.log('lastSyncDate:', lastSyncDate);
+    console.log('userDeviceId:', userDeviceId);
+    //userId = 1; // Cambia esto según sea necesario
+    //lastSyncDate = '2023-10-01'; // Cambia esto según sea necesario
+    //userDeviceId = 1; // Cambia esto según sea necesario
+    await migrateSleepData( userDeviceId, lastSyncDateG, userId);
+    await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     sqliteDb.close();
     await pool.end();

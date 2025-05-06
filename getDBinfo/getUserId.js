@@ -74,11 +74,11 @@ async function getDeviceInfo(source) {
 async function updateLastSyncUserDevice(userDeviceId) {
 
     const query = `
-        UPDATE user_device
+        UPDATE custom.user_device
         SET last_sync_date = NOW()
         WHERE user_device_id = $1 ;
     `;
-    await pool.query(query, userDeviceId);
+    await pool.query(query, [userDeviceId]);
     console.log(`Updated user_device for userDeviceid: ${userDeviceId}`);
     return true;
 }

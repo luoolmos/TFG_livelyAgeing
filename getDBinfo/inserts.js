@@ -4,6 +4,7 @@ const pool = require('../db');
 const app = express();
 app.use(express.json());
 
+
 async function insertCustomDevice(data) {
   try {
     const insertQuery = `
@@ -24,8 +25,6 @@ async function insertCustomDevice(data) {
     return res.rows[0].device_id;
   } catch (err) {
     console.error('Error inserting device:', err);
-  } finally {
-    await client.end();
   }
 }
 
@@ -49,9 +48,7 @@ async function insertPersonInfo(id,data) {
     return res.rows[0].person_id;  
   } catch (err) {
     console.error('Error inserting person info:', err);
-  } finally {
-    await client.end();
-  }
+  }  
 }
 
 async function checkPersonExists(email, name) {
@@ -98,9 +95,7 @@ async function insertPerson(omop_cdm_person_data, custom_person_data) {
       return personId;
     } catch (err) {
       console.error('Error inserting person:', err);
-    } finally {
-      await client.end();
-    }
+    } 
   }
 }
 
@@ -125,62 +120,59 @@ async function insertUserDevice(data) {
     return res.rows[0].user_device_id;
   } catch (err) {
     console.error('Error inserting user device:', err);
-  } finally {
-    await client.end();
-  }
+  } 
 }   
 
 
 async function insertObservation(data) {
-  
-    try {
-      // SQL query para insertar los datos en la tabla 'observation'
-      const insertQuery = `
-        INSERT INTO omop_cdm.observation (
-          person_id, observation_concept_id, observation_date,
-          observation_datetime, observation_type_concept_id,
-          value_as_number, value_as_string, value_as_concept_id,
-          qualifier_concept_id, unit_concept_id, provider_id,
-          visit_occurrence_id, visit_detail_id, observation_source_value,
-          observation_source_concept_id, unit_source_value,
-          qualifier_source_value, value_source_value, observation_event_id,
-          obs_event_field_concept_id
-        ) 
-        VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
-          $13, $14, $15, $16, $17, $18, $19, $20
-        )
-        RETURNING observation_id;
-      `;
-  
-      // Valores a insertar, los datos son tomados del parámetro 'data'
-      const values = [
-        data.person_id, data.observation_concept_id, data.observation_date,
-        data.observation_datetime, data.observation_type_concept_id,
-        data.value_as_number, data.value_as_string, data.value_as_concept_id,
-        data.qualifier_concept_id, data.unit_concept_id, data.provider_id,
-        data.visit_occurrence_id, data.visit_detail_id, data.observation_source_value,
-        data.observation_source_concept_id, data.unit_source_value,
-        data.qualifier_source_value, data.value_source_value, data.observation_event_id,
-        data.obs_event_field_concept_id
-      ];
-  
-      // Ejecutamos la consulta
-      const res = await pool.query(insertQuery, values);
-  
-      // Retornamos el observation_id generado
-      return res.rows[0].observation_id;
-    } catch (err) {
-      console.error('Error inserting observation:', err);
-    } finally {
-      await client.end();
-    }
-}
-
-async function insertMultipleObservation(data) {
-  
   try {
     // SQL query para insertar los datos en la tabla 'observation'
+    const insertQuery = `
+      INSERT INTO omop_cdm.observation (
+        person_id, observation_concept_id, observation_date,
+        observation_datetime, observation_type_concept_id,
+        value_as_number, value_as_string, value_as_concept_id,
+        qualifier_concept_id, unit_concept_id, provider_id,
+        visit_occurrence_id, visit_detail_id, observation_source_value,
+        observation_source_concept_id, unit_source_value,
+        qualifier_source_value, value_source_value, observation_event_id,
+        obs_event_field_concept_id
+      ) 
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+        $13, $14, $15, $16, $17, $18, $19, $20
+      )
+      RETURNING observation_id;
+    `;
+    console.log('inserting observation');
+    // Valores a insertar, los datos son tomados del parámetro 'data'
+    const values = [
+      data.person_id, data.observation_concept_id, data.observation_date,
+      data.observation_datetime, data.observation_type_concept_id,
+      data.value_as_number, data.value_as_string, data.value_as_concept_id,
+      data.qualifier_concept_id, data.unit_concept_id, data.provider_id,
+      data.visit_occurrence_id, data.visit_detail_id, data.observation_source_value,
+      data.observation_source_concept_id, data.unit_source_value,
+      data.qualifier_source_value, data.value_source_value, data.observation_event_id,
+      data.obs_event_field_concept_id
+    ];
+
+    //console.log('values:', values);
+    // Ejecutamos la consulta
+    const res = await pool.query(insertQuery, values);
+    //console.log('res:', res.rows[0].observation_id);
+    // Retornamos el observation_id generado
+    return res.rows[0].observation_id;
+  } catch (err) {
+    console.error('Error inserting observation:', err);
+    throw err; // Propagate the error
+  }
+}
+
+async function insertMultipleObservation(observations) {
+  
+  try {
+    console.log('Inserting multiple observations');
     const insertQuery = `
       INSERT INTO omop_cdm.observation (
         person_id, observation_concept_id, observation_date,
@@ -216,8 +208,6 @@ async function insertMultipleObservation(data) {
     return res.rows.map(row => row.observation_id);
   } catch (err) {
     console.error('Error inserting observations:', err);
-  } finally {
-    await client.end();
   }
 }
 
@@ -262,15 +252,14 @@ async function insertMeasurement(data) {
     return res.rows[0].measurement_id;
   } catch (err) {
     console.error('Error inserting measurement:', err);
-  } finally {
-    await client.end();
   }
 }
 
-async function insertMultipleMeasurement(data) {
+async function insertMultipleMeasurement(measurements) {
   
   try {
-    // SQL query para insertar los datos en la tabla 'observation'
+    console.log('Inserting multiple measurements');
+    // SQL query para insertar los datos en la tabla 'measurements'
     const insertQuery = `
       INSERT INTO omop_cdm.measurement (
         person_id, measurement_concept_id, measurement_date,
@@ -283,21 +272,21 @@ async function insertMultipleMeasurement(data) {
         measurement_event_id, meas_event_field_concept_id
       ) 
       VALUES 
-      ${observations.map((_, i) => `
-        (${Array.from({ length: 20 }, (_, j) => `$${i * 20 + j + 1}`).join(', ')})`).join(',')}
+      ${measurements.map((_, i) => `
+        (${Array.from({ length: 21 }, (_, j) => `$${i * 21 + j + 1}`).join(', ')})`).join(',')}
       RETURNING measurement_id;
       `;
 
     // Valores a insertar, los datos son tomados del parámetro 'data'
-    const values = observations.flatMap(obs => [
-      obs.person_id, obs.measurement_concept_id, obs.measurement_date,
-      obs.measurement_datetime, obs.measurement_type_concept_id,
-      obs.operator_concept_id, obs.value_as_number, obs.value_as_concept_id,
-      obs.unit_concept_id, obs.range_low, obs.range_high,
-      obs.provider_id, obs.visit_occurrence_id, obs.visit_detail_id,
-      obs.measurement_source_value, obs.measurement_source_concept_id,
-      obs.unit_source_value, obs.unit_source_concept_id, obs.value_source_value,
-      obs.measurement_event_id, obs.meas_event_field_concept_id
+    const values = measurements.flatMap(meas => [
+      meas.person_id, meas.measurement_concept_id, meas.measurement_date,
+      meas.measurement_datetime, meas.measurement_type_concept_id,
+      meas.operator_concept_id, meas.value_as_number, meas.value_as_concept_id,
+      meas.unit_concept_id, meas.range_low, meas.range_high,
+      meas.provider_id, meas.visit_occurrence_id, meas.visit_detail_id,
+      meas.measurement_source_value, meas.measurement_source_concept_id,
+      meas.unit_source_value, meas.unit_source_concept_id, meas.value_source_value,
+      meas.measurement_event_id, meas.meas_event_field_concept_id
     ]);
 
     // Ejecutamos la consulta
@@ -306,8 +295,6 @@ async function insertMultipleMeasurement(data) {
     return res.rows.map(row => row.measurement_id);
   } catch (err) {
     console.error('Error inserting observations:', err);
-  } finally {
-    await client.end();
   }
 }
 
