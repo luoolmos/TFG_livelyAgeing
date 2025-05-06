@@ -18,14 +18,15 @@ function formatToTimestamp(date) {
 }
 
 
+
 // Configuración de la base de datos SQLite
-const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
+const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN);
 const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
     if (err) {
         console.error('Error al conectar a SQLite:', err.message);
         process.exit(1);
     }
-    //console.log('Conexión exitosa a GarminDB (SQLite)');
+    console.log('Conexión exitosa a GarminDB (SQLite)');
 });
 
 
@@ -35,37 +36,37 @@ function formatDate(date) {
 }
 
 /**
- * Migrar datos de rr de SQLite a PostgreSQL
+ * Migrar datos de Stress de SQLite a PostgreSQL
  */
-async function migrateRrData(userDeviceId, lastSyncDate, userId) {
+async function migrateStressData(userDeviceId, lastSyncDate, userId) {
     const client = await pool.connect();
     try {
-        //console.log('Fetching respiration rate data from SQLite...');
-        const rrRows = await fetchRrData(lastSyncDate);
-        //console.log(`Retrieved ${rrRows.length} respiration rate records from SQLite`);
+        console.log('Fetching stress data from SQLite...');
+        const stressRows = await fetchStressData(lastSyncDate);
+        console.log(`Retrieved ${stressRows.length} stress records from SQLite`);
         
-        if (rrRows.length === 0) {
-            console.log('No respiration rate data to migrate');
+        if (stressRows.length === 0) {
+            console.log('No stress data to migrate');
             return;
         }
 
-        //console.log('Formatting respiration rate data...');
-        const values = await formatRrData(userId, rrRows);
+        console.log('Formatting stress data...');
+        const values = await formatStressData(userId, stressRows);
         
         if (values && values.length > 0) {
-            //console.log(`Formatted ${values.length} respiration rate measurements for insertion`);
+            console.log(`Formatted ${values.length} stress measurements for insertion`);
             try {
                 await inserts.insertMultipleMeasurement(values);
-                console.log(`Successfully migrated ${values.length} respiration rate measurements`);
+                console.log(`Successfully migrated ${values.length} stress measurements`);
             } catch (error) {
                 console.error('Error during measurement insertion:', error);
                 throw error;
             }
         } else {
-            //console.log('No valid respiration rate data to migrate after formatting');
+            console.log('No valid stress data to migrate after formatting');
         }
     } catch (error) {
-        console.error('Error in respiration rate data migration:', error);
+        console.error('Error in stress data migration:', error);
         throw error;
     } finally {
         client.release();
@@ -73,31 +74,31 @@ async function migrateRrData(userDeviceId, lastSyncDate, userId) {
 }
 
 
-function generateMeasurementrrData(userId, row, measurementDate, measurementDatetime) {
-    if (!row.rr) {
+function generateMeasurementStressData(userId, row, measurementDate, measurementDatetime) {
+    if (!row.stress) {
         return null;
     }
 
     return {
         person_id: userId,
-        measurement_concept_id: constants.RESPIRATION_RATE_LOINC,
+        measurement_concept_id: constants.STRESS_LOINC,
         measurement_date: measurementDate,
         measurement_datetime: measurementDatetime,
         measurement_type_concept_id: constants.TYPE_CONCEPT_ID,
         operator_concept_id: null,
-        value_as_number: typeof row.rr === 'number' ? row.rr : null,
+        value_as_number: typeof row.stress === 'number' ? row.stress : null,
         value_as_concept_id: null,
-        unit_concept_id: constants.BREATHS_PER_MIN,
-        range_low: 12,
-        range_high: 20,
+        unit_concept_id: null,
+        range_low: null,
+        range_high: null,
         provider_id: null,
         visit_occurrence_id: null,
         visit_detail_id: null,
-        measurement_source_value: constants.RR_STRING,
+        measurement_source_value: constants.STRESS_STRING,
         measurement_source_concept_id: null,
-        unit_source_value: constants.BREATHS_PER_MIN_STRING,
+        unit_source_value: null,
         unit_source_concept_id: null,
-        value_source_value: row.rr.toString(),
+        value_source_value: row.stress.toString(),
         measurement_event_id: null,
         meas_event_field_concept_id: null
     };
@@ -105,53 +106,56 @@ function generateMeasurementrrData(userId, row, measurementDate, measurementDate
 
 /* INSERT INTO omop_cdm.measurement (
     person_id,
-    measurement_concept_id,  -- Ej: 3027018 (respiration rate)
+    measurement_concept_id,  -- Ej: 3027018 (stress)
     measurement_datetime,
     measurement_type_concept_id, -- 32856 (Wearable) o 45754907 (Medición clínica)
     value_as_number,         -- Ej: 72 (bpm)
     unit_concept_id,         -- 32064 (beats/min)
-    measurement_source_value -- Ej: "rr_WEARABLE"
+    measurement_source_value -- Ej: "Stress_WEARABLE"
 )
-VALUES (123, 3027018, NOW(), 32856, 72, 32064, 'rr_SENSOR_A123');*/ 
+VALUES (123, 3027018, NOW(), 32856, 72, 32064, 'Stress_SENSOR_A123');*/ 
 /**
- * Formats respiration rate data  //rr, timestamp
+ * Formats stress data  //Stress, timestamp
  */
-async function formatRrData(userId, rrRows) {
+async function formatStressData(userId, stressRows) {
     try {
         let insertMeasurementValue = [];
-        for (const row of rrRows) {
+        for (const row of stressRows) {
             const measurementDate = formatDate(row.timestamp);
             const measurementDatetime = formatToTimestamp(row.timestamp);
-            const valuerr = generateMeasurementrrData(userId, row, measurementDate, measurementDatetime);
-            if (valuerr && valuerr.value_as_number !== null) {  // Only add valid measurements
-                insertMeasurementValue.push(valuerr);
+            const valueStress = generateMeasurementStressData(userId, row, measurementDate, measurementDatetime);
+            if (valueStress && valueStress.value_as_number !== null) {  // Only add valid measurements
+                console.log('valueStress:', valueStress.value_as_number);
+                if(valueStress.value_as_number > 0){
+                    insertMeasurementValue.push(valueStress);
+                }
             }
         }
-        //console.log(`Formatted ${insertMeasurementValue.length} respiration rate measurements`);
+        //console.log(`Formatted ${insertMeasurementValue.length} stress measurements`);
         //if (insertMeasurementValue.length > 0) {
-        //    //console.log('Sample measurement:', insertMeasurementValue[0]);
+        //    console.log('Sample measurement:', insertMeasurementValue[0]);
         //    await inserts.insertMultipleMeasurement(insertMeasurementValue);
-        //    //console.log('respiration rate data inserted successfully');
+        //    console.log('stress data inserted successfully');
         //} else {
-        //    //console.log('No valid respiration rate measurements to insert');
+        //    console.log('No valid stress measurements to insert');
         //}
         return insertMeasurementValue;
     } catch (error) {
-        console.error('Error al formatear datos de respiration rate:', error);
+        console.error('Error al formatear datos de stress:', error);
         return [];
     }
 }
 
 
 /**
- * Recupera los datos de rr desde SQLite
+ * Recupera los datos de Stress desde SQLite
  */
-function fetchRrData(date) {
-    //console.log('Fetching respiration rate data from:', date);
+function fetchStressData(date) {
+    console.log('Fetching stress data from:', date);
     return new Promise((resolve, reject) => {
         sqliteDb.all(
-            `SELECT timestamp, rr 
-             FROM monitoring_rr 
+            `SELECT timestamp, stress 
+             FROM stress 
              WHERE timestamp > ?`,
             [date],
             (err, rows) => {
@@ -160,7 +164,7 @@ function fetchRrData(date) {
                     return;
                 }
                 if (rows && rows.length > 0) {
-                    //console.log('Sample respiration rate data:', rows.slice(0, 3));
+                    console.log('Sample stress data:', rows.slice(0, 3));
                 }
                 resolve(rows || []);
             }
@@ -170,35 +174,35 @@ function fetchRrData(date) {
 
 
 
-async function updateRrData(source){
+async function updateStressData(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
-    //console.log('userId:', userId);
+    console.log('userId:', userId);
     let lastSyncDateG = '2025-03-01';
-    //console.log('lastSyncDate:', lastSyncDate);
-    //console.log('userDeviceId:', userDeviceId);
+    console.log('lastSyncDate:', lastSyncDate);
+    console.log('userDeviceId:', userDeviceId);
    
-    await migrateRrData(userDeviceId, lastSyncDateG, userId);
+    await migrateStressData(userDeviceId, lastSyncDateG, userId);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     sqliteDb.close();
     await pool.end();
-    //console.log('Conexiones cerradas');
+    console.log('Conexiones cerradas');
 }
 /**
  * Función principal
  */
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
-    ////console.log('SOURCE:', SOURCE);
-    updateRrData(SOURCE).then(() => {
-         //console.log('Migración de datos de rr completada.');
+    //console.log('SOURCE:', SOURCE);
+    updateStressData(SOURCE).then(() => {
+         console.log('Migración de datos de Stress completada.');
      }).catch(err => {
-         console.error('Error en la migración de datos de rr:', err);
+         console.error('Error en la migración de datos de Stress:', err);
      });
      app.listen(PORT, () => {
-         //console.log(`Servidor escuchando en http://localhost:${PORT}`);
+         console.log(`Servidor escuchando en http://localhost:${PORT}`);
      });
 }
 
 main();
-module.exports = { updateRrData };
+module.exports = { updateStressData };
