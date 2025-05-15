@@ -147,101 +147,12 @@ app.get('/sensors/save-activity', async (req, res) => {
 
 //**SLEEP*/
 /*************************************************************** */ 
-async function getSleepAndSave(user_id, access_token, start_date) {
-  console.log('start_date:', start_date);
-  try {
-      const response = await axios.get(
-          `https://api.fitbit.com/1.2/user/-/sleep/date/${start_date}.json`,
-          {
-              headers: {
-                  'Authorization': `Bearer ${access_token}`
-              }
-          }
-      );
 
-      const sleepData = response.data.sleep;
-      
-      for (const sleep of sleepData) {
-          const sleepDate = sleep.dateOfSleep;
-          const duration = sleep.duration;
-          const efficiency = sleep.efficiency;
-          const startTime = sleep.startTime;
-          const endTime = sleep.endTime;
-
-          // Insertar en observation para la duración total
-          await inserts.insertObservation({
-              person_id: user_id,
-              observation_concept_id: constants.SLEEP_DURATION_LOINC,
-              observation_date: sleepDate,
-              observation_datetime: new Date(startTime),
-              observation_type_concept_id: constants.TYPE_CONCEPT_ID,
-              value_as_number: duration / 60000, // convertir de milisegundos a minutos
-              unit_concept_id: constants.MINUTE_UCUM,
-              observation_source_value: 'sleep_duration',
-              value_source_value: `${duration}`
-          });
-          console.log('sleep.levels:', sleep.levels);
-          // Si hay datos de etapas de sueño
-          if (sleep.levels && sleep.levels.summary) {
-              const stages = sleep.levels.summary;
-              
-              // Insertar cada etapa de sueño
-              for (const [stage, data] of Object.entries(stages)) {
-                  if (stage !== 'total') {
-                      await inserts.insertObservation({
-                          person_id: user_id,
-                          observation_concept_id: getStageConceptId(stage),
-                          observation_date: sleepDate,
-                          observation_datetime: new Date(startTime),
-                          observation_type_concept_id: constants.TYPE_CONCEPT_ID,
-                          value_as_number: data.minutes,
-                          unit_concept_id: constants.MINUTE_UCUM,
-                          observation_source_value: `sleep_stage_${stage}`,
-                          value_source_value: `${data.minutes}`
-                      });
-                  }
-              }
-          }
-      }
-
-      console.log(`Sleep data saved for date: ${start_date}`);
-
-  } catch (error) {
-      console.error('Error getting and saving sleep data:', error);
-      throw error;
-  }
-}
 
 // Función auxiliar para mapear etapas de sueño a conceptos
-function getStageConceptId(stage) {
-  const stageMap = {
-      'deep': constants.DEEP_SLEEP_DURATION_LOINC,
-      'light': constants.LIGHT_SLEEP_DURATION_LOINC,
-      'rem': constants.REM_SLEEP_DURATION_LOINC,
-      'wake': constants.AWAKE_DURATION_LOINC
-  };
-  return stageMap[stage.toLowerCase()] || constants.DEFAULT_OBSERVATION_CONCEPT_ID;
-}
 
-// Ruta para obtener e insertar datos de sueño
-app.get('/sensors/save-sleep', async (req, res) => {
-  try {
-      const access_token = process.env.ACCESS_TOKEN;
-      const source = constants.SAMSUNG_GALAXY_WATCH_4;
-      const {user_id, last_sync_date} = await getUserDeviceInfo(source);
-      console.log('user_id:', user_id);
-      console.log('last_sync_date:', last_sync_date);
 
-      await getSleepAndSave(user_id, access_token, last_sync_date);
-      res.send("Datos de sueño guardados en la base de datos.");
-  } catch (error) {
-      console.error('Error in save-sleep endpoint:', error);
-      res.status(500).send("Error guardando datos de sueño");
-  }
-}); 
 /*************************************************************** */ 
-
-
 //**TEMPERATURE_SERIES */
 /*************************************************************** */
 
