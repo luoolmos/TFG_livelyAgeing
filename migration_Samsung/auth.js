@@ -9,7 +9,8 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 
 function updateEnvVariable(key, value) {
-    const envPath = path.resolve(__dirname, '.env');
+  const envPath = path.resolve(__dirname, 'TFG_livelyAgeing/.env');
+
 
     let envContent = '';
     if (fs.existsSync(envPath)) {

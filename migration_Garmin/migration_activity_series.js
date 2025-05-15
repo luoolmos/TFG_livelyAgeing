@@ -9,7 +9,7 @@ const { getConceptInfo, getConceptInfoObservation, getConceptInfoMeasurement, ge
 const inserts = require('../getDBinfo/inserts.js');
 
 // Configuración de la base de datos SQLite
-const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_Activity);
+const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_ACTIVITIES);
 const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
     if (err) {
         console.error('Error al conectar a SQLite:', err.message);
@@ -32,7 +32,7 @@ function fetchActivityData(date) {
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT activity_id, start_time, elapsed_time, type, sport, sub_sport, training_load, training_effect, anaerobic_training_effect, distance, calories, avg_hr, max_hr, avg_rr, max_rr, avg_speed, max_speed, avg_cadence, max_cadence, avg_temperature, max_temperature, min_temperature, ascent, descent, self_eval_feel,self_eval_effort 
-            FROM Activity
+            FROM activities
             WHERE start_time >= ?`,
             [date], 
             (err, rows) => (err ? reject(err) : resolve(rows))

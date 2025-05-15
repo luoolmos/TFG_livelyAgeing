@@ -14,14 +14,14 @@ router.get('/sensors/save-sleep', async (req, res) => {
         console.log('user_id:', userId);
         console.log('last_sync_date:', lastSyncDate);
         lastSyncDate = '2025-05-05';
-        const response = await makeAuthenticatedRequest(
-            `https://api.fitbit.com/1/user/-/sleep/date/${lastSyncDate}.json`,
-            access_token
-        );
-        console.log('response:', response.data);
-        res.json(response.data);
+        //const response = await makeAuthenticatedRequest(
+        //    `https://api.fitbit.com/1/user/-/sleep/date/${lastSyncDate}.json`,
+        //    access_token
+        //);
+        //console.log('response:', response.data);
+        //res.json(response.data);
 
-        //await getSleepAndSave(userId, access_token, lastSyncDate);
+        await getSleepAndSave(userId, access_token, lastSyncDate);
         res.send("Datos de sueño guardados en la base de datos.");
     } catch (error) {
         console.error('Error in save-sleep endpoint:', error);
