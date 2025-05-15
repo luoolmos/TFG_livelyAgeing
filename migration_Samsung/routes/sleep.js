@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { makeAuthenticatedRequest, getSleepAndSave } = require('../fitbitApi');
-const constants = require('../getDBinfo/constants.js');
-const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js');
-const inserts = require('../getDBinfo/inserts.js');
+const constants = require('../../getDBinfo/constants.js');
+const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../../getDBinfo/getUserId.js');
+const inserts = require('../../getDBinfo/inserts.js');
 
 
 router.get('/sensors/save-sleep', async (req, res) => {
@@ -19,7 +19,7 @@ router.get('/sensors/save-sleep', async (req, res) => {
         );
         console.log('response:', response.data);
         res.json(response.data);
-        
+
         await getSleepAndSave(user_id, access_token, last_sync_date);
         res.send("Datos de sueño guardados en la base de datos.");
     } catch (error) {
