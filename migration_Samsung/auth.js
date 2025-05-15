@@ -7,19 +7,34 @@ const path = require('path');
 const CLIENT_ID = process.env.FITBIT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
-// Actualiza el archivo .env
+
 function updateEnvVariable(key, value) {
     const envPath = path.resolve(__dirname, '.env');
-    let envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
-    const regex = new RegExp(`^${key}=.*`, 'm');
-    if (regex.test(envContent)) {
-        envContent = envContent.replace(regex, `${key}=${value}`);
-    } else {
-        envContent += `\n${key}=${value}`;
+
+    let envContent = '';
+    if (fs.existsSync(envPath)) {
+        envContent = fs.readFileSync(envPath, 'utf8');
     }
-    fs.writeFileSync(envPath, envContent.trim() + '\n');
-    console.log(`Se ha actualizado .env: ${key}=${value}`);
+
+    const lines = envContent.split('\n');
+    let found = false;
+
+    const newLines = lines.map(line => {
+        if (line.startsWith(`${key}=`)) {
+            found = true;
+            return `${key}=${value}`;
+        }
+        return line;
+    });
+
+    if (!found) {
+        newLines.push(`${key}=${value}`);
+    }
+
+    fs.writeFileSync(envPath, newLines.join('\n') + '\n', 'utf8');
+    console.log(`✅ Se ha actualizado .env: ${key}=${value}`);
 }
+
 
 async function refreshAccessToken(refresh_token) {
   try {

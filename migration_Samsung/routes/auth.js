@@ -9,6 +9,7 @@ const querystring = require('querystring');
 const { updateEnvVariable } = require('../auth.js');
 
 
+
 const CLIENT_ID = process.env.FITBIT_CLIENT_ID; 
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.FITBIT_REDIRECT_URI; 
@@ -48,7 +49,7 @@ router.get('/sensors/callback', async (req, res) => {
       redirect_uri: REDIRECT_URI
     }), {
       headers: {
-        'Content-Type': 'routerlication/x-www-form-urlencoded',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': 'Basic ' + Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64') // Autenticación básica
       }
     });
