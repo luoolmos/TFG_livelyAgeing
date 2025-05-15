@@ -23,6 +23,7 @@ module.exports = {
     SPO2_STRING: 'spo2',
     RR_STRING: 'rr',
     HR_STRING: 'hr',
+    DURATION_STRING: 'duration',
     STRESS_STRING: 'stress',
     SLEEP_DURATION_STRING: 'sleep_duration',
     SLEEP_SCORE_STRING: 'sleep_score',
@@ -33,10 +34,25 @@ module.exports = {
     SLEEP_LIGHT_DURATION_STRING: 'sleep_light_duration',
     SLEEP_DEEP_DURATION_STRING: 'sleep_deep_duration',
     SLEEP_AWAKE_DURATION_STRING: 'sleep_awake_duration',
+    DISTANCE_STRING: 'distance',
+    CALORIES_STRING: 'calories burned',
+    HEART_RATE_STRING: 'heart rate', //https://athena.ohdsi.org/search-terms/terms/3027018
+    AVG_HR_STRING: 'mean heart rate',   //https://athena.ohdsi.org/search-terms/terms/3966397
+    MAX_HR_STRING: 'maximum heart rate', //https://athena.ohdsi.org/search-terms/terms/3966129
+    RR_STRING: 'respiratory rate', //https://athena.ohdsi.org/search-terms/terms/4313591
+    AVG_RR_STRING: 'mean respiratory rate', //https://athena.ohdsi.org/search-terms/terms/3966397
+    MAX_RR_STRING: 'maximum respiratory rate', //https://athena.ohdsi.org/search-terms/terms/3966211
+    AVG_SPEED_STRING: 'avg_speed',
+    MAX_SPEED_STRING: 'max_speed',
+    TEMPERATURE_STRING: 'body temperature', //https://athena.ohdsi.org/search-terms/terms/4302666
+    AVG_TEMPERATURE_STRING: 'body temperature', //https://athena.ohdsi.org/search-terms/terms/4302666
+    MAX_TEMPERATURE_STRING: 'maximum body temperature', //https://athena.ohdsi.org/search-terms/terms/44809208
+    MIN_TEMPERATURE_STRING: 'minimum body temperature', //https://athena.ohdsi.org/search-terms/terms/44813868
+
 
 
     //UNIT
-    MINUTE_UCUM: 1001932, //https://athena.ohdsi.org/search-terms/terms/1001932,
+    MINUTE_UCUM: 8550, //https://athena.ohdsi.org/search-terms/terms/8550,
     MINUTE_STRING: 'min',
     HOURS_UCUM: 8505, //https://athena.ohdsi.org/search-terms/terms/1001931,
     HOURS_STRING: 'h',
@@ -46,6 +62,8 @@ module.exports = {
     BEATS_PER_MIN_STRING: 'beats/min',
     PERCENT_UCUM: 4190629, //https://athena.ohdsi.org/search-terms/terms/4190629,
     PERCENT_STRING: '%',
+    METER_STRING: 'm', //9546
+    KCAL_STRING: 'kcal', //https://athena.ohdsi.org/search-terms/terms/710194
 
 
 
@@ -80,6 +98,18 @@ module.exports = {
     //RESPIRATION_RATE_SOURCE_LOINC: 'LP74299-6',
     HEART_RATE_LOINC: 3027018, //https://athena.ohdsi.org/search-terms/terms/3027018    
     //HEART_RATE_SOURCE_LOINC: '9843-3',
-
+    
+    OTHER_CONCEPT_ID: 0, //https://athena.ohdsi.org/search-terms/terms/1585734
 
 };
+
+//*   
+//1001786	Calories burned in unspecified time --during activity	Measurement	LOINC	Clinical Observation	S	93819-1	20191213	20991231	
+//1002138	Calories burned in unspecified time --during weight training	Measurement	LOINC	Clinical Observation	S	93820-9	20191213	20991231	
+//1001889	Calories burned in unspecified time --during aerobic activity	Measurement	LOINC	Clinical Observation	S	93821-7	20191213	20991231	
+//1001869	Calories burned in unspecified time --while playing a sport	Measurement	LOINC	Clinical Observation	S	93822-5	20191213	20991231	
+//3022228	Coproporphyrin [Mass/time] in unspecified time Stool	Measurement	LOINC	Lab Test	S	9382-3	19700101	20991231	
+//1002084	Calories burned in unspecified time --during swimming	Measurement	LOINC	Clinical Observation	S	93823-3	20191213	20991231	
+//1002435	Calories burned in unspecified time --during cycling	Measurement	LOINC	Clinical Observation	S	93824-1	20191213	20991231	
+//1002444	Calories burned in unspecified time --during running	Measurement	LOINC	Clinical Observation	S	93825-8	20191213	20991231	*/
+//1001731	Calories burned in unspecified time --during walking */
