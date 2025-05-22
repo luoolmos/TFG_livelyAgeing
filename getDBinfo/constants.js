@@ -20,7 +20,8 @@ module.exports = {
 
     //**************CONCEPTS*************
     // 
-    SPO2_STRING: 'spo2',
+    SPO2_STRING: 'oxygen saturation in arterial blood by pulse oximetry',
+    SPO2_STRING_ABREV: 'SPO2',
     RR_STRING: 'respiration rate',
     HR_STRING: 'heart rate',
     DURATION_STRING: 'duration',
@@ -61,7 +62,7 @@ module.exports = {
     BEATS_PER_MIN: 4118124, //https://athena.ohdsi.org/search-terms/terms/4118124,
     BEATS_PER_MIN_STRING: 'beats/min',
     PERCENT_UCUM: 4190629, //https://athena.ohdsi.org/search-terms/terms/4190629,
-    PERCENT_STRING: '%',
+    PERCENT_STRING: 'percentage unit',
     METER_STRING: 'm', //9546
     KCAL_STRING: 'kcal', //https://athena.ohdsi.org/search-terms/terms/710194
 

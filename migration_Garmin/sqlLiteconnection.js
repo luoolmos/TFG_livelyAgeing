@@ -2,14 +2,17 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 function connectToSQLite(dbPath) {
-    const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
-        if (err) {
-            console.error('Error al conectar a SQLite:', err.message);
-            process.exit(1);
-        }
-        console.log('Conexión exitosa a GarminDB (SQLite)');
+    return new Promise((resolve, reject) => {
+        const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
+            if (err) {
+                console.error('Error al conectar a SQLite:', err.message);
+                reject(err);
+                return;
+            }
+            console.log('Conexión exitosa a GarminDB (SQLite)');
+            resolve(sqliteDb);
+        });
     });
-    return sqliteDb;
 }
 
 // fetch 

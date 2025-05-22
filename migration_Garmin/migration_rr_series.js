@@ -1,4 +1,4 @@
-//const path = require('path');
+const path = require('path');
 const pool = require('../db');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');
@@ -7,23 +7,16 @@ const sqlLite = require('./sqlLiteconnection.js');
 const inserts = require('../getDBinfo/inserts.js');
 const { getConceptInfoMeasurement } = require('../getDBinfo/getConcept.js');
 const { generateMeasurementData } = require('../migration/formatData.js');
-
-
-// Configuración de la base de datos SQLite
-const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
-
-const sqliteDb = sqlLite.connectToSQLite(dbPath);
+const { getConceptUnit } = require('../getDBinfo/getConcept.js');
 
 
 /**
  * Migrar datos de rr de SQLite a PostgreSQL
  */
-async function migrateRrData(userDeviceId, lastSyncDate, userId) {
+async function migrateRrData(userDeviceId, lastSyncDate, userId, rrRows) {
     const client = await pool.connect();
     try {
-        //console.log('Fetching respiration rate data from SQLite...');
-        const rrRows = await sqlLite.fetchRrData(lastSyncDate, sqliteDb);
-        //console.log(`Retrieved ${rrRows.length} respiration rate records from SQLite`);
+
         
         if (rrRows.length === 0) {
             console.log('No respiration rate data to migrate');
@@ -56,9 +49,14 @@ async function migrateRrData(userDeviceId, lastSyncDate, userId) {
 /**
  * Formats respiration rate data  //rr, timestamp
  */
-async function formatRrData(userId, rrRows) {
+async function formatRrData(userId, rrRows, sqliteDb) {
     try {
         let insertMeasurementValue = [];
+        const {conceptId, conceptName} = await getConceptInfoMeasurement(constants.RR_STRING);
+        const { unitRRconceptId, unitRRconceptName } = await getConceptUnit(constants.BREATHS_PER_MIN_STRING);
+        const low = 12;
+        const high = 20;
+
         for (const row of rrRows) {
             const measurementDate = formatValue.formatDate(row.timestamp);
             const measurementDatetime = formatValue.formatToTimestamp(row.timestamp);
@@ -69,12 +67,8 @@ async function formatRrData(userId, rrRows) {
                 measurementDatetime: measurementDatetime,
                 releatedId: null
             };
-
-            const {conceptId, conceptName} = await getConceptInfoMeasurement(constants.RR_STRING);
-            const low = 12;
-            const high = 20;
-            const rrMeasurement = generateMeasurementData(baseValues, row.rr, conceptId, conceptName, constants.BREATHS_PER_MIN_STRING, low, high);
-            if (rrMeasurement && valuerr.value_as_number !== null) {  // Only add valid measurements
+            const rrMeasurement = generateMeasurementData(baseValues, row.rr, conceptId, conceptName, unitRRconceptId, unitRRconceptName, low, high);
+            if (rrMeasurement && rrMeasurement !== null) {  // Only add valid measurements
                 insertMeasurementValue.push(rrMeasurement);
             }
         }
@@ -87,17 +81,34 @@ async function formatRrData(userId, rrRows) {
 
 
 
-async function updateRrData(source){
+/**
+ * Obtiene los datos de rr de la base de datos SQLite
+*/
+async function getRrData(lastSyncDate){
+    // Configuración de la base de datos SQLite
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
+    
+    const sqliteDb = await sqlLite.connectToSQLite(dbPath);
+    const rrRows = await sqlLite.fetchRrData(lastSyncDate,sqliteDb);
+    console.log(`Retrieved ${rrRows.length} rr records from SQLite`);
+    sqliteDb.close();
+    return rrRows;
+}
+
+
+async function updateRrData(source, sqliteDb){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     //console.log('userId:', userId);
     let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
    
-    await migrateRrData(userDeviceId, lastSyncDateG, userId);
+    const rrRows = await getRrData(lastSyncDate);
+
+    await migrateRrData(userDeviceId, lastSyncDateG, userId, rrRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
-    sqliteDb.close();
+
     await pool.end();
     //console.log('Conexiones cerradas');
 }
@@ -106,7 +117,7 @@ async function updateRrData(source){
  */
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;
-    updateRrData(SOURCE).then(() => {
+    updateRrData(SOURCE, sqliteDb).then(() => {
         console.log('Migración de datos de RR completada.');
     }).catch(err => {
         console.error('Error en la migración de datos de RR:', err);

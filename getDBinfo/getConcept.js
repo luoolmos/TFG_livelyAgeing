@@ -66,16 +66,15 @@ async function getConceptInfoObservation(conceptName)  {
 async function getConceptInfoMeasurement(conceptName)  {
   try {
       const query = `
-      SELECT concept_id, concept_name, vocabulary_id, domain_id
+      SELECT concept_id, concept_name, vocabulary_id
       FROM omop_cdm.concept
       WHERE LOWER(concept_name) = $1
       AND standard_concept = 'S' AND domain_id = 'Measurement';
       `;  
       
       const result = await pool.query(query, [conceptName]);
-      
       if (result.rows.length > 0) {
-          return result.rows;
+          return result.rows[0];
       } else {
           return null;
       }
@@ -91,13 +90,14 @@ async function getConceptUnit(conceptName)  {
     SELECT concept_id, concept_name, vocabulary_id, domain_id
     FROM omop_cdm.concept
     WHERE LOWER(concept_name) = $1
-    domain_id = 'Unit';
+    AND domain_id = 'Unit';
     `;  
     
     const result = await pool.query(query, [conceptName]);
     
     if (result.rows.length > 0) {
-      return result.rows;
+      console.log('result:', result.rows[0]);
+      return result.rows[0];
     } else {
       return null;
     }

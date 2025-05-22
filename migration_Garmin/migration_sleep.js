@@ -1,3 +1,4 @@
+@ -1,192 +0,0 @@
 const pool = require('../db');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');

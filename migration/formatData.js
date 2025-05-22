@@ -1,15 +1,6 @@
 const constants = require('../getDBinfo/constants.js');
-const { getConceptUnit } = require('../getDBinfo/getConcept.js');
 
-async function generateObservationData(data, value, conceptId, conceptName, unitString) {
-    
-    let unitconceptId, unitconceptName;
-    if (unitString != null) {
-        ({ unitconceptId, unitconceptName } = await getConceptUnit(unitString));
-    } else {
-        unitconceptId = null;
-        unitconceptName = null;
-    }
+async function generateObservationData(data, value, conceptId, conceptName, unitconceptId, unitconceptName) {
 
     const valueAsNumber = value;
     const valueAsString = typeof value === 'string' ? value : null;
@@ -38,15 +29,11 @@ async function generateObservationData(data, value, conceptId, conceptName, unit
     };
 }
 
-async function generateMeasurementData(data, value, conceptId, conceptName, unitString, low, high) {
+function generateMeasurementData(data, value, conceptId, conceptName, unitconceptId, unitconceptName, low, high) {
+
     
-    let unitconceptId, unitconceptName;
-    if (unitString != null) {
-        ({ unitconceptId, unitconceptName } = await getConceptUnit(unitString));
-    } else {
-        unitconceptId = null;
-        unitconceptName = null;
-    }
+    const valueAsNumber = value;
+    const valueAsString = typeof value === 'string' ? value : null;
 
     return data = {
         person_id: data.userId,

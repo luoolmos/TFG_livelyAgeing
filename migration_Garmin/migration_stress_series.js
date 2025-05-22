@@ -1,3 +1,4 @@
+const path = require('path');
 const pool = require('../db');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');
@@ -9,26 +10,21 @@ const { generateMeasurementData } = require('../migration/formatData.js');
 
 
 
-// Configuración de la base de datos SQLite
-const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN);
-const sqliteDb = sqlLite.connectToSQLite(dbPath);
 
 
 /**
  * Migrar datos de Stress de SQLite a PostgreSQL
- */
-async function migrateStressData(userDeviceId, lastSyncDate, userId) {
+*/
+async function migrateStressData(userDeviceId, lastSyncDate, userId, stressRows) {
     const client = await pool.connect();
     try {
-        console.log('Fetching stress data from SQLite...');
-        const stressRows = await sqlLite.fetchStressData(lastSyncDate, sqliteDb);
-        console.log(`Retrieved ${stressRows.length} stress records from SQLite`);
+        
         
         if (stressRows.length === 0) {
             console.log('No stress data to migrate');
             return;
         }
-
+        
         console.log('Formatting stress data...');
         const values = await formatStressData(userId, stressRows);
         
@@ -55,10 +51,14 @@ async function migrateStressData(userDeviceId, lastSyncDate, userId) {
 
 /**
  * Formats stress data  //Stress, timestamp
- */
+*/
 async function formatStressData(userId, stressRows) {
     try {
         let insertMeasurementValue = [];
+        const {conceptId, conceptName} = await getConceptInfoMeasValue(constants.STRESS_STRING);
+        const low = null;
+        const high = null;
+        
         for (const row of stressRows) {
             const measurementDate = formatValue.formatDate(row.timestamp);
             const measurementDatetime = formatValue.formatToTimestamp(row.timestamp);
@@ -68,12 +68,9 @@ async function formatStressData(userId, stressRows) {
                 measurementDatetime: measurementDatetime,
                 releatedId: null
             };
-
-            const {conceptId, conceptName} = await getConceptInfoMeasValue(constants.STRESS_STRING);
-            const low = null;
-            const high = null;
-            const valueStress = generateMeasurementData(baseValues, row.stress, conceptId, conceptName, null, low, high);
-
+            
+            const valueStress = generateMeasurementData(baseValues, row.stress, conceptId, conceptName, null, null, low, high);
+            
             if (valueStress && valueStress.value_as_number !== null) {  // Only add valid measurements
                 //console.log('valueStress:', valueStress.value_as_number);
                 if(valueStress.value_as_number > 0){
@@ -88,7 +85,19 @@ async function formatStressData(userId, stressRows) {
     }
 }
 
-
+/**
+ * Obtiene los datos de stress de la base de datos SQLite
+*/
+async function getStressData(lastSyncDate){
+    // Configuración de la base de datos SQLite
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN);
+    
+    const sqliteDb = await sqlLite.connectToSQLite(dbPath);
+    const stressRows = await sqlLite.fetchStressData(lastSyncDate, sqliteDb);
+    console.log(`Retrieved ${stressRows.length} stress records from SQLite`);
+    sqliteDb.close();
+    return stressRows;
+}
 
 
 async function updateStressData(source){
@@ -97,11 +106,12 @@ async function updateStressData(source){
     let lastSyncDateG = '2025-03-01';
     console.log('lastSyncDate:', lastSyncDate);
     console.log('userDeviceId:', userDeviceId);
-   
-    await migrateStressData(userDeviceId, lastSyncDateG, userId);
+
+    const stressRows = await getStressData(lastSyncDate);
+
+    await migrateStressData(userDeviceId, lastSyncDateG, userId, stressRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
-    sqliteDb.close();
     await pool.end();
     console.log('Conexiones cerradas');
 }
@@ -110,6 +120,7 @@ async function updateStressData(source){
  */
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;
+
     updateStressData(SOURCE).then(() => {
         console.log('Migración de datos de Stress completada.');
     }).catch(err => {

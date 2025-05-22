@@ -54,11 +54,12 @@ function milesToMeters(value) {
     return value * 1609.34;
 }
 
-function metersToMiles(value) {
-    return value / 1609.34;
-}
 
  
 
-export { formatDate, formatToTimestamp, stringToMinutes, milesToMeters, metersToMiles };
-
+module.exports = {
+    formatDate,
+    formatToTimestamp,
+    stringToMinutes,
+    milesToMeters
+}

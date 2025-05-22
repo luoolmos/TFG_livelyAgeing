@@ -1,25 +1,23 @@
+const path = require('path');
 const pool = require('../db');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');
 const formatValue = require('../migration/formatValue.js');
 const sqlLite = require('./sqlLiteconnection.js');
 const inserts = require('../getDBinfo/inserts.js');
-const { getConceptInfoMeasurement } = require('../getDBinfo/getConcept.js');
+const { getConceptInfoMeasurement, getConceptUnit } = require('../getDBinfo/getConcept.js');
 const { generateMeasurementData } = require('../migration/formatData.js');
 
 
-// Configuración de la base de datos SQLite
-const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
-const sqliteDb = sqlLite.openDatabaseSync(dbPath);
+
 
 /**
  * Migrar datos de spo2 de SQLite a PostgreSQL
  */
-async function migrateSpo2Data(userDeviceId, lastSyncDate, userId) {
+async function migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows) {
     const client = await pool.connect();
     try {
         //console.log('Fetching spo2 data from SQLite...');
-        const spo2Rows = await sqlLite.fetchSpo2Data(lastSyncDate,sqliteDb);
         //console.log(`Retrieved ${spo2Rows.length} spo2 records from SQLite`);
         
         if (spo2Rows.length === 0) {
@@ -36,14 +34,14 @@ async function migrateSpo2Data(userDeviceId, lastSyncDate, userId) {
                 await inserts.insertMultipleMeasurement(values);
                 console.log(`Successfully migrated ${values.length} spo2 measurements`);
             } catch (Error) {
-                console.Error('Error during measurement insertion:', Error);
+                console.error('Error during measurement insertion:', Error);
                 throw Error;
             }
         } else {
             //console.log('No valid spo2 data to migrate after formatting');
         }
     } catch (Error) {
-        console.Error('Error in spo2 data migration:', Error);
+        console.error('Error in spo2 data migration:', Error);
         throw Error;
     } finally {
         client.release();
@@ -57,6 +55,16 @@ async function migrateSpo2Data(userDeviceId, lastSyncDate, userId) {
 async function formatspo2Data(userId, spo2Rows) {
     try {
         let insertMeasurementValue = [];
+        const {concept_id, concept_name} = await getConceptInfoMeasurement(constants.SPO2_STRING);
+        console.log('conceptId:', concept_id);
+        console.log('conceptName:', constants.SPO2_STRING_ABREV);
+        const low = 85;
+        const high = 95;
+        const { concept_id: unitconcept_id, concept_name: unitconcept_name} = await getConceptUnit(constants.PERCENT_STRING);
+        console.log('unitconcept_id:', unitconcept_id);
+        //console.log('unitconcept_name:', '');
+        
+
         for (const row of spo2Rows) {
             const measurementDate = formatValue.formatDate(row.timestamp);
             const measurementDatetime = formatValue.formatToTimestamp(row.timestamp);
@@ -67,10 +75,7 @@ async function formatspo2Data(userId, spo2Rows) {
                 releatedId: null
             };
 
-            const {conceptId, conceptName} = await getConceptInfoMeasurement(constants.SPO2_STRING);
-            const low = 85;
-            const high = 95;
-            const valuespo2 = generateMeasurementData(baseValues, row.pulse_ox, conceptId, conceptName, constants.PERCENT_STRING, low, high);
+            const valuespo2 = generateMeasurementData(baseValues, row.pulse_ox, concept_id, constants.SPO2_STRING_ABREV, unitconcept_id, unitconcept_name, low, high);
 
             if (valuespo2 && valuespo2.value_as_number !== null) {  // Only add valid measurements
                 insertMeasurementValue.push(valuespo2);
@@ -86,11 +91,24 @@ async function formatspo2Data(userId, spo2Rows) {
         //}
         return insertMeasurementValue;
     } catch (Error) {
-        console.Error('Error al formatear datos de spo2:', Error);
+        console.error('Error al formatear datos de spo2:', Error);
         return [];
     }
 }
 
+/**
+ * Obtiene los datos de spo2 de la base de datos SQLite
+*/
+async function getSpo2Data(lastSyncDate){
+    // Configuración de la base de datos SQLite
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
+    
+    const sqliteDb = await sqlLite.connectToSQLite(dbPath);
+    const spo2Rows = await sqlLite.fetchSpo2Data(lastSyncDate,sqliteDb);
+    console.log(`Retrieved ${spo2Rows.length} spo2 records from SQLite`);
+    sqliteDb.close();
+    return spo2Rows;
+}
 
 async function updateSpo2Data(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
@@ -98,11 +116,11 @@ async function updateSpo2Data(source){
     let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
+    const spo2Rows = await getSpo2Data(lastSyncDate);
    
-    await migrateSpo2Data(userDeviceId, lastSyncDateG, userId);
+    await migrateSpo2Data(userDeviceId, lastSyncDateG, userId, spo2Rows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
-    sqliteDb.close();
     await pool.end();
     //console.log('Conexiones cespo2adas');
 }

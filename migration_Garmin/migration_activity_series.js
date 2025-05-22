@@ -17,19 +17,23 @@ async function formatActivityRecordsData(data, row){
     let insertMeasureValue = [];
 
     const {conceptId: distanceConceptId, conceptName: distanceConceptName} = await getConceptInfoMeasurement(constants.DISTANCE_STRING);
-    const dataDistance = generateMeasurementData(data, row.distance, distanceConceptId, distanceConceptName, constants.METER_STRING, null, null);
+    const { unitDistanceconceptId, unitDistanceconceptName } = await getConceptUnit(constants.METER_STRING);
+    const dataDistance = generateMeasurementData(data, row.distance, distanceConceptId, distanceConceptName, unitDistanceconceptId, unitDistanceconceptName, null, null);
     insertMeasureValue.push(dataDistance);
 
     const {conceptId: hrConceptId, conceptName: hrConceptName} = await getConceptInfoMeasurement(constants.HEART_RATE_STRING);
-    const dataHR = generateMeasurementData(data, row.hr, hrConceptId, hrConceptName, constants.BEATS_PER_MIN_STRING, null, null);
+    const { unitHRconceptId, unitHRconceptName } = await getConceptUnit(constants.BEATS_PER_MIN_STRING);
+    const dataHR = generateMeasurementData(data, row.hr, hrConceptId, hrConceptName, unitHRconceptId, unitHRconceptName, null, null);
     insertMeasureValue.push(dataHR);
 
     const {conceptId: rrConceptId, conceptName: rrConceptName} = await getConceptInfoMeasurement(constants.RR_STRING);
-    const dataRR = generateMeasurementData(data, row.rr, rrConceptId, rrConceptName, constants.BREATHS_PER_MIN_STRING, null, null);
+    const { unitRRconceptId, unitRRconceptName } = await getConceptUnit(constants.BREATHS_PER_MIN_STRING);
+    const dataRR = generateMeasurementData(data, row.rr, rrConceptId, rrConceptName, unitRRconceptId, unitRRconceptName, null, null);
     insertMeasureValue.push(dataRR);
 
     const {conceptId: temperatureConceptId, conceptName: temperatureConceptName} = await getConceptInfoMeasurement(constants.TEMPERATURE_STRING);
-    const dataTemperature = generateMeasurementData(data, row.temperature, temperatureConceptId, temperatureConceptName, constants.TEMPERATURE_STRING, null, null);
+    const { unitTemperatureconceptId, unitTemperatureconceptName } = await getConceptUnit(constants.TEMPERATURE_STRING);
+    const dataTemperature = generateMeasurementData(data, row.temperature, temperatureConceptId, temperatureConceptName, unitTemperatureconceptId, unitTemperatureconceptName, null, null);
     insertMeasureValue.push(dataTemperature);
 
     return insertMeasureValue;
@@ -86,7 +90,8 @@ async function formatActivityData(userId, data, activityRecords) {
 
             for (const { value, constKey, unit, conceptFn } of measurements) {
                 const { conceptId, conceptName } = await conceptFn(constKey);
-                const measurementData = generateMeasurementData(baseValues, value, conceptId, conceptName, unit, null, null);
+                const { unitconceptId, unitconceptName } = await getConceptUnit(unit);
+                const measurementData = generateMeasurementData(baseValues, value, conceptId, conceptName, unitconceptId, unitconceptName, null, null);
                 insertMeasureValue.push(measurementData);
             }
 

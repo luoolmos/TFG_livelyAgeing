@@ -8,29 +8,26 @@ const sqlLite = require('./sqlLiteconnection.js');
 const inserts = require('../getDBinfo/inserts.js');
 const { getConceptInfoMeasurement } = require('../getDBinfo/getConcept.js');
 const { generateMeasurementData } = require('../migration/formatData.js');
+const { getConceptUnit } = require('../getDBinfo/getConcept.js');
 
 // Configuración de la base de datos SQLite
 const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
 
-const sqliteDb = sqlLite.connectToSQLite(dbPath);
 
 /**
  * Migrar datos de hr de SQLite a PostgreSQL
  */
-async function migrateHrData(userDeviceId, lastSyncDate, userId) {
+async function migrateHrData(userDeviceId, lastSyncDate, userId, hrRows) {
     const client = await pool.connect();
     try {
-        console.log('Fetching heart rate data from SQLite...');
-        const HrRows = await sqlLite.fetchHrData(lastSyncDate, sqliteDb);
-        console.log(`Retrieved ${HrRows.length} heart rate records from SQLite`);
-        
-        if (HrRows.length === 0) {
+     
+        if (hrRows.length === 0) {
             console.log('No heart rate data to migrate');
             return;
         }
 
         console.log('Formatting heart rate data...');
-        const values = await formatHrData(userId, HrRows);
+        const values = await formatHrData(userId, hrRows);
         
         if (values && values.length > 0) {
             console.log(`Formatted ${values.length} heart rate measurements for insertion`);
@@ -55,28 +52,40 @@ async function migrateHrData(userDeviceId, lastSyncDate, userId) {
 /**
  * Formats Heart rate data  //hr, timestamp
  */
-async function formatHrData(userId, HRRows) {
+async function formatHrData(userId, hrRows) {
     try {
         let insertMeasurementValue = [];
-        for (const row of HRRows) {
+        // Llama una sola vez si el concepto es siempre el mismo
+        const {conceptId, conceptName} = await getConceptInfoMeasurement(constants.HR_STRING);
+        const low = 60;
+        const high = 100;
+        const { unitconceptId, unitconceptName } = await getConceptUnit(constants.BEATS_PER_MIN_STRING);
+
+        // Mapea cada fila a una promesa
+        const promises = hrRows.map(async (row) => {
             const measurementDate = formatValue.formatDate(row.timestamp);
             const measurementDatetime = formatValue.formatToTimestamp(row.timestamp);
 
             const baseValues = {
                 userId,
-                measurementDate: measurementDate,
-                measurementDatetime: measurementDatetime,
+                measurementDate,
+                measurementDatetime,
                 releatedId: null
             };
 
-            const {conceptId, conceptName} = await getConceptInfoMeasurement(constants.HR_STRING);
-            const low = 60;
-            const high = 100;
-            const hrMeasurement = generateMeasurementData(baseValues, row.heart_rate, conceptId, conceptName, constants.BEATS_PER_MIN_STRING, low, high);
-            if (hrMeasurement && hrMeasurement.value_as_number !== null) {  // Only add valid measurements
-                insertMeasurementValue.push(hrMeasurement);
+            const hrMeasurement = generateMeasurementData(baseValues, row.heart_rate, conceptId, conceptName, unitconceptId, unitconceptName, low, high);
+            if (hrMeasurement && hrMeasurement.value_as_number !== null) {
+                return hrMeasurement;
             }
-        }
+            return null;
+        });
+
+        // Espera a que todas las promesas terminen
+        const results = await Promise.all(promises);
+
+        // Filtra los nulos
+        insertMeasurementValue = results.filter(Boolean);
+
         return insertMeasurementValue;
     } catch (error) {
         console.error('Error al formatear datos de Heart rate:', error);
@@ -84,20 +93,40 @@ async function formatHrData(userId, HRRows) {
     }
 }
 
-
+/**
+ * Obtiene los datos de rr de la base de datos SQLite
+*/
+async function getHrData(lastSyncDate){
+    // Configuración de la base de datos SQLite
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
+    const sqliteDb = await sqlLite.connectToSQLite(dbPath);
+    const hrRows = await sqlLite.fetchHrData(lastSyncDate,sqliteDb);
+    console.log(`Retrieved ${hrRows.length} hr records from SQLite`);
+    sqliteDb.close();
+    return hrRows;
+}
 
 async function updateHrData(source){
+    //tiempo de inicio
+    const startTime = Date.now();
+    //console.log("before getUSerDevice");
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     console.log('userId:', userId);
-    let lastSyncDateG = '2025-03-01'; 
+    let lastSyncDateG = '2025-04-01'; 
     console.log('lastSyncDate:', lastSyncDate);
     console.log('userDeviceId:', userDeviceId);
-   
-    await migrateHrData(userDeviceId, lastSyncDateG, userId);
+
+    const hrRows = await getHrData(lastSyncDate);
+
+    await migrateHrData(userDeviceId, lastSyncDateG, userId, hrRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
-    sqliteDb.close();
     await pool.end();
+    // tiempo de fin
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    console.log(`Tiempo de ejecución: ${duration} milisegundos`);
+
     console.log('Conexiones cerradas');
 }
 /**
@@ -105,6 +134,7 @@ async function updateHrData(source){
  */
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
+    console.log('antes del update');
     updateHrData(SOURCE).then(() => {
          console.log('Migración de datos de hr completada.');
      }).catch(err => {
