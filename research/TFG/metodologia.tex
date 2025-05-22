@@ -1,0 +1,179 @@
+\section{Metodología}
+
+%% igual al final resumir esto y marcar solo un problema general y la solución. Escribir cada una de las posibilidades en los anexos
+\subsection{Problemas y desafíos}
+
+\subsubsection{SAMSUNG}
+El acceso a los datos de los wearables Samsung, es posible mediante su SDK oficial. Sin embargo, el uso de este requiere una asociación con Samsung para el desarrollo de la aplicación Android en la que solo son considerados empleados de empresa y no estudiantes. "Below are the requirements to be considered for partnership approval:
+Must be a company employee. \textbf{Students} or individuals who represent themselves do \textbf{not qualify}."  
+ \cite{PartnershipRequest}
+
+\paragraph{Soluciones alternativas exploradas y sus limitaciones} . \\
+\label{sec:API Fitbit}
+La API de Fitbit destaca como solución óptima para integración de datos por su accesibilidad abierta y gratuita, a diferencia de las APIs restringidas de Garmin y Samsung. Su implementación con OAuth 2.0 y generosas cuotas (150 llamadas/hora) la hace ideal para desarrollo e investigación. Proporciona datos críticos en formato JSON estandarizado: sueño (incluyendo fases), actividad continua (pasos, calorías) y bioindicadores (frecuencia cardíaca, SpO$_2$), tanto en tiempo real como históricos. Su interoperabilidad con plataformas como Google Fit mediante webhooks añade flexibilidad. Aunque presenta limitaciones en métricas avanzadas (VO$_2$ max, hidratación), su equilibrio entre accesibilidad, cobertura de datos y coste cero la convierte en la opción más viable para prototipado.
+
+Por lo que, debido a las características que ofrece la API de Fitbit, se ha buscado una solución que use esta tecnología.
+
+
+\label{sec:SolucionSamsung}
+\paragraph{Opción A: Integración vía Fitbit} . \\
+\textbf{Flujo de datos: } Samsung Health → Health Connect → Fitbit App → Fitbit Web API \\
+ Esta aproximación requiere que Health Connect esté instalado en el dispositivo Android, con la sincronización activa entre Samsung Health y Health Connect, además de la Fitbit App configurada para leer estos datos. Además requiere que durante la configuración inicial se tenga insertada una tarjeta SIM para verificación regional.
+
+ La opción presenta las siguientes limitaciones: no sincroniza datos de actividad de los wearables (solo datos móviles), es incompatible con Wear OS, y depende críticamente de la correcta configuración manual por parte del usuario. 
+
+\subsubsection{GARMIN}
+
+
+El acceso a los datos de los wearables Garmin presenta  limitaciones técnicas. Aunque la compañía ofrece tanto una API en la nube (Garmin Connect API) como un SDK para aplicaciones móviles, ambas soluciones están restringidas a desarrolladores comerciales aprobados, requiriendo frecuentemente pedidos mínimos de dispositivos. Esta barrera de acceso las hace inviables para proyectos donde se necesitan soluciones abiertas y escalables.
+//No sé si documentar que empecé a implementarlo 
+
+
+\paragraph{Soluciones alternativas exploradas y sus limitaciones} . \\
+Ante estas restricciones, exploré varias alternativas de integración indirecta. Algunas de ellas incluyen la redirección de la información a la app de Fitbit por las razones dadas en el apartado anterior.~\ref{sec:API Fitbit}
+
+
+\paragraph{Opción A: Integración vía Fitbit} . \\
+\textbf{Flujo de datos: } Garmin → Health Sync → Fitbit App → Fitbit Web API \\
+Health Sync es una aplicación diseñada para sincronizar y consolidar datos de salud y actividad física desde múltiples dispositivos y aplicaciones en un único lugar. Sin embargo, al ser una aplicación de pago, esta opción fue descartada.
+
+
+
+\paragraph{Opción B: Integración vía Google Fit} . \\
+\textbf{Flujo de datos: } Garmin → SyncMyTracks → Google Fit → Fitbit Web API \\
+SyncMyTracks permite la sincronización entre Garmin Connect y Google Fit, ofreciendo una solución sencilla y efectiva con la posibilidad de definir la frecuencia de sincronización. Aunque técnicamente viable, esta opción queda descartada por su incompatibilidad con iOS y las limitaciones de su versión gratuita, que solo permite exportar las últimas 40 actividades.
+
+\paragraph{Opción C: Integración vía Strava} . \\
+\textbf{Flujo de datos: } Garmin → Strava API \\
+La tercera opción evaluada fue descartada por su enfoque exclusivo en métricas deportivas. Strava no recoge datos esenciales para nuestro contexto, como parámetros de salud general (sueño, oxigenación sanguínea) o actividades cotidianas (pasos, movilidad básica), que son cruciales para el análisis del bienestar en personas mayores. 
+\paragraph{Opción D: Integración vía USB} . \\
+\textbf{Flujo de datos: } Reloj Garmin → PC \\
+Aunque acceder a los datos es viable a través de los archivos .FIT, esta opción fue descartada por la imposibilidad de automatización al depender del dispositivo en físico, el acceso únicamente a datos históricos (no en tiempo real) y el requerimiento de intervención manual continua. 
+\paragraph{Opción E: Exportación Automatizada desde Garmin Connect} . \\
+\textbf{Flujo de datos: } Garmin Connect Web → Scraping → CSV/TCX → Procesamiento Local \\
+El uso de un script periódico como Cron en Linux y Selenium para simular la interacción con la interfaz web de Garmin Connect, facilitaría la descarga automatizada de las métricas en formatos estandar. Sin embargo, la dependencia de las estructura HTML/JS de Garmin Connect, la adaptación a las modificaciones en la UI y sobre todo la prohibición explicita del scraping en los Términos de Servicio de Garmin, descartan esta opción.\\
+\paragraph{Opción F: Sincronización con Herramientas de Terceros} . \\
+\textbf{Flujo de datos: } Garmin Connect → GarminDB → Base de Datos Local \\
+GarminDB ofrece la ventaja de exportar los datos a una base SQLite local con soporte para métricas avanzadas de salud, pero su dependencia del mantenimiento comunitario la hacen poco fiable para implementaciones a largo plazo.\\
+
+
+ Este análisis muestra una situación fragmentada donde ninguna solución presentada cumple con los requisitos del proyecto: accesibilidad sin restricciones comerciales, cobertura completa de métricas relevantes para salud, y compatibilidad multiplataforma. La imposibilidad de utilizar herramientas estándar destaca la necesidad de desarrollar una solución adaptada, particularmente en el contexto de investigación en salud.
+
+
+
+
+\subsection{Propuesta de solución}
+\subsubsection{SAMSUNG}
+La opción A presenta  limitaciones nombradas en la sección anterior ~\ref{sec:SolucionSamsung}. Sin embargo, se ha seleccionado por ser una opción viable, con una API abierta y gratuita (Fitbit Web API), que evita el desarrollo de aplicaciones nativas y proporciona compatibilidad con la mayoría de dispositivos Android. Cubriendo las métricas básicas necesarias para este proyecto, pese a los riesgos asociados a la cadena de sincronización.
+\subsubsection{GARMIN}
+La opcion F presenta limitaciones de soporte a largo plazo. Por otro lado, es una opción que permite obtener todos los datos generados por el wearable de forma periódica y redirigirlos de forma automática a la Base de datos. Cumpliendo los requisitos asociados a este proyecto.
+
+%%describir el entorno desarrollado
+
+%%
+\subsection{Análisis de los estándares para la representación de datos médicos para lograr la interoperabilidad}
+Uno de los principales obstáculos para la integración de los datos procedentes de distintos wearables es la falta de estandarización. Esto genera problemas de interoperabilidad tanto sintáctica (formatos de datos) como semántica (significado de los datos).
+
+Para garantizar la fiabilidad, comparabilidad y correcta interpretación de estos datos en un contexto clínico o de investigación, es necesario adoptar modelos de representación comunes basados en estándares reconocidos. Este apartado presenta un análisis comparativo de las principales ontologías y estándares  en el dominio de los datos de salud y monitorización. 
+
+\subsubsection{LOINC - Logical Observation Identifiers Names and Codes}
+Estándar universal para la codificación de observaciones clínicas y de laboratorio. Esencial para identificar de forma unívoca qué se ha medido (p. ej., frecuencia cardíaca, conteo de pasos).
+
+\subsubsection{SNOMED CT - Systematized Nomenclature of Medicine - Clinical Terms}
+Ontología clínica exhaustiva que cubre una amplia gama de conceptos médicos (diagnósticos, procedimientos, hallazgos, etc.). Complementa a LOINC para añadir contexto clínico. \cite{SNOMEDCT}
+
+
+\subsubsection{HL7 FHIR  - Fast Healthcare Interoperability Resources}
+Estándar predominante para el intercambio electrónico de información sanitaria, basado en recursos modulares (ej. Patient, Device, Observation, DiagnosticReport). Utiliza formatos JSON/XML y requiere terminologías como LOINC/SNOMED CT para la semántica. \cite{HL7FHIR} 
+
+\subsubsection{OMH - OpenMHealth Schemas}
+Conjunto de esquemas JSON modulares y simples, diseñados específicamente para datos de salud móviles y wearables (ej. omh\_blood\_pressure). Facilitan el intercambio de datos estandarizando estructura, campos (effective\_time\_frame, unit) y unidades. \cite{OpenmHealth}
+
+\subsubsection{ W3C SSN/SOSA - Semantic Sensor Network / Sensor, Observation, Sample, and Actuator}
+Ontologías estándar del W3C para modelar redes de sensores, observaciones, procedimientos de medición y actuadores en la web semántica. SSN extiende SOSA con detalles sobre sistemas y despliegues. Proporcionan una rica descripción semántica de la procedencia del dato. \cite{SSN/SOSA}
+
+\subsubsection{ SAREF/SAREF4health - Smart Applications REFerence ontology}
+Estándar ontológico europeo para la interoperabilidad en IoT, con una extensión específica para el dominio de la salud (SAREF4health). Se enfoca en la descripción semántica de dispositivos, mediciones (incluyendo series temporales como TimeSeriesMeasurement) y sus relaciones (hasTimestamp, hasUnit). \cite{SAREF4health}
+
+\subsubsection{Conclusion}
+Considerando los requisitos de integración con fines médicos y de salud, se va a considerar una estrategia híbrida. 
+
+Utilizando HL7 FHIR como el estándar primario para la representación e intercambio de datos clínicos. Utilizando códigos LOINC para identificar la medición y asegurando la conformidad con el formato JSON y la API RESTful de FHIR para la interoperabilidad con sistemas HIS (Health Information Systems)/EHR (Electronic Health Records). 
+
+....
+
+
+
+\subsection{Análisis de los datos}
+%%Incluir debajo el esquema de la db // o no
+
+Para este proyecto se considera relevante el análisis de la información extraible de cada uno de los relojes. También la frecuencía y las caracterísitcas con las que se almacenan estos datos para una posible futura estimación de recursos en la aplicación real del proyecto.
+
+\subsubsection{GARMIN}
+
+Los datos extraibles de la marca Garmin se obtienen en un sistema que implementa una arquitectura de almacenamiento de datos estructurada en cinco bases de datos principales 
+(Garmin, Garmin-activities, Garmin-monitoring, Garmin-summary y Summary).
+Estas bases de datos, en conjunto, contienen 28 tablas con tres metodologías de inserción distintas:
+
+\paragraph{Inserción Periódica Fija} . \\
+Las tablas daily-summary, sleep , weeks-summary  y years-summary  generan registros diarios, semanales o anuales independientemente de la actividad del usuario.
+
+Esto mantiene la continuidad temporal, pero puede contener registros vacíos durante períodos de inactividad.
+
+\paragraph{Inserción Dependiente de la Actividad} . \\
+ Las tablas device-info , resting-hr, stress , monitoring-hr (Garmin-monitoring) y days-summary (Garmin-summary) solo registran datos cuando existe nueva información.
+ 
+ Esto crea lagunas temporales durante la inactividad del dispositivo.
+
+\paragraph{Inserción Activada por Eventos} . \\
+ Tablas basadas en la actividad (activities y activity-records en Garmin-activities) capturan eventos de ejercicio discretos. 
+ 
+ Las tablas de monitorización fisiológica (monitoring-hr y monitoring-rr en Garmin-monitoring) registran datos minuto a minuto durante el uso activo.
+
+\paragraph{Vulnerabilidades} . \\
+Se identificaron vulnerabilidades críticas en el sistema:
+
+\begin{itemize}
+    \item Pérdida de datos durante la desconexión de Bluetooth debido al almacenamiento lleno.
+    \item  La saturación de memoria se produjó a los 10-15 días de falta de sincronización mediante Bluetooh con el dispositivo.
+    \item La desincronización del reloj previa a la conexión comprometió la precisión de las marcas de tiempo cuando el Bluetooth estaba apagado.
+\end{itemize}
+
+La arquitectura prioriza las métricas fisiológicas en tiempo real (FC, FR, estrés) al tiempo que mantiene resúmenes periódicos, pero exhibe limitaciones operativas significativas. La sincronización dependiente de Bluetooth y las limitaciones de almacenamiento local generan vacíos en el conjunto de datos. Las tablas dependientes de la actividad reflejan con precisión los patrones de uso, mientras que las tablas de inserción fija aseguran la estructura temporal, pero pueden contener registros nulos.
+\subsection{Implementación}
+
+\subsubsection{Consideraciones sobre el Esquema de la Base de Datos}
+La elección de un esquema de base de datos adecuado para este proyecto es esencial para almacenar de forma eficiente la cantidad heterógenea de datos procedente de los distintos wearables, con el fin de facilitar el análisis longitudinal de datos. 
+
+
+Se deben considerar las siguientes características:
+\begin{itemize}
+    \item \textbf{Heterogeneidad:} Los datos provienen de dos plataformas distintas, Garmin y Samsung, con diferentes flujos de datos, fomratos (JSON, XML...), granularidades (segundo a segundo, minuto a minuto, resúmenes diarios, por sesión) y definiciones métricas.
+    \item \textbf{Volumen:} Existen datos de series temporales de alta frecuencia como la frecuencía cardiaca. Estos datos pueden generar grandes volumenes de datos rápidamente, lo que requiere soluciones de almacenamiento y consulta eficientes.
+    \item \textbf{Análisis Longitudinal:} El objetivo principal es analizar cómo cambian las métricas y patrones a lo largo del tiempo. Esto requiere consultas eficientes que abarquen rangos de tiempo, calculen agregaciones temporales (promedios diarios/semanales), detecten tendencias y permitan comparar periodos.
+\end{itemize}
+
+
+\paragraph{\textbf{Modelos considerados}}
+\begin{itemize}
+    \item \textbf{Modelos Relacionales SQL- e.g., PostgreSQL, MySQL, SQLite :} Organizan los datos en tablas con relaciones definidas. Este modelo ofrece garantías ACID para integridad de datos y permite consultas complejas mediante SQL, aunque puede volverse complejo con muchas tablas, tiene limitaciones en eficiencia para series temporales y presenta dificultades en el escalado horizontal.
+    \item \textbf{Base de Datos de Series Temporales TSDB - e.g., InfluxDB, TimescaleDB:} Están diseñadas específicamente para manejar datos indexados por tiempo. El modelo está optimizado para ingesta rápida y consultas eficientes de datos temporales, con funciones nativas para agregaciones, downsampling y escalado horizontal, ideales para monitoreo en tiempo real. Sin embargo, son menos flexibles para relaciones no temporales, y consultas que combinen diferentes measurements o datos estáticos pueden ser menos eficientes que en bases SQL.   
+    \item \textbf{Base de Datos No SQL - e.g., MongoDB, Cassandra:} Modelos flexibles: en formato documento, almacenan registros diarios o de sesiones como JSON/BSON con metadatos y series temporales incrustadas, mientras que en columnas anchas irganizan los datos por atributos , optimizando escrituras masivas y consultas por rangos temporales. Su principal ventaja es la escalabilidad horizontal y adaptabilidad a cambios en el esquema, aunque las consultas complejas o con angregaciones pueden ser menos eficientes que en SQL.
+\end{itemize}
+
+\paragraph{\textbf{Modelo elegido}} 
+Considerando la necesidad de almacenar datos estructurados (por ejemplo, perfiles), datos de sesión (como resúmenes de actividad, resúmenes de sueño) y grandes volúmenes de datos de series temporales, así como la necesidad de análisis, se ha optado por un enfoque híbrido: una base de datos relacional con capacidades mejoradas para series temporales, TimeScaleDB.
+
+
+Esta combinación mantiene la robustez, la integridad transaccional (ACID) y la potencia de consulta de SQL de PostgreSQL para manejar los metadatos, perfiles de participantes y relaciones complejas. Al mismo tiempo, TimescaleDB optimiza el almacenamiento y la consulta de los datos de series temporales (haciendo uso de hypertables) mediante particionamiento automático por tiempo, compresión eficiente y funciones SQL especializadas para análisis temporal. 
+
+\textbf{Consideraciones adicionales}
+\begin{itemize}
+    \item \textbf{Indexación: } 
+    \item \textbf{Particionamiento:}    
+    \item \textbf{Backup y Recuperación: } 
+    \item \textbf{Seguridad y Privacidad: } Dado que se manejan datos sensibles de salud, se deben implementar medidas de seguridad estrictas (control de acceso, cifrado en reposo y en tránsito) y asegurar el cumplimiento de las normativas de protección de datos aplicables. La anonimización o pseudoanonimización del id del usuario es un requisito básico.
+\end{itemize}
+
+\subsubsection{Tecnologías empleadas}
+

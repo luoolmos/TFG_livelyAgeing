@@ -1,0 +1,92 @@
+\documentclass[a4paper,12pt]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[style=apa,sortcites=true,sorting=nyt,backend=biber]{biblatex}
+\usepackage{float}
+\usepackage{tcolorbox}
+\usepackage{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{titlesec}
+
+\addbibresource{bibliografia.bib}
+\DeclareLanguageMapping{spanish}{spanish-apa}
+
+% Márgenes
+\geometry{
+    a4paper,
+    left=3cm,
+    right=3cm,
+    top=2.5cm,
+    bottom=2.5cm,
+}
+
+\setstretch{1.5}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+% Fancyhdr
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\thepage}
+\renewcommand{\chaptermark}[1]{\markboth{CAPÍTULO \thechapter. \ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection. \ #1}}
+
+% Redefinir capítulo
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\Large}
+  {\chaptertitlename\ \thechapter}{10pt}{\Huge}
+
+\begin{document}
+
+\input{portada.tex}
+\input{resumen.tex}
+\tableofcontents
+\newpage
+
+% Capítulo 1
+\chapter{Introducción}
+\input{01_introduccion.tex}
+
+% Siguientes capítulos...
+\chapter{Estado del Arte y Marco Tecnológico}
+\input{02_estado_arte_marco_tecnologico.tex}
+
+\chapter{Metodología}
+\input{03_requisitos_metodologia.tex}
+
+\chapter{Análisis}
+\input{04_analisis.tex}
+
+\chapter{Diseño y Arquitectura del Sistema}
+\input{04_diseno_arquitectura.tex}
+
+\chapter{Implementación}
+\input{05_implementacion.tex}
+
+\chapter{Pruebas y Validación}
+\input{06_pruebas_validacion.tex}
+
+\chapter{Resultados y Discusión}
+\input{07_resultados_discusion.tex}
+
+\chapter{Conclusiones y Trabajo Futuro}
+\input{08_conclusiones_trabajo_futuro.tex}
+
+\printbibliography
+
+\appendix
+\renewcommand{\thesection}{Anexo \Alph{section}}  
+\chapter*{Anexos}
+\addcontentsline{toc}{chapter}{Anexos}  % Opcional: añade "Anexos" al índice
+\markboth{Anexos}{Anexos}               % Opcional: aparece en el encabezado
+\input{anexos.tex}
+
+\end{document}

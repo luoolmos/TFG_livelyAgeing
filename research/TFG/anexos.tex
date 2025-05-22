@@ -1,0 +1,25 @@
+\section{Anexos}
+
+\subsection{Modelos de Bases de Datos Considerados}
+
+Para la selección de la base de datos más adecuada al proyecto, se analizaron distintas alternativas, valorando sus ventajas y limitaciones en el contexto de la integración de datos heterogéneos y de series temporales procedentes de wearables.
+
+\begin{itemize}
+    \item \textbf{Modelos Relacionales SQL (PostgreSQL, MySQL, SQLite):} Organizan los datos en tablas con relaciones definidas. Ofrecen garantías ACID para la integridad de los datos y permiten consultas complejas mediante SQL. Sin embargo, pueden volverse complejos con muchas tablas, tienen limitaciones en eficiencia para series temporales y presentan dificultades en el escalado horizontal.
+    \item \textbf{Bases de Datos de Series Temporales (TSDB, e.g., InfluxDB, TimescaleDB):} Diseñadas específicamente para manejar datos indexados por tiempo. Optimizadas para ingesta rápida y consultas eficientes de datos temporales, con funciones nativas para agregaciones, downsampling y escalado horizontal. Son ideales para monitoreo en tiempo real, aunque menos flexibles para relaciones no temporales.
+    \item \textbf{Bases de Datos NoSQL (MongoDB, Cassandra):} Modelos flexibles en formato documento o columnas anchas. Permiten almacenar registros diarios o de sesiones como JSON/BSON, optimizando escrituras masivas y consultas por rangos temporales. Su principal ventaja es la escalabilidad horizontal y adaptabilidad a cambios en el esquema, aunque las consultas complejas o con agregaciones pueden ser menos eficientes que en SQL.
+\end{itemize}
+
+La decisión final sobre la base de datos empleada y su justificación se detalla en el capítulo de Tecnologías Empleadas.
+
+\subsection{Comparativa de Modelos Estándar de Datos para Salud}
+
+Durante el diseño del sistema se analizaron diferentes modelos estándar para la representación e integración de datos de salud y wearables:
+
+\begin{itemize}
+    \item \textbf{HL7 FHIR:} Muy extendido en el sector sanitario, facilita el intercambio de información clínica mediante recursos modulares y formatos JSON/XML. Es especialmente útil para la interoperabilidad entre sistemas clínicos, pero puede requerir adaptaciones para el análisis poblacional y la integración de grandes volúmenes de datos heterogéneos.
+    \item \textbf{OpenMHealth:} Proporciona esquemas JSON simples y modulares para datos de salud móviles y wearables. Es fácil de implementar y favorece la interoperabilidad, aunque su adopción es menor en grandes consorcios de investigación.
+    \item \textbf{OMOP CDM:} El modelo OMOP Common Data Model destaca por su capacidad de estandarizar datos de fuentes heterogéneas, su aceptación en la industria y la disponibilidad de herramientas analíticas avanzadas. Permite la integración de datos de wearables, historia clínica electrónica y otras fuentes, facilitando el análisis poblacional y la investigación colaborativa.
+\end{itemize}
+
+La elección final del modelo OMOP CDM y su justificación se detalla en el capítulo de Diseño y Arquitectura del Sistema.

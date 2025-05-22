@@ -1,212 +1,16 @@
 require('dotenv').config({path: '../.env' });
-const { Pool } = require('pg');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 const pool = require('../db');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js');
-const { getConceptInfo, getConceptInfoObservation, getConceptInfoMeasurement, getConceptUnit } = require('../getDBinfo/getConcept.js');
+const { getConceptInfoMeasValue, getConceptInfoObservation, getConceptInfoMeasurement, getConceptUnit } = require('../getDBinfo/getConcept.js');
+const { generateObservationData, generateMeasurementData } = require('../migration/formatData.js');
+const sqlLite = require('./sqlLiteconnection.js');
+const formatValue = require('../migration/formatValue.js');
 const inserts = require('../getDBinfo/inserts.js');
 
 // Configuración de la base de datos SQLite
 const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_ACTIVITIES);
-const sqliteDb = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY, (err) => {
-    if (err) {
-        console.error('Error al conectar a SQLite:', err.message);
-        process.exit(1);
-    }
-    console.log('Conexión exitosa a GarminDB (SQLite)');
-});
-
-// Función auxiliar para formatear fechas como 'YYYY-MM-DD'
-function formatDate(date) {
-    const d = new Date(date);
-    return d.toISOString().split('T')[0]; // 'YYYY-MM-DD'
-}
-
-/**
- * Recupera los Datos de actividad desde SQLite
- */
-function fetchActivityData(date) {
-    //date to timestamptz
-    return new Promise((resolve, reject) => {
-        sqliteDb.all(
-            `SELECT activity_id, start_time, elapsed_time, type, sport, sub_sport, training_load, training_effect, anaerobic_training_effect, distance, calories, avg_hr, max_hr, avg_rr, max_rr, avg_speed, max_speed, avg_cadence, max_cadence, avg_temperature, max_temperature, min_temperature, ascent, descent, self_eval_feel,self_eval_effort 
-            FROM activities
-            WHERE start_time >= ?`,
-            [date], 
-            (err, rows) => (err ? reject(err) : resolve(rows))
-        );
-    });
-}
-
-function fetchACtivityRecordsData(date) {
-    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
-  return new Promise((resolve, reject) => {
-      sqliteDb.all(
-          `SELECT activity_id, record, timestamp, distance, cadence, altitude, hr, rr, speed, temperature 
-           FROM activity_records
-           WHERE timestamp >= ?`,
-            [dateIni_timestamp], //,dateEnd_timestamp], 
-          (err, rows) => (err ? reject(err) : resolve(rows))
-      );
-  });
-}
-
-function fecthCycleActivityData(activityId) {
-    return new Promise((resolve, reject) => {
-        sqliteDb.all(
-            `SELECT activity_id, strokes, vo2_max
-            FROM cycle_Activity
-            WHERE activity_id = ?`,
-            [activityId], 
-            (err, rows) => (err ? reject(err) : resolve(rows))
-        );
-    });
-}
-
-function fecthPaddleActivityData(activityId) {
-    return new Promise((resolve, reject) => {
-        sqliteDb.all(
-            `SELECT activity_id, strokes, avg_stroke_distance   
-            FROM paddle_Activity
-            WHERE activity_id = ?`,
-            [activityId], 
-            (err, rows) => (err ? reject(err) : resolve(rows))
-        );
-    });
-}
-
-function fecthStepsActivityData(activityId) {
-    return new Promise((resolve, reject) => {
-        sqliteDb.all(
-            `SELECT activity_id, steps, avg_pace, avg_moving_pace, max_pace, avg_steps_per_min, avg_step_length, avg_ground_contact_time, avg_stance_time_percent, vo2_max
-            FROM steps_Activity   
-            WHERE activity_id = ?`,
-            [activityId], 
-            (err, rows) => (err ? reject(err) : resolve(rows))
-        );
-    });
-}
-
-
-function formatToTimestamp(dateString) {
-    // Crear un objeto Date a partir de la cadena ISO
-    const date = new Date(dateString);
-
-    // Extraer los componentes de la fecha
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Meses van de 0 a 11
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
-
-    // Formatear la fecha con microsegundos
-    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}000`;
-    //console.log('Formatted date:', formattedDate);
-    return formattedDate;
-}
-
-//duration: 00:10:00.000000 --> 10 
-function stringToMinutes(value) {
-    //console.log('stringToMinutes value:', value);
-    if (value === null || value === undefined) return null; // Manejo de valores nulos o indefinidos
-
-    if (typeof value === 'string') {
-        // Dividir el valor en horas, minutos y segundos
-        const parts = value.split(':');
-        if (parts.length === 3) {
-            const hours = parseInt(parts[0], 10);
-            const minutes = parseInt(parts[1], 10);
-            const seconds = parseFloat(parts[2]); // Incluye los microsegundos
-            // Convertir todo a minutos
-            return hours * 60 + minutes + Math.floor(seconds / 60);
-        } else if (parts.length === 2) {
-            const hours = parseInt(parts[0], 10);
-            const minutes = parseInt(parts[1], 10);
-            return hours * 60 + minutes; // Convertir a minutos
-        } else if (parts.length === 1) {
-            return parseInt(parts[0], 10); // Si es solo un número, devolverlo como minutos
-        }
-    } else if (typeof value === 'number') { 
-        return value; // Si ya es un número, devolverlo directamente
-    } else return null; // Si no es un string o número, devolver null
-}
-
-
-function milesToMeters(value) {
-    return value * 1609.34;
-}
-
-function milesToMeters(value) {
-    return value * 1609.34;
-}
-
-
-async function generateMeasurementData(data, value, conceptId, conceptName, unitString, low, high) {
-    
-    const {unitconceptId, unitconceptName} = await getConceptUnit(unitString);
-
-    const valueAsNumber = value;
-    const valueAsString = typeof value === 'string' ? value : null;
-
-    return data = {
-        person_id: data.userId,
-        measurement_concept_id: conceptId,
-        measurement_date: data.observationDate,
-        measurement_datetime: data.observationDatetime,
-        measurement_type_concept_id: constants.TYPE_CONCEPT_ID,
-        operator_concept_id: null,
-        value_as_number: valueAsNumber,
-        value_as_string: valueAsString,
-        value_as_concept_id: null,
-        unit_concept_id: unitconceptId,
-        range_low: low,
-        range_high: high,
-        provider_id: null,
-        visit_occurrence_id: null,
-        visit_detail_id: null,
-        measurement_source_value: conceptName,
-        measurement_source_concept_id: null,
-        unit_source_value: unitconceptName,
-        value_source_value: value,
-        measurement_event_id: data.activityId,
-        meas_event_field_concept_id: null //1147127 observation_event_field_concept_id
-    };
-}   
-
-async function generateObservationData(data, value, conceptId, conceptName, unitString) {
-    
-    const {unitconceptId, unitconceptName} = await getConceptUnit(unitString);
-
-    const valueAsNumber = value;
-    const valueAsString = typeof value === 'string' ? value : null;
-
-    return data = {
-        person_id: data.userId,
-        observation_concept_id: constants.PHYSICAL_ACTIVITY_CONCEPT_ID,
-        observation_date: data.observationDate,  
-        observation_datetime: data.observationDatetime,
-        observation_type_concept_id: constants.TYPE_CONCEPT_ID,
-        value_as_number: valueAsNumber,
-        value_as_string: valueAsString,
-        value_as_concept_id: conceptId,
-        qualifier_concept_id: null,
-        unit_concept_id: null,
-        provider_id: null,
-        visit_occurrence_id: null,
-        visit_detail_id: null,
-        observation_source_value: conceptName,
-        observation_source_concept_id: null,
-        unit_source_value: null,
-        qualifier_source_value: null,
-        value_source_value: value,
-        observation_event_id: data.activityId,
-        obs_event_field_concept_id: null
-    };
-} 
+const sqliteDb = sqlLite.connectToSQLite(dbPath);
 
 //activity_id, record, timestamp, distance,  hr, rr, temperature
 async function formatActivityRecordsData(data, row){
@@ -235,19 +39,19 @@ async function formatActivityRecordsData(data, row){
 async function formatActivityData(userId, data, activityRecords) {
     try {
         for (const row of data) {
-            const observationDate = formatDate(row.start_time);
-            const observationDatetime = formatToTimestamp(row.start_time);
+            const observationDate = formatValue.formatDate(row.start_time);
+            const observationDatetime = formatValue.formatToTimestamp(row.start_time);
 
             const firstInsertion = {
                 userId,
                 observationDate,
                 observationDatetime,
-                activityId: null
+                releatedId: null
             };
 
             // Insert sport observation
             const sport = row.sport.toLowerCase();
-            const { sportConceptId, sportConceptName } = await getConceptInfo(sport);
+            const { sportConceptId, sportConceptName } = await getConceptInfoMeasValue(sport);
             const sportData = generateObservationData(firstInsertion, row.sport, sportConceptId, sportConceptName, constants.PHYSICAL_ACTIVITY_CONCEPT_ID);
             const insertedId = await inserts.insertObservation(sportData);
 
@@ -257,15 +61,15 @@ async function formatActivityData(userId, data, activityRecords) {
                 userId,
                 observationDate,
                 observationDatetime,
-                activityId: insertedId
+                releatedId: insertedId
             };
 
             // Measurement list to insert
             const insertMeasureValue = [];
 
             const measurements = [
-                { value: stringToMinutes(row.elapsed_time), constKey: constants.DURATION_STRING, unit: constants.MINUTE_STRING, conceptFn: getConceptInfoObservation },
-                { value: milesToMeters(row.distance), constKey: constants.DISTANCE_STRING, unit: constants.METER_STRING, conceptFn: getConceptInfoMeasurement },
+                { value: formatValue.stringToMinutes(row.elapsed_time), constKey: constants.DURATION_STRING, unit: constants.MINUTE_STRING, conceptFn: getConceptInfoObservation },
+                { value: formatValue.milesToMeters(row.distance), constKey: constants.DISTANCE_STRING, unit: constants.METER_STRING, conceptFn: getConceptInfoMeasurement },
                 { value: row.calories, constKey: constants.CALORIES_STRING, unit: constants.KCAL_STRING, conceptFn: getConceptInfoMeasurement },
                 { value: row.avg_hr, constKey: constants.BEATS_PER_MIN_STRING, unit: constants.BEATS_PER_MIN_STRING, conceptFn: getConceptInfoMeasurement },
                 { value: row.max_hr, constKey: constants.MAX_HR_STRING, unit: constants.BEATS_PER_MIN_STRING, conceptFn: getConceptInfoMeasurement },
@@ -290,31 +94,31 @@ async function formatActivityData(userId, data, activityRecords) {
             const activityRecordsForRow = activityRecords.filter(record => row.activity_id === record.activity_id);
 
             for (const record of activityRecordsForRow) {
-                const stageObservationDate = formatDate(record.timestamp);
-                const stageObservationDatetime = formatToTimestamp(record.timestamp);
+                const stageObservationDate = formatValue.formatDate(record.timestamp);
+                const stageObservationDatetime = formatValue.formatToTimestamp(record.timestamp);
 
                 const stageValues = {
                     userId,
                     observationDate: stageObservationDate,
                     observationDatetime: stageObservationDatetime,
-                    activityId: insertedId
+                    releatedId: insertedId
                 };
 
                 const measurementData = formatActivityRecordsData(stageValues, record);
                 insertMeasureValue.push(...measurementData);
             }
 
-            const paddleRecords = await fecthPaddleActivityData(baseValues.activityId);
+            const paddleRecords = await sqlLite.fetchPaddleActivityData(baseValues.releatedId, sqliteDb);
             for (const paddle of paddleRecords){
                 //activity_id, strokes, avg_stroke_distance 
             }
 
-            const cycleRecords = await fecthCycleActivityData(baseValues.activityId);
+            const cycleRecords = await sqlLite.fetchCycleActivityData(baseValues.releatedId, sqliteDb);
             for (const cycle of cycleRecords){
                 //activity_id, strokes, vo2_max         
             }
 
-            const stepsRecords = await fecthStepsActivityData(baseValues.activityId);
+            const stepsRecords = await sqlLite.fetchStepsActivityData(baseValues.releatedId, sqliteDb);
             for (const step of stepsRecords){
                 //activity_id, steps, avg_pace, avg_moving_pace, max_pace, avg_steps_per_min, avg_step_length, avg_ground_contact_time, avg_stance_time_percent, vo2_max
             }
@@ -335,9 +139,9 @@ async function formatActivityData(userId, data, activityRecords) {
 async function migrateActivityData(userDeviceId, lastSyncDate, userId) {
     const client = await pool.connect();
     try {
-        const activityRows = await fetchActivityData(lastSyncDate);
+        const activityRows = await sqlLite.fetchActivityData(lastSyncDate, sqliteDb);
         //console.log('Activity rows:', activ);
-        const activityRecordsRows = await fetchACtivityRecordsData(lastSyncDate);
+        const activityRecordsRows = await sqlLite.fetchACtivityRecordsData(lastSyncDate, sqliteDb);
         //console.log('Activity events rows:', activityRecordsRows);
         console.log('lastSyncDate:', lastSyncDate);
         //console.log('activityRecordsRows:', activityRecordsRows);   

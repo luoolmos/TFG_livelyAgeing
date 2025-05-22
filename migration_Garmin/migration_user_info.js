@@ -1,8 +1,4 @@
-require('dotenv').config({path: '../.env' });
-const { Pool } = require('pg');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const pool = require('../db');
+//PDTE
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../getDBinfo/getUserId.js');
 const inserts = require('../getDBinfo/inserts.js');

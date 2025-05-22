@@ -21,8 +21,8 @@ module.exports = {
     //**************CONCEPTS*************
     // 
     SPO2_STRING: 'spo2',
-    RR_STRING: 'rr',
-    HR_STRING: 'hr',
+    RR_STRING: 'respiration rate',
+    HR_STRING: 'heart rate',
     DURATION_STRING: 'duration',
     STRESS_STRING: 'stress',
     SLEEP_DURATION_STRING: 'sleep_duration',
@@ -30,10 +30,10 @@ module.exports = {
     SLEEP_AVG_STRESS_STRING: 'sleep_avg_stress',
     SLEEP_AVG_SPO2_STRING: 'sleep_avg_spo2',
     SLEEP_AVG_RR_STRING: 'sleep_avg_rr',
-    SLEEP_REM_DURATION_STRING: 'sleep_rem_duration',
-    SLEEP_LIGHT_DURATION_STRING: 'sleep_light_duration',
-    SLEEP_DEEP_DURATION_STRING: 'sleep_deep_duration',
-    SLEEP_AWAKE_DURATION_STRING: 'sleep_awake_duration',
+    SLEEP_REM_DURATION_STRING: 'rem sleep duration',
+    SLEEP_LIGHT_DURATION_STRING: 'light sleep duration',
+    SLEEP_DEEP_DURATION_STRING: 'deep sleep duration',
+    SLEEP_AWAKE_DURATION_STRING: 'nighttime awakening duration',
     DISTANCE_STRING: 'distance',
     CALORIES_STRING: 'calories burned',
     HEART_RATE_STRING: 'heart rate', //https://athena.ohdsi.org/search-terms/terms/3027018
@@ -98,7 +98,6 @@ module.exports = {
     //RESPIRATION_RATE_SOURCE_LOINC: 'LP74299-6',
     HEART_RATE_LOINC: 3027018, //https://athena.ohdsi.org/search-terms/terms/3027018    
     //HEART_RATE_SOURCE_LOINC: '9843-3',
-    
     OTHER_CONCEPT_ID: 0, //https://athena.ohdsi.org/search-terms/terms/1585734
 
 };

@@ -1,0 +1,108 @@
+\section{Introducción}
+
+\subsection{Contexto}
+En la actualidad, el mercado de dispositivos wearables, como relojes inteligentes y pulseras de actividad, experimenta un crecimiento constante. Según datos de la International Data Corporation (IDC) \cite{IDCWearables},  su adopción se ha generalizado, impulsada por la capacidad de monitorizar una amplia gama de métricas de salud y bienestar, como la frecuencia cardíaca, el recuento de pasos diarios, la calidad del sueño y el gasto calórico \cite{IDCWearables}.
+Esta capacidad de recopilación de datos en tiempo real ha posicionado a estos dispositivos como herramientas valiosas no solo para los usuarios individuales, sino también para profesionales de la salud, investigadores y empresas del sector tecnológico \cite{ConsumerHealthWearables}.
+
+Sin embargo, la proliferación de plataformas independientes desarrolladas por las distintas marcas de wearables, como Samsung y Garmin, ha generado una fragmentación de los datos y una notable falta de interoperabilidad \cite{serpush2022wearable}. Esta situación dificulta la estandarización y la integración de la información proveniente de múltiples fuentes, lo que limita la capacidad de los usuarios y profesionales para obtener una visión holística y unificada de la salud y la actividad física.
+
+Por lo tanto, la integración de datos de wearables emerge como un desafío técnico significativo. El desarrollo e implementación de una arquitectura robusta que permita consolidar y unificar la información procedente de dispositivos de diferentes fabricantes no solo mejoraría la experiencia del usuario al ofrecer una visión integral de sus datos, sino que también facilitaría el acceso y análisis de esta información por parte de los profesionales de la salud. Esto les permitiría obtener una comprensión más completa y precisa del estado de salud y los patrones de actividad física de sus pacientes o usuarios, abriendo la puerta a intervenciones más informadas y personalizadas.
+
+ 
+
+Esto es especialmente importante en proyectos como  \href{https://www.livelyageing.unimore.it/}{LivelyAgeing}, con el que colaboramos para la realización de este proyecto. En este contexto, una visión completa y precisa de la salud y la actividad física de las personas mayores es fundamental para diseñar intervenciones personalizadas y basadas en datos que mejoren significativamente su calidad de vida.
+
+\subsection{Objetivos}
+El objetivo de este trabajo es diseñar e implementar una arquitectura que permita la integración de datos procedentes de dispositivos wearables de las marcas Samsung y Garmin. Esta solución abordará los desafíos técnicos asociados a la falta de estandarización entre plataformas, facilitando el acceso y consolidación de información en un único sistema.
+
+En el contexto del proyecto LivelyAgeing, esta arquitectura permitirá a profesionales y investigadores obtener una visión unificada y precisa de la salud y actividad física de las personas mayores, apoyando así intervenciones personalizadas y basadas en datos para mejorar su calidad de vida.
+
+
+
+\subsection{Alcance} %%Define los límites del proyecto (qué wearables, qué tipos de datos, etc.).
+
+El presente estudio se limita a tres modelos específicos de wearables, cuyas características técnicas se detallan a continuación. 
+
+El Samsung Galaxy Watch 4 opera mediante BLE y Wear OS, incorporando sensores como acelerómetro, giroscopio, monitor de frecuencia cardíaca óptica (PPG) y bioimpedancia (BIA). Este dispositivo mide frecuencia cardíaca, patrones de sueño (incluyendo fases), actividad física (pasos, distancia, calorías) y composición corporal (masa muscular, grasa corporal). Su principal limitación radica en su incompatibilidad con iOS, requiriendo un dispositivo Android para su sincronización a través  de Samsung Health. \cite{SamsungW4Specifications}
+
+
+Por su parte, el Garmin Forerunner 55 incluye GPS, acelerómetro, frecuencia cardíaca óptica (Elevate v4) y termómetro. Sus métricas principales abarcan frecuencia cardíaca, VO$_2$ máx. estimado, niveles de estrés, sueño (sin análisis de fases avanzadas) y métricas específicas para carrera (ritmo, cadencia). Como limitación destacable, carece de pulsómetro de muñeca avanzado, lo que reduce su precisión durante ejercicios de alta intensidad. \cite{GarminForerunner55}
+
+
+El Garmin Venu Sq 2 cuenta con sensores PPG para frecuencia cardíaca, SpO$_2$ y acelerómetro. Proporciona datos sobre frecuencia cardíaca, oxigenación sanguínea (SpO$_2$), sueño (con análisis de respiración), niveles de estrés e hidratación (mediante recordatorios). \cite{GarminVenuSq2}
+
+Quedan expresamente excluidos del estudio todos los dispositivos que no sean los modelos especificados, así como los datos procedentes de aplicaciones no especificadas.
+
+
+%%CAMBIAR el SAMSUNG requiere muchas apps
+En cuanto a plataformas y compatibilidad, el Samsung Galaxy Watch 4 requiere Android (versión mínima 8.0) junto con la aplicación Samsung Health, 
+Los modelos Garmin son compatibles tanto con iOS como Android. En este particular caso, serán vínculados a un teléfono iOS.
+
+
+\paragraph{Comparativa de las características} . \\
+Esta tabla compara las funcionalidades clave de tres wearables a considerar en esta investigación: el \textbf{Samsung Galaxy Watch 4} , el \textbf{Garmin Forerunner 55}  y el \textbf{Garmin Venu Sq 2}.
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+  \hline
+  \textbf{Características} & \textbf{Samsung G.W 4} & \textbf{Garmin Forerunner 55'} & \textbf{Garmin Venu Sq 2} \\
+  \hline
+  FC muñeca & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  FC reposo & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Estrés Diario & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Dormir & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Hidratación & $\times$ & $\times$ & $\checkmark$ \\
+  \hline
+  Salud Mujer & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  GPS & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  GLONASS & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  GALILEO & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  ACELERÓMETRO & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Actividades & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Contador pasos & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Calorías quemadas & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Distancia recorrida & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Minutos intensidad & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Frecuencia Respiratoria & $\times$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  Termómetro & $\times$ & $\times$ & $\times$ \\
+  \hline
+  Sensor de luz ambiental & $\checkmark$ & $\times$ & $\checkmark$ \\
+  \hline
+  VO$_2$ MAX & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+  \hline
+  ¡Resistencia agua (ATM) & 5ATM & 5ATM & 5ATM \\
+  \hline
+  ECG & $\checkmark$ & $\times$ & $\times$ \\
+  \hline
+  Comunicación & Bluetooth/LTE** & Bluetooth & Bluetooth \\
+  \hline
+  Compatibilidad & Android & Android/iOS & Android/iOS \\
+  \hline
+\end{tabular}
+\vspace{0.3 cm}
+\footnotesize
+\textbf{Tabla 1.0.} Comparación de características técnicas. \\
+\normalsize
+\end{center}
+
+
+
+
+
+
+

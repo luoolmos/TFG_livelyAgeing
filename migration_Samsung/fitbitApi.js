@@ -4,7 +4,7 @@
 const axios = require('axios');
 const { refreshAccessToken } = require('./auth');
 const { isTokenExpiredError } = require('./utils');
-const { generateObservationData } = require('./formatData');
+const { generateObservationData } = require('../migration/formatData.js');
 const constants = require('../getDBinfo/constants.js');
 
 // Hace una petición autenticada con auto-refresh del token si es necesario
@@ -237,8 +237,6 @@ async function checkEndpointAvailability(access_token) {
 }
 
 
-
-
 async function getSleepAndSave(user_id, access_token, start_date) {
     console.log('start_date:', start_date);
     try {
@@ -270,7 +268,7 @@ async function getSleepAndSave(user_id, access_token, start_date) {
                 observationDatetime,
                 activityId: null
             };
-            const { durationSleepConceptId, durationSleepConceptName } = await getConceptInfo(constants.SLEEP_DURATION_LOINC);
+            const { durationSleepConceptId, durationSleepConceptName } = await getConceptInfoObservation(constants.SLEEP_DURATION_LOINC);
             const durationValue = generateObservationData(firstInsertion, duration, durationSleepConceptId, durationSleepConceptName, constants.MINUTE_UCUM);
             const durationInsertion = await inserts.insertObservation(durationValue);
             console.log('durationInsertion:', durationInsertion);
@@ -285,6 +283,7 @@ async function getSleepAndSave(user_id, access_token, start_date) {
             };
             console.log('sleep.levels:', sleep.levels);
             
+            
             // Si hay datos de etapas de sueño
             if (sleep.levels && sleep.levels.summary) {
                 const stages = sleep.levels.summary;
@@ -293,7 +292,7 @@ async function getSleepAndSave(user_id, access_token, start_date) {
                 for (const [stage, data] of Object.entries(stages)) {
                     if (stage !== 'total') {
                         console.log('data:', data);
-                        const { sleepStageConceptId, sleepStageConceptName } = await getConceptInfo(data.stage);
+                        const { sleepStageConceptId, sleepStageConceptName } = await getConceptInfoObservation(data.stage);
                         const observationStage = generateObservationData(baseValues, data.minutes, sleepStageConceptId, sleepStageConceptName, constants.MINUTE_UCUM);
                         insertObservationValue.push(observationStage);
                     }
@@ -310,6 +309,31 @@ async function getSleepAndSave(user_id, access_token, start_date) {
         throw error;
     }
 }
+
+
+async function getHeartRateAndSave(user_id, access_token, start_date) {
+    console.log('start_date:', start_date);
+    try {
+        const response = await axios.get(
+            `https://api.fitbit.com/1/user/-/activities/heart/date/${start_date}.json`,
+            {
+                headers: { 
+                    'Authorization': `Bearer ${access_token}`
+                }
+            }
+        );
+
+        const heartRateData = response.data.heartRate;
+        console.log('heartRateData:', heartRateData);   
+    } catch (error) {
+        console.error('Error getting and saving heart rate data:', error);
+        throw error;
+    }
+}
+
+
+
+
 
 
 module.exports = {

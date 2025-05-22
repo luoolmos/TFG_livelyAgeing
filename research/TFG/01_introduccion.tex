@@ -1,0 +1,76 @@
+
+Este capítulo introductorio sienta las bases del presente trabajo, delineando el contexto y la motivación que impulsan la investigación. Se profundizará en el problema de la fragmentación de datos en el ámbito de los wearables y se establecerán los objetivos específicos que guiarán el desarrollo del proyecto. Finalmente, se detallará el alcance del estudio, especificando los dispositivos y datos que serán abordados, así como las limitaciones del mismo.
+
+\section{Contexto y Motivación}
+
+En la actualidad, el mercado de dispositivos wearables, como relojes inteligentes y pulseras de actividad, experimenta un crecimiento constante. Según datos de la International Data Corporation (IDC) \cite{IDCWearables},  su adopción se ha generalizado, impulsada por la capacidad de monitorizar una amplia gama de métricas de salud y bienestar, como la frecuencia cardíaca, el recuento de pasos diarios, la calidad del sueño y el gasto calórico \cite{IDCWearables}.
+
+Esta capacidad de recopilación de datos en tiempo real ha posicionado a estos dispositivos como herramientas valiosas no solo para los usuarios individuales, sino también para profesionales de la salud, investigadores y empresas del sector tecnológico \cite{ConsumerHealthWearables}.
+
+Sin embargo, la proliferación de plataformas independientes desarrolladas por las distintas marcas de wearables, como Samsung y Garmin, ha generado una fragmentación de los datos y una notable falta de interoperabilidad \cite{serpush2022wearable}. Esta situación dificulta la estandarización y la integración de la información proveniente de múltiples fuentes, lo que limita la capacidad de los usuarios y profesionales para obtener una visión holística y unificada de la salud y la actividad física.
+
+Por lo tanto, la integración de datos de wearables emerge como un desafío técnico significativo.
+
+%Esto es especialmente importante en proyectos como  \href{https://www.livelyageing.unimore.it/}{LivelyAgeing}, con el que colaboro para la realización de este proyecto. En este contexto, una visión completa y precisa de la salud y la actividad física de las personas mayores es fundamental para diseñar intervenciones personalizadas y basadas en datos que mejoren significativamente su calidad de vida.
+
+\section{Definición del Problema}
+
+A pesar de la disponibilidad de dispositivos avanzados y de la gran cantidad de datos generados, existen importantes barreras técnicas y organizativas para su integración y aprovechamiento efectivo. Los principales problemas que este trabajo busca abordar son:
+
+\begin{itemize}
+    \item La falta de sistemas integrados que permitan recopilar automáticamente datos relevantes de diferentes marcas de wearables (Samsung y Garmin) y los presenten de forma clara y contextualizada para profesionales y usuarios no expertos.
+    \item La dificultad para realizar un seguimiento longitudinal y comparativo de los indicadores clave de salud, identificando tendencias en los patrones habituales del usuario.
+    \item La necesidad de implementar soluciones técnicas robustas que gestionen de forma segura la autenticación con servicios de terceros y que respeten escrupulosamente la privacidad y la normativa de protección de datos (como el RGPD) al manejar información personal y sensible de salud.
+    \item La ausencia frecuente de arquitecturas flexibles y escalables que permitan una futura expansión para incluir más usuarios, más tipos de datos o integración con otros sistemas.
+\end{itemize}
+
+Este TFG se enfoca en el diseño e implementación de una arquitectura que dé respuesta a estos desafíos, proporcionando una solución técnica robusta, funcional y bien documentada.
+ %El desarrollo e implementación de una arquitectura robusta que permita consolidar y unificar la información procedente de dispositivos de diferentes fabricantes no solo mejoraría la experiencia del usuario al ofrecer una visión integral de sus datos, sino que también facilitaría el acceso y análisis de esta información por parte de los profesionales de la salud. Esto les permitiría obtener una comprensión más completa y precisa del estado de salud y los patrones de actividad física de sus pacientes o usuarios, abriendo la puerta a intervenciones más informadas y personalizadas.
+
+\section{Objetivos}
+
+Diseñar e implementar una arquitectura software para la integración de datos procedentes de dispositivos wearables de las marcas Samsung y Garmin, que permita consolidar, analizar y presentar la información de forma útil y accesible para profesionales e usuarios, con un enfoque en la seguridad, la privacidad y la escalabilidad.
+
+\subsection{Objetivos Específicos}
+
+\begin{itemize}
+    \item Investigar en profundidad las APIs y tecnologías de extracción validas de Samsung y Garmin, así como los estándares de interoperabilidad en salud digital.
+    \item Diseñar una arquitectura modular y escalable que permita la integración y almacenamiento eficiente de los datos generados por los wearables.
+    \item Implementar mecanismos seguros de autenticación y autorización para el acceso a los datos, cumpliendo con la normativa vigente en materia de protección de datos.
+    \item Desarrollar los componentes necesarios para la adquisición, procesamiento y almacenamiento de los datos de interés.
+    \item Validar la solución mediante la integración real de datos de los dispositivos seleccionados y su evaluación en el contexto del proyecto LivelyAgeing.
+\end{itemize}
+
+\section{Alcance y Limitaciones}
+
+El presente trabajo se centra en la integración de datos procedentes de tres modelos específicos de wearables: Samsung Galaxy Watch 4, Garmin Forerunner 55 y Garmin Venu Sq 2. Se consideran únicamente los datos accesibles a través de las APIs oficiales o métodos compatibles, excluyéndose otros dispositivos y fuentes de datos no especificadas. El sistema desarrollado es un prototipo funcional orientado a demostrar la viabilidad técnica de la solución propuesta, sin pretender ser un producto final ni un dispositivo médico certificado.
+
+Entre las principales limitaciones se encuentran:
+
+\begin{itemize}
+    \item La funcionalidad está limitada a los datos y la granularidad que las APIs de Samsung y Garmin exponen a través de sus servicios estándar.
+    \item El prototipo ha sido validado funcionalmente en un entorno de desarrollo y pruebas, pero no ha sido sometido a pruebas de carga extensivas ni a una evaluación formal con usuarios finales.
+    \item La interfaz de usuario y los mecanismos de visualización representan un diseño básico, susceptible de mejoras en futuras iteraciones.
+    \item El análisis de cumplimiento del RGPD se basa en principios de diseño y buenas prácticas, pero no constituye una auditoría legal completa.
+\end{itemize}
+
+Una comparación detallada de las funcionalidades clave de los dispositivos seleccionados a estudio (Samsung Galaxy Watch 4, Garmin Forerunner 55 y Garmin Venu Sq 2), se encuentra en el Anexo \ref{anexo:tabla_comparativa_wearables}.
+
+\section{Estructura del Documento}
+
+% El presente documento se estructura en ocho capítulos, seguidos de la bibliografía y anexos. El \textbf{Capítulo 1: Introducción} establece el contexto, motivación, problema, objetivos, alcance y la propia estructura del trabajo. El \textbf{Capítulo 2: Estado del Arte y Marco Tecnológico} revisa soluciones existentes y las tecnologías clave empleadas. Los \textbf{Requisitos y Metodología} se detallan en el Capítulo 3. El \textbf{Capítulo 4: Diseño y Arquitectura del Sistema} presenta las decisiones de diseño, la arquitectura, los microservicios, la base de datos y la integración con la API. La \textbf{Implementación} se aborda en el Capítulo 5, describiendo los componentes, el entorno y los desafíos técnicos. El \textbf{Capítulo 6: Pruebas y Validación} explica la estrategia de pruebas para asegurar la calidad y el cumplimiento de requisitos. El \textbf{Capítulo 7: Resultados y Discusión} expone el prototipo funcional y analiza los resultados. Finalmente, el \textbf{Capítulo 8: Conclusiones y Trabajo Futuro} resume las aportaciones y propone líneas de mejora y expansión.
+
+% El presente documento se organiza en los siguientes capítulos:
+% \begin{itemize}
+%     \item \textbf{Capítulo 1: Introducción.} Establece el contexto, motivación, problema, objetivos, alcance y la propia estructura del trabajo.
+%     \item \textbf{Capítulo 2: Revisa soluciones existentes y las tecnologías clave empleadas.
+%     \item \textbf{Capítulo 3: Requisitos y Metodología.} Detalla los requisitos funcionales y no funcionales identificados para el sistema, y describe brevemente la metodología de desarrollo seguida.
+%     \item \textbf{Capítulo 4: Diseño y Arquitectura del Sistema.} Expone las decisiones de diseño tomadas, presentando la arquitectura general del sistema, el diseño detallado de los microservicios del backend, el esquema de la base de datos, el flujo de datos y la integración con la API externa.
+%     \item \textbf{Capítulo 5: Implementación.} Describe los detalles concretos de la implementación de los componentes más relevantes del sistema, incluyendo el entorno de desarrollo, las librerías principales utilizadas, fragmentos de código ilustrativos y los desafíos técnicos encontrados y cómo fueron resueltos.
+%     \item \textbf{Capítulo 6: Pruebas y Validación.} Explica la estrategia de pruebas definida y llevada a cabo para asegurar la calidad del software y validar que el prototipo cumple con los requisitos especificados.
+%     \item \textbf{Capítulo 7: Resultados y Discusión.} Presenta el prototipo funcional resultante, mostrando ejemplos de su operación y discute los resultados obtenidos en términos de cumplimiento de objetivos, rendimiento observado y las limitaciones inherentes al sistema desarrollado.
+%     \item \textbf{Capítulo 8: Conclusiones y Trabajo Futuro.} Resume las principales conclusiones extraídas del desarrollo del TFG, destacando las contribuciones del trabajo y proponiendo posibles líneas de mejora, expansión y trabajo futuro sobre el sistema desarrollado.
+%     \item \textbf{Bibliografía y Anexos.}
+% \end{itemize}
+
+

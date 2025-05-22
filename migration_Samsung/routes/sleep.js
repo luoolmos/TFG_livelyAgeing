@@ -20,8 +20,15 @@ router.get('/sensors/save-sleep', async (req, res) => {
         //);
         //console.log('response:', response.data);
         //res.json(response.data);
+        const today = new Date().toISOString().split('T')[0];
+        const start = new Date(lastSyncDate);
+        const end = new Date(today);
 
-        await getSleepAndSave(userId, access_token, lastSyncDate);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            const dateString = d.toISOString().split('T')[0];
+            await getSleepAndSave(userId, access_token, dateString);
+        }
+
         res.send("Datos de sueño guardados en la base de datos.");
     } catch (error) {
         console.error('Error in save-sleep endpoint:', error);

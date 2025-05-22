@@ -1,0 +1,49 @@
+% Detalla los requisitos funcionales y no funcionales, y la metodología de desarrollo seguida y estudios de usuarios etc
+Este capítulo presenta un análisis exhaustivo de los elementos fundamentales para el desarrollo del sistema. Se comenzará con la definición de los requisitos del sistema, abarcando tanto las funcionalidades esenciales como las características no funcionales que garantizarán su rendimiento, seguridad y usabilidad. Posteriormente, se detallarán los perfiles de usuario y los estudios relevantes, proporcionando una comprensión profunda de las necesidades y expectativas de los futuros usuarios del sistema.
+
+\section{Requisitos del Sistema}
+
+El diseño de la arquitectura para la integración de datos de dispositivos wearables parte de la identificación y análisis de los requisitos que debe satisfacer el sistema. Estos requisitos se dividen en funcionales y no funcionales.
+
+\subsection{Requisitos Funcionales}
+
+Los requisitos funcionales definen las capacidades y servicios que el sistema debe ofrecer. Para el presente proyecto, se han identificado los siguientes:
+
+\begin{itemize}
+    \item \textbf{RF1. Integración de dispositivos:} El sistema debe ser capaz de conectarse y recopilar datos de los modelos Samsung Galaxy Watch 4, Garmin Forerunner 55 y Garmin Venu Sq 2.
+    \item \textbf{RF2. Adquisición automática de datos:} El sistema debe obtener de forma periódica y automatizada los datos de salud y actividad física (frecuencia cardíaca, sueño, pasos, calorías, etc.) de los dispositivos soportados.
+    \item \textbf{RF3. Almacenamiento estructurado:} Los datos recopilados deben almacenarse en una base de datos estructurada, permitiendo su consulta y análisis posterior.
+    \item \textbf{RF4. Visualización de datos:} El sistema debe proporcionar una interfaz que permita a los usuarios visualizar los datos históricos y actuales mediante gráficos y tablas.
+    \item \textbf{RF5. Gestión de usuarios:} El sistema debe permitir la gestión de diferentes perfiles de usuario (administrador, profesional, usuario final), con distintos niveles de acceso y permisos.
+    \item \textbf{RF6. Exportación de datos:} El sistema debe permitir la exportación de los datos en formatos estándar (CSV, JSON) para su análisis externo.
+    \item \textbf{RF7. Notificaciones y alertas:} El sistema debe ser capaz de generar notificaciones o alertas ante la detección de valores anómalos o eventos relevantes en los datos monitorizados.
+    \item \textbf{RF8. Cumplimiento normativo:} El sistema debe garantizar la gestión segura y confidencial de los datos personales, cumpliendo con la normativa vigente (RGPD).
+\end{itemize}
+
+\subsection{Requisitos No Funcionales}
+
+Los requisitos no funcionales establecen las características de calidad que debe cumplir el sistema para ser útil, seguro y eficiente:
+
+\begin{itemize}
+    \item \textbf{RNF1. Usabilidad:} La interfaz de usuario debe ser intuitiva y accesible para usuarios con distintos niveles de experiencia tecnológica.
+    \item \textbf{RNF2. Rendimiento:} El sistema debe ser capaz de procesar y mostrar los datos en tiempo real o con una latencia mínima.
+    \item \textbf{RNF3. Escalabilidad:} La arquitectura debe permitir la integración futura de nuevos dispositivos y el aumento del número de usuarios sin pérdida de rendimiento.
+    \item \textbf{RNF4. Seguridad:} Los datos deben estar protegidos mediante mecanismos de autenticación, autorización y cifrado tanto en tránsito como en reposo.
+    \item \textbf{RNF5. Mantenibilidad:} El sistema debe estar documentado y estructurado de forma modular para facilitar su mantenimiento y evolución.
+    \item \textbf{RNF6. Compatibilidad:} El sistema debe ser compatible con los principales sistemas operativos y navegadores web.
+    \item \textbf{RNF7. Disponibilidad:} El sistema debe estar disponible al menos el 99\% del tiempo, minimizando los periodos de inactividad.
+\end{itemize}
+
+\section{Estudio de Usuarios y Análisis de Necesidades}
+
+Para asegurar la adecuación del sistema a las necesidades reales, se realizó un estudio preliminar de usuarios potenciales, incluyendo profesionales de la salud, investigadores y usuarios finales (personas mayores y/o sus cuidadores). El estudio se basó en entrevistas semiestructuradas y cuestionarios, y permitió identificar los siguientes aspectos clave:
+
+\begin{itemize}
+    \item \textbf{Necesidad de integración:} Los usuarios demandan una plataforma que unifique los datos de diferentes dispositivos, evitando la fragmentación y facilitando el seguimiento longitudinal.
+    \item \textbf{Simplicidad de uso:} Se valoran interfaces sencillas, con visualizaciones claras y la posibilidad de acceder rápidamente a la información relevante.
+    \item \textbf{Privacidad y control:} Existe preocupación por la privacidad de los datos y la necesidad de que el usuario mantenga el control sobre quién accede a su información.
+    \item \textbf{Alertas personalizadas:} Los profesionales y cuidadores consideran útil la posibilidad de recibir alertas ante eventos críticos o desviaciones significativas en los parámetros monitorizados.
+    \item \textbf{Acceso multiplataforma:} Se valora la posibilidad de acceder al sistema desde diferentes dispositivos (ordenador, tablet, móvil).
+\end{itemize}
+
+Este análisis ha guiado la definición de los requisitos y el diseño de la arquitectura, asegurando que la solución propuesta sea relevante, útil y aceptada por los usuarios finales.

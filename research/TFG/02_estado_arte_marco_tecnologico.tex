@@ -1,0 +1,68 @@
+\section{Estado del Arte y Marco Tecnológico}
+
+El avance de la tecnología digital ha propiciado el desarrollo de soluciones innovadoras para la monitorización remota de la salud, especialmente relevantes en el contexto del envejecimiento poblacional y la gestión de enfermedades crónicas. En este capítulo se revisan los principales conceptos, dispositivos y tecnologías habilitadoras que sustentan el presente trabajo, así como las consideraciones éticas y legales asociadas.
+
+\section{Monitorización Remota de Salud}
+
+La monitorización remota de la salud (Remote Patient Monitoring, RPM) consiste en el uso de tecnologías digitales para recopilar datos fisiológicos y de actividad de los pacientes fuera del entorno clínico tradicional, permitiendo un seguimiento continuo y personalizado~\cite{Majumder2017, Steinhubl2015}. Esta aproximación ha demostrado mejorar la detección precoz de eventos adversos, optimizar la gestión de enfermedades crónicas y reducir la carga sobre los sistemas sanitarios~\cite{Kitsiou2015}. El auge de los dispositivos conectados y la expansión de la Internet de las Cosas (IoT) han facilitado la adopción de la RPM en la práctica clínica y en el ámbito doméstico.
+
+\section{Dispositivos Wearables}
+
+Los dispositivos wearables, como relojes inteligentes y pulseras de actividad, han experimentado una rápida adopción en la última década~\cite{Piwek2016}. Estos dispositivos integran sensores capaces de medir parámetros como la frecuencia cardíaca, el nivel de actividad física, el sueño, la saturación de oxígeno y otros indicadores relevantes para la salud~\cite{Patel2012}. Marcas como Samsung y Garmin han desarrollado ecosistemas propios, con aplicaciones y plataformas de análisis de datos, aunque la fragmentación y la falta de interoperabilidad siguen siendo retos importantes~\cite{Serpush2022, Wright2021}. La fiabilidad de las mediciones y la aceptación por parte de los usuarios han sido objeto de numerosos estudios, que destacan su potencial para el seguimiento de poblaciones envejecidas y pacientes crónicos~\cite{Wright2021, Evenson2015}.
+
+\section{Tecnologías Habilitadoras}
+
+\subsection{API de Fitbit y OAuth 2.0}
+
+El acceso a los datos generados por los wearables suele estar mediado por APIs propietarias. En el caso de Fitbit, la Fitbit Web API permite a desarrolladores externos acceder a datos de actividad, sueño y biomarcadores mediante solicitudes autenticadas~\cite{FitbitAPI}. El protocolo OAuth 2.0 se emplea como estándar para la autorización segura, permitiendo a los usuarios conceder acceso a sus datos sin compartir credenciales~\cite{Hardt2012}. Este enfoque es ampliamente adoptado en el sector y constituye la base para la integración de datos de salud en aplicaciones de terceros~\cite{Roehrs2017}.
+
+\subsection{Arquitecturas de Microservicios}
+
+Las arquitecturas de microservicios han ganado popularidad en el desarrollo de sistemas de salud digital por su modularidad, escalabilidad y facilidad de mantenimiento~\cite{Dragoni2017}. En este paradigma, la funcionalidad del sistema se divide en servicios independientes que se comunican a través de APIs, facilitando la integración de nuevos dispositivos y la evolución tecnológica~\cite{Newman2015}. Esta aproximación es especialmente adecuada para sistemas que requieren alta disponibilidad y la gestión de grandes volúmenes de datos heterogéneos.
+
+\subsection{Bases de Datos de Series Temporales}
+
+El almacenamiento eficiente de datos biométricos y de actividad, que suelen estar indexados por tiempo, requiere bases de datos especializadas en series temporales (TSDB). Soluciones como InfluxDB o TimescaleDB están optimizadas para la ingesta rápida, el almacenamiento compacto y las consultas analíticas sobre grandes volúmenes de datos temporales~\cite{InfluxDB, TimescaleDB}. Estas tecnologías permiten realizar análisis longitudinales, detectar tendencias y generar alertas en tiempo real, aspectos clave en la monitorización remota de la salud~\cite{Roehrs2017}.
+
+\subsection{Herramientas de Backend y Procesamiento}
+
+El backend de los sistemas de monitorización suele implementarse en lenguajes como Python, Node.js o Java, aprovechando frameworks como Flask, Express o Spring Boot para la construcción de APIs RESTful~\cite{Flask, Express, SpringBoot}. El procesamiento de datos puede incluir tareas de validación, limpieza, transformación y agregación, así como la integración con servicios de mensajería (ej. MQTT, Kafka) para la gestión de flujos de datos en tiempo real~\cite{Kafka, MQTT}.
+
+\subsection{Tecnologías de Frontend y Visualización}
+
+La visualización de los datos es fundamental para facilitar la interpretación por parte de usuarios y profesionales. Frameworks modernos como React, Vue.js o Angular permiten desarrollar interfaces web interactivas y responsivas~\cite{React, Vue, Angular}. Bibliotecas de visualización como D3.js, Chart.js o Plotly facilitan la representación gráfica de series temporales, tendencias y alertas~\cite{D3, Plotly}. La usabilidad y la accesibilidad son aspectos clave en el diseño de dashboards para la salud digital~\cite{Zhou2019}.
+
+% --- NUEVA SECCIÓN: Estándares y Ontologías para la Interoperabilidad de Datos de Salud ---
+\subsection{Estándares y Ontologías para la Interoperabilidad de Datos de Salud}
+Uno de los principales obstáculos para la integración de los datos procedentes de distintos wearables es la falta de estandarización. Esto genera problemas de interoperabilidad tanto sintáctica (formatos de datos) como semántica (significado de los datos).
+
+Para garantizar la fiabilidad, comparabilidad y correcta interpretación de estos datos en un contexto clínico o de investigación, es necesario adoptar modelos de representación comunes basados en estándares reconocidos. Este apartado presenta un análisis comparativo de las principales ontologías y estándares en el dominio de los datos de salud y monitorización. 
+
+\subsubsection{LOINC - Logical Observation Identifiers Names and Codes}
+Estándar universal para la codificación de observaciones clínicas y de laboratorio. Esencial para identificar de forma unívoca qué se ha medido (p. ej., frecuencia cardíaca, conteo de pasos).
+
+\subsubsection{SNOMED CT - Systematized Nomenclature of Medicine - Clinical Terms}
+Ontología clínica exhaustiva que cubre una amplia gama de conceptos médicos (diagnósticos, procedimientos, hallazgos, etc.). Complementa a LOINC para añadir contexto clínico. \cite{SNOMEDCT}
+
+\subsubsection{HL7 FHIR  - Fast Healthcare Interoperability Resources}
+Estándar predominante para el intercambio electrónico de información sanitaria, basado en recursos modulares (ej. Patient, Device, Observation, DiagnosticReport). Utiliza formatos JSON/XML y requiere terminologías como LOINC/SNOMED CT para la semántica. \cite{HL7FHIR} 
+
+\subsubsection{OMH - OpenMHealth Schemas}
+Conjunto de esquemas JSON modulares y simples, diseñados específicamente para datos de salud móviles y wearables (ej. omh\_blood\_pressure). Facilitan el intercambio de datos estandarizando estructura, campos (effective\_time\_frame, unit) y unidades. \cite{OpenmHealth}
+
+\subsubsection{W3C SSN/SOSA - Semantic Sensor Network / Sensor, Observation, Sample, and Actuator}
+Ontologías estándar del W3C para modelar redes de sensores, observaciones, procedimientos de medición y actuadores en la web semántica. SSN extiende SOSA con detalles sobre sistemas y despliegues. Proporcionan una rica descripción semántica de la procedencia del dato. \cite{SSN/SOSA}
+
+\subsubsection{SAREF/SAREF4health - Smart Applications REFerence ontology}
+Estándar ontológico europeo para la interoperabilidad en IoT, con una extensión específica para el dominio de la salud (SAREF4health). Se enfoca en la descripción semántica de dispositivos, mediciones (incluyendo series temporales como TimeSeriesMeasurement) y sus relaciones (hasTimestamp, hasUnit). \cite{SAREF4health}
+
+\subsubsection{Conclusión}
+Considerando los requisitos de integración con fines médicos y de salud, se va a considerar una estrategia híbrida. 
+
+Utilizando HL7 FHIR como el estándar primario para la representación e intercambio de datos clínicos. Utilizando códigos LOINC para identificar la medición y asegurando la conformidad con el formato JSON y la API RESTful de FHIR para la interoperabilidad con sistemas HIS (Health Information Systems)/EHR (Electronic Health Records). 
+
+% --- FIN NUEVA SECCIÓN ---
+
+\section{Consideraciones Éticas y Legales (RGPD)}
+
+El manejo de datos personales y de salud está sujeto a estrictas regulaciones, como el Reglamento General de Protección de Datos (RGPD) en la Unión Europea~\cite{RGPD}. Es fundamental garantizar la confidencialidad, integridad y disponibilidad de la información, así como obtener el consentimiento informado de los usuarios~\cite{Rumbold2021}. Las soluciones técnicas deben incorporar mecanismos de autenticación, autorización, cifrado y anonimización, y los desarrolladores deben seguir principios de privacidad desde el diseño (\textit{privacy by design})~\cite{Cavoukian2011}. El cumplimiento normativo es un requisito indispensable para la adopción y la confianza en los sistemas de monitorización remota de la salud.

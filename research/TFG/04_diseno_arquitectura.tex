@@ -1,0 +1,79 @@
+\section{Análisis de Problemas y Desafíos Técnicos}
+
+El desarrollo de una arquitectura para la integración de datos de dispositivos wearables de diferentes fabricantes presenta numerosos retos técnicos y organizativos. En este apartado se detallan los principales problemas identificados durante el análisis, así como las alternativas exploradas y la justificación de las decisiones adoptadas.
+
+\subsection{Desafíos en la Integración de Samsung}
+El acceso a los datos de los wearables Samsung está condicionado por las restricciones de su SDK oficial, que requiere una asociación empresarial no accesible a estudiantes o proyectos académicos~\cite{PartnershipRequest}. Ante esta limitación, se exploraron alternativas como la integración indirecta a través de la API de Fitbit, aprovechando la interoperabilidad ofrecida por Health Connect y la Fitbit App. Esta solución, aunque viable, presenta limitaciones en la sincronización de ciertos datos y depende de la correcta configuración manual por parte del usuario.
+
+\paragraph{Soluciones alternativas exploradas para Samsung}
+\begin{itemize}
+    \item \textbf{Integración vía Fitbit:} Utiliza Health Connect y la Fitbit App para transferir datos de Samsung Health a la Fitbit Web API. Permite el acceso a datos básicos, pero no sincroniza toda la información y requiere configuración manual.
+    \item \textbf{Desarrollo de app nativa:} Descartado por las restricciones de acceso al SDK oficial de Samsung.
+\end{itemize}
+
+\subsection{Desafíos en la Integración de Garmin}
+El acceso a los datos de Garmin está limitado por las políticas de su API y SDK, reservados para desarrolladores comerciales aprobados. Se analizaron varias alternativas indirectas, como la sincronización mediante aplicaciones de terceros (Health Sync, SyncMyTracks), la exportación manual de archivos .FIT, el scraping de la web de Garmin Connect y el uso de herramientas comunitarias como GarminDB. Cada opción presenta ventajas y limitaciones en términos de automatización, cobertura de datos y viabilidad legal.
+
+\paragraph{Soluciones alternativas exploradas para Garmin}
+\begin{itemize}
+    \item \textbf{Health Sync:} Permite sincronizar datos de Garmin con Fitbit, pero es de pago y no compatible con iOS.
+    \item \textbf{SyncMyTracks:} Sincroniza Garmin Connect con Google Fit, pero la versión gratuita es limitada y no es compatible con iOS.
+    \item \textbf{Strava API:} Centrada en métricas deportivas, no cubre parámetros de salud general.
+    \item \textbf{Exportación manual de archivos .FIT:} Permite acceso a datos históricos, pero requiere intervención manual y no es automatizable.
+    \item \textbf{Scraping de Garmin Connect:} Automatiza la descarga de datos, pero es frágil ante cambios en la web y está prohibido por los términos de servicio.
+    \item \textbf{GarminDB:} Permite exportar datos a una base SQLite local, pero depende del mantenimiento comunitario y puede no ser fiable a largo plazo.
+\end{itemize}
+
+\subsection{Justificación de la Solución Adoptada}
+Tras analizar las alternativas, se optó por una solución híbrida:
+\begin{itemize}
+    \item Para Samsung, se utiliza la integración indirecta vía Fitbit Web API, priorizando la accesibilidad y la compatibilidad con dispositivos Android.
+    \item Para Garmin, se emplea GarminDB para la extracción periódica de datos, automatizando el volcado a la base de datos local y cubriendo las métricas necesarias para el proyecto.
+\end{itemize}
+Esta aproximación permite cumplir los requisitos funcionales del sistema, aunque implica ciertas limitaciones en la cobertura de datos y la dependencia de herramientas de terceros.
+
+\section{Análisis de Estándares y Modelos de Datos para la Interoperabilidad}
+
+La integración de datos de salud procedentes de diferentes dispositivos requiere la adopción de estándares reconocidos para garantizar la interoperabilidad sintáctica y semántica. Se han analizado los siguientes modelos y estándares:
+
+\begin{itemize}
+    \item \textbf{LOINC:} Codificación universal de observaciones clínicas y de laboratorio, esencial para identificar de forma unívoca las métricas recogidas.
+    \item \textbf{SNOMED CT:} Ontología clínica exhaustiva que añade contexto médico a las observaciones, complementando a LOINC~\cite{SNOMEDCT}.
+    \item \textbf{HL7 FHIR:} Estándar predominante para el intercambio electrónico de información sanitaria, basado en recursos modulares y formatos JSON/XML~\cite{HL7FHIR}.
+    \item \textbf{OpenMHealth:} Esquemas JSON modulares diseñados para datos de salud móviles y wearables, facilitando el intercambio y la estandarización~\cite{OpenmHealth}.
+    \item \textbf{W3C SSN/SOSA:} Ontologías para modelar redes de sensores y observaciones en la web semántica, proporcionando una rica descripción de la procedencia del dato~\cite{SSN/SOSA}.
+    \item \textbf{SAREF4health:} Ontología europea para la interoperabilidad en IoT, con extensión específica para salud y series temporales~\cite{SAREF4health}.
+\end{itemize}
+
+Se ha optado por una estrategia híbrida, utilizando HL7 FHIR como estándar primario para la representación e intercambio de datos clínicos, empleando códigos LOINC para identificar las mediciones y asegurando la conformidad con el formato JSON y la API RESTful de FHIR para la interoperabilidad con sistemas HIS/EHR.
+
+\subsection{Selección del Modelo Estándar de Datos: OMOP CDM}
+
+Tras analizar los principales modelos de datos para la integración y análisis de información procedente de dispositivos wearables, se ha optado por la adopción del estándar OMOP Common Data Model (CDM). Las razones que fundamentan esta elección son las siguientes:
+
+\begin{itemize}
+    \item \textbf{Estandarización:} OMOP CDM proporciona una estructura unificada para almacenar datos heterogéneos, utilizando vocabularios estandarizados como SNOMED y LOINC~\cite{OHDSI}. Esto facilita la integración de datos procedentes de fuentes diversas como Samsung y Garmin.
+    \item \textbf{Aceptación en la industria:} Es un estándar ampliamente aceptado para datos observacionales en salud, utilizado por instituciones y consorcios internacionales~\cite{Hripcsak2015}.
+    \item \textbf{Herramientas analíticas:} La adopción de OMOP permite el acceso a la suite de herramientas analíticas desarrolladas por la comunidad OHDSI, facilitando el análisis avanzado y la investigación colaborativa~\cite{OHDSItools}.
+    \item \textbf{Integración de wearables:} Estudios recientes demuestran la viabilidad de integrar datos de wearables y dispositivos móviles en OMOP CDM, tanto desde servidores FHIR como desde otras fuentes~\cite{Kodjun2022, Lee2022}.
+\end{itemize}
+
+Como concluye Lee et al.~\cite{Lee2022}: "The OMOP Common Data Model V5.0 is capable of effectively integrating the diverse observational datasets being used in Precision Medicine research, including those from electronic health records and mobile devices."
+
+Esta decisión garantiza la interoperabilidad, la escalabilidad y el acceso a herramientas de análisis de vanguardia, alineando el proyecto con las mejores prácticas internacionales en salud digital.
+
+\section{Diseño de la Arquitectura de Datos y Elección Tecnológica}
+
+El almacenamiento eficiente y el análisis de los datos extraídos de los wearables requieren una arquitectura capaz de gestionar grandes volúmenes de datos heterogéneos y de series temporales. Se han considerado los siguientes modelos:
+
+\begin{itemize}
+    \item \textbf{Bases de datos relacionales (SQL):} Ofrecen integridad y consultas complejas, pero presentan limitaciones para series temporales de alta frecuencia.
+    \item \textbf{Bases de datos de series temporales (TSDB):} Optimizadas para la ingesta y consulta de datos indexados por tiempo (ej. InfluxDB, TimescaleDB).
+    \item \textbf{Bases de datos NoSQL:} Flexibles y escalables, adecuadas para datos semiestructurados y cambios frecuentes en el esquema.
+\end{itemize}
+
+Se ha elegido un enfoque híbrido basado en PostgreSQL con la extensión TimescaleDB, que combina la robustez y potencia de SQL para metadatos y relaciones complejas, con la eficiencia de las TSDB para el almacenamiento y análisis de series temporales.
+
+\section{Resumen de la Metodología Aplicada al Diseño}
+
+La metodología seguida ha consistido en un análisis iterativo de los retos técnicos y organizativos, la exploración y validación de alternativas mediante prototipos y pruebas de concepto, y la adopción de estándares y tecnologías que garantizan la interoperabilidad, escalabilidad y viabilidad del sistema. Esta aproximación ha permitido adaptar la solución a las restricciones detectadas y asegurar su relevancia para el contexto de la monitorización remota de la salud.

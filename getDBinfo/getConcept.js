@@ -8,7 +8,7 @@ app.use(express.json());
  * Recupera un concepto de la base de datos PostgreSQL
  */
 // Source: running, cycling, swimming, walking, hiking, other
-async function getConceptInfo(conceptName) {
+async function getConceptInfoMeasValue(conceptName) {
     try {
         const query = `
         SELECT concept_id, concept_name, vocabulary_id, domain_id
@@ -131,7 +131,7 @@ async function getConceptBiobank(conceptName)  {
 
 
 module.exports = {
-  getConceptInfo,
+  getConceptInfoMeasValue,
   getConceptInfoObservation,
   getConceptInfoMeasurement,
   getConceptUnit

@@ -1,0 +1,81 @@
+\section{Implementación}
+
+\subsection{Tecnologías Empleadas}
+
+El sistema desarrollado para la integración y análisis de datos de dispositivos wearables hace uso de una arquitectura tecnológica moderna y robusta, seleccionada en base a los requisitos de heterogeneidad, volumen y análisis longitudinal de los datos.
+
+\paragraph{Base de datos: TimescaleDB sobre PostgreSQL}
+
+Para el almacenamiento eficiente de los datos, se ha optado por un enfoque híbrido basado en una base de datos relacional (PostgreSQL) con capacidades mejoradas para series temporales mediante la extensión TimescaleDB. Esta combinación permite:
+\begin{itemize}
+    \item Mantener la robustez, integridad transaccional (ACID) y potencia de consulta de SQL para gestionar metadatos, perfiles de participantes y relaciones complejas.
+    \item Optimizar el almacenamiento y la consulta de grandes volúmenes de datos de series temporales (por ejemplo, frecuencia cardíaca minuto a minuto) mediante particionamiento automático, compresión eficiente y funciones SQL especializadas para análisis temporal.
+    \item Facilitar la escalabilidad y el análisis longitudinal, aspectos clave para el seguimiento de la salud y la actividad física a lo largo del tiempo.
+\end{itemize}
+
+Además, se han implementado medidas adicionales de seguridad y privacidad, como el control de acceso, cifrado en reposo y en tránsito, y la anonimización de los identificadores de usuario, en cumplimiento con la normativa vigente de protección de datos.
+
+\paragraph{Backend y procesamiento de datos}
+
+El backend del sistema se ha desarrollado utilizando \textbf{JavaScript} (Node.js), permitiendo la construcción de una API RESTful para la gestión de las operaciones principales (adquisición, almacenamiento y consulta de datos). Se han empleado librerías como \texttt{axios} para la integración con APIs externas (Fitbit, GarminDB), \texttt{express} para la creación de rutas y controladores, y \texttt{pg} para la interacción con la base de datos PostgreSQL/TimescaleDB.
+
+El procesamiento de datos incluye:
+\begin{itemize}
+    \item Validación y limpieza de los datos recibidos de los dispositivos.
+    \item Transformación y normalización de los datos para su almacenamiento en el modelo estándar (OMOP CDM).
+    \item Agregación y cálculo de métricas derivadas (promedios diarios, tendencias, etc.).
+\end{itemize}
+
+\paragraph{Adquisición de datos de dispositivos}
+
+\begin{itemize}
+    \item \textbf{Samsung:} Se ha implementado la integración indirecta a través de la API de Fitbit, utilizando Health Connect y la Fitbit App para transferir los datos de Samsung Health.
+    \item \textbf{Garmin:} Se ha empleado GarminDB para la extracción periódica de datos, automatizando el volcado a la base de datos local.
+\end{itemize}
+
+\paragraph{Frontend y visualización}
+
+La interfaz de usuario se ha desarrollado como una aplicación web utilizando \textbf{React.js}, permitiendo la visualización interactiva de los datos históricos y actuales mediante gráficos y tablas. Se han empleado librerías como \texttt{Chart.js} o \texttt{Plotly} para la representación gráfica de las series temporales y métricas clave.
+
+\subsection{Estructura de la Solución}
+
+El sistema se compone de los siguientes módulos principales:
+\begin{itemize}
+    \item \textbf{Módulo de adquisición de datos:} Encargado de la conexión con los dispositivos y la obtención periódica de los datos.
+    \item \textbf{Backend/API:} Gestiona la lógica de negocio, el procesamiento y la normalización de los datos, y expone los servicios para el frontend.
+    \item \textbf{Base de datos:} Almacena los datos estructurados y temporales, así como los metadatos y perfiles de usuario.
+    \item \textbf{Frontend:} Permite la visualización y consulta de los datos por parte de los usuarios autorizados.
+\end{itemize}
+
+\subsection{Desafíos Técnicos y Soluciones}
+
+Durante la implementación se han afrontado diversos desafíos, entre los que destacan:
+\begin{itemize}
+    \item \textbf{Limitaciones de acceso a APIs:} Se han buscado soluciones alternativas para la integración de dispositivos con APIs restringidas, priorizando la interoperabilidad y la automatización.
+    \item \textbf{Heterogeneidad de los datos:} Se ha diseñado un proceso de normalización y mapeo al modelo OMOP CDM para garantizar la coherencia y comparabilidad de los datos.
+    \item \textbf{Seguridad y privacidad:} Se han implementado mecanismos de autenticación, autorización y cifrado, así como la anonimización de los datos sensibles.
+\end{itemize}
+
+\subsection{Fragmentos de Código Ilustrativos}
+
+A continuación se muestra un ejemplo simplificado de la adquisición y almacenamiento de datos desde la API de Fitbit:
+
+\begin{verbatim}
+import requests
+import pandas as pd
+from sqlalchemy import create_engine
+
+# Solicitud a la API de Fitbit
+response = requests.get('https://api.fitbit.com/1/user/-/activities/heart/date/today/1d.json',
+                        headers={'Authorization': 'Bearer <ACCESS_TOKEN>'})
+data = response.json()['activities-heart']
+
+# Procesamiento y almacenamiento
+df = pd.DataFrame(data)
+engine = create_engine('postgresql+psycopg2://user:password@localhost/dbname')
+df.to_sql('heart_rate', engine, if_exists='append')
+\end{verbatim}
+
+\subsection{Resumen}
+
+La implementación del sistema ha seguido un enfoque modular y escalable, integrando tecnologías robustas y estándares reconocidos para garantizar la interoperabilidad, la seguridad y la utilidad de la solución desarrollada.
