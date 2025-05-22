@@ -1,8 +1,9 @@
 const constants = require('../getDBinfo/constants.js');
 
-async function generateObservationData(data, value, conceptId, conceptName, unitconceptId, unitconceptName) {
 
-    const valueAsNumber = value;
+function generateObservationData(data, value, conceptId, conceptName, unitconceptId, unitconceptName) {
+
+    const valueAsNumber = typeof value === 'number' ? value : null;
     const valueAsString = typeof value === 'string' ? value : null;
 
     return data = {
@@ -21,7 +22,7 @@ async function generateObservationData(data, value, conceptId, conceptName, unit
         visit_detail_id: null,
         observation_source_value: conceptName,
         observation_source_concept_id: null,
-        unit_source_value: null,
+        unit_source_value: unitconceptName,
         qualifier_source_value: null,
         value_source_value: value,
         observation_event_id: data.releatedId,
@@ -32,7 +33,7 @@ async function generateObservationData(data, value, conceptId, conceptName, unit
 function generateMeasurementData(data, value, conceptId, conceptName, unitconceptId, unitconceptName, low, high) {
 
     
-    const valueAsNumber = value;
+    const valueAsNumber = typeof value === 'number' ? value : null;
     const valueAsString = typeof value === 'string' ? value : null;
 
     return data = {

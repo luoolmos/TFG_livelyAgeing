@@ -7,6 +7,7 @@ const sqlLite = require('./sqlLiteconnection.js');
 const inserts = require('../getDBinfo/inserts.js');
 const { getConceptInfoMeasurement, getConceptUnit } = require('../getDBinfo/getConcept.js');
 const { generateMeasurementData } = require('../migration/formatData.js');
+const { logConceptError } = require('./conceptLogger');
 
 
 
@@ -55,15 +56,25 @@ async function migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows) {
 async function formatspo2Data(userId, spo2Rows) {
     try {
         let insertMeasurementValue = [];
-        const {concept_id, concept_name} = await getConceptInfoMeasurement(constants.SPO2_STRING);
-        console.log('conceptId:', concept_id);
-        console.log('conceptName:', constants.SPO2_STRING_ABREV);
+        
+        // Obtener el concepto SpO2
+        const result = await getConceptInfoMeasurement(constants.SPO2_STRING);
+        if (!result || result.length === 0) {
+            await logConceptError(constants.SPO2_STRING, 'Measurement', 'Concepto no encontrado');
+            return [];
+        }
+        const { concept_id: conceptId, concept_name: conceptName } = result;
+        
+        // Obtener la unidad de porcentaje
+        const unitResult = await getConceptUnit(constants.PERCENT_STRING);
+        if (!unitResult || unitResult.length === 0) {
+            await logConceptError(constants.PERCENT_STRING, 'Unit', 'Unidad no encontrada');
+            return [];
+        }
+        const { concept_id: unitconceptId, concept_name: unitconceptName } = unitResult;
+
         const low = 85;
         const high = 95;
-        const { concept_id: unitconcept_id, concept_name: unitconcept_name} = await getConceptUnit(constants.PERCENT_STRING);
-        console.log('unitconcept_id:', unitconcept_id);
-        //console.log('unitconcept_name:', '');
-        
 
         for (const row of spo2Rows) {
             const measurementDate = formatValue.formatDate(row.timestamp);
@@ -75,23 +86,16 @@ async function formatspo2Data(userId, spo2Rows) {
                 releatedId: null
             };
 
-            const valuespo2 = generateMeasurementData(baseValues, row.pulse_ox, concept_id, constants.SPO2_STRING_ABREV, unitconcept_id, unitconcept_name, low, high);
+            const valuespo2 = generateMeasurementData(baseValues, row.pulse_ox, conceptId, constants.SPO2_STRING_ABREV, unitconceptId, unitconceptName, low, high);
 
-            if (valuespo2 && valuespo2.value_as_number !== null) {  // Only add valid measurements
+            if (valuespo2 && valuespo2.value_as_number !== null) {
                 insertMeasurementValue.push(valuespo2);
             }
         }
-        //console.log(`Formatted ${insertMeasurementValue.length} spo2 measurements`);
-        //if (insertMeasurementValue.length > 0) {
-        //    //console.log('Sample measurement:', insertMeasurementValue[0]);
-        //    await inserts.insertMultipleMeasurement(insertMeasurementValue);
-        //    //console.log('spo2 data inserted successfully');
-        //} else {
-        //    //console.log('No valid spo2 measurements to insert');
-        //}
         return insertMeasurementValue;
-    } catch (Error) {
-        console.error('Error al formatear datos de spo2:', Error);
+    } catch (error) {
+        await logConceptError('SpO2', 'Measurement', error);
+        console.error('Error al formatear datos de spo2:', error);
         return [];
     }
 }

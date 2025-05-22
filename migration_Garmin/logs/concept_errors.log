@@ -1,0 +1,248 @@
+{"timestamp":"2025-05-22T14:33:19.826Z","conceptName":"duration","conceptType":"Measurement","error":"Concepto no encontrado para duration"}
+{"timestamp":"2025-05-22T14:48:44.458Z","conceptName":"duration","conceptType":"Measurement","error":"Concepto no encontrado para duration"}
+{"timestamp":"2025-05-22T14:50:52.039Z","conceptName":"duration","conceptType":"Measurement","error":"Concepto no encontrado para duration"}
+{"timestamp":"2025-05-22T14:51:52.088Z","conceptName":"duration","conceptType":"Measurement","error":"Concepto no encontrado para duration"}
+{"timestamp":"2025-05-22T14:52:31.788Z","conceptName":"respiratory rate","conceptType":"Measurement","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T14:52:46.067Z","conceptName":"respiratory rate","conceptType":"Measurement","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T15:02:00.978Z","conceptName":"respiratory rate","conceptType":"Measurement","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T15:06:50.094Z","conceptName":"respiratory rate","conceptType":"Measurement","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T15:07:22.820Z","conceptName":"respiratory rate","conceptType":"Measurement","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T15:07:36.027Z","conceptName":"respiratory rate","conceptType":"Measurement","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T15:09:05.175Z","conceptName":"respiratory rate","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T15:09:32.606Z","conceptName":"respiratory rate","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para rr"}
+{"timestamp":"2025-05-22T15:09:32.608Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para score"}
+{"timestamp":"2025-05-22T15:09:32.610Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"concepts is not iterable (cannot read property Symbol(Symbol.iterator))"}
+{"timestamp":"2025-05-22T15:14:20.054Z","conceptName":"GARMIN SLEEP DATA","conceptType":"Concept Check","error":"One or more concepts are null or empty"}
+{"timestamp":"2025-05-22T15:14:47.005Z","conceptName":"GARMIN SLEEP DATA","conceptType":"Concept Check","error":"One or more concepts are null or empty"}
+{"timestamp":"2025-05-22T15:14:47.010Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"concepts is not iterable (cannot read property Symbol(Symbol.iterator))"}
+{"timestamp":"2025-05-22T15:18:45.121Z","conceptName":"respiratory rate","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para rr - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:18:45.123Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para score - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:18:45.126Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"concepts is not iterable (cannot read property Symbol(Symbol.iterator))"}
+{"timestamp":"2025-05-22T15:27:34.589Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"Cannot read properties of undefined (reading 'concept_id')"}
+{"timestamp":"2025-05-22T15:28:43.416Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"Cannot read properties of undefined (reading 'concept_id')"}
+{"timestamp":"2025-05-22T15:29:06.846Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"consoleLog is not defined"}
+{"timestamp":"2025-05-22T15:29:29.290Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"Cannot read properties of undefined (reading 'concept_id')"}
+{"timestamp":"2025-05-22T15:30:30.443Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"Cannot read properties of null (reading 'concept_id')"}
+{"timestamp":"2025-05-22T15:31:07.287Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:31:26.299Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:34:15.593Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:35:56.868Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:36:16.117Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:38:30.749Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:39:05.645Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:39:59.007Z","conceptName":"sleep duration","conceptType":"GARMIN SLEEP DURATION DATA","error":"Concepto de duración no encontrado - deteniendo ejecución"}
+{"timestamp":"2025-05-22T15:40:35.591Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"Cannot read properties of undefined (reading 'concept_id')"}
+{"timestamp":"2025-05-22T15:41:02.307Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"Cannot read properties of undefined (reading 'length')"}
+{"timestamp":"2025-05-22T15:41:24.469Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:41:24.471Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:41:24.473Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"durationConceptId is not defined"}
+{"timestamp":"2025-05-22T15:41:24.474Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"durationConceptId is not defined"}
+{"timestamp":"2025-05-22T15:41:24.474Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"durationConceptId is not defined"}
+{"timestamp":"2025-05-22T15:41:24.474Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"durationConceptId is not defined"}
+{"timestamp":"2025-05-22T15:41:24.475Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"durationConceptId is not defined"}
+{"timestamp":"2025-05-22T15:41:24.475Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"durationConceptId is not defined"}
+{"timestamp":"2025-05-22T15:41:24.475Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"durationConceptId is not defined"}
+{"timestamp":"2025-05-22T15:42:40.311Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:42:40.313Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:42:40.391Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:42:41.519Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:42:42.370Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:42:43.155Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:42:43.740Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:42:44.537Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:42:45.376Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:45:14.943Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:45:14.945Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:45:15.081Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:45:15.687Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:45:16.377Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:49:17.732Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:49:17.734Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:49:17.832Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:49:18.523Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"null value in column \"person_id\" of relation \"observation\" violates not-null constraint"}
+{"timestamp":"2025-05-22T15:53:18.390Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T15:53:18.392Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:02:29.476Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:02:29.478Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:02:29.588Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:02:29.673Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:02:29.763Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:02:29.849Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:02:29.954Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:02:30.053Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:02:30.105Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:06.247Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:11:06.249Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:11:06.493Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:06.575Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:06.675Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:06.777Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:06.875Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:06.978Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:07.082Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:55.249Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:11:55.249Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:11:55.427Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:55.552Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:55.630Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:55.723Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:55.807Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:55.890Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:11:56.039Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:12:44.623Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:12:44.625Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:12:44.706Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:12:44.787Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:12:44.866Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:12:45.020Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:12:45.118Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:12:45.209Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:12:45.354Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:13:06.771Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:13:06.773Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:13:06.861Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:13:07.180Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:13:07.478Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:13:08.548Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:13:09.694Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:13:10.161Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:13:10.569Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:20:57.838Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:20:57.841Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T16:20:57.916Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:20:58.199Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:20:58.612Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:20:59.066Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:20:59.394Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:20:59.787Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:21:00.098Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:23:42.082Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:23:42.361Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:23:42.756Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:23:43.225Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:23:43.894Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:23:44.077Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:23:44.337Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-05-22T16:29:09.925Z","conceptName":"RR Data Formatting","conceptType":"General","error":"Cannot destructure property 'concept_id' of 'conceptResult[0]' as it is undefined."}
+{"timestamp":"2025-05-22T16:37:17.604Z","conceptName":"SpO2","conceptType":"Measurement","error":"Cannot destructure property 'concept_id' of 'result[0]' as it is undefined."}
+{"timestamp":"2025-05-22T16:39:27.822Z","conceptName":"SpO2","conceptType":"Measurement","error":"Cannot destructure property 'concept_id' of 'result[0]' as it is undefined."}
+{"timestamp":"2025-05-22T16:48:54.014Z","conceptName":"Stress Update Process","conceptType":"General","error":"SQLITE_ERROR: no such table: stress"}
+{"timestamp":"2025-05-22T16:51:03.551Z","conceptName":"Stress Update Process","conceptType":"General","error":"sqliteDb is not defined"}
+{"timestamp":"2025-05-22T16:51:20.155Z","conceptName":"Stress Update Process","conceptType":"General","error":"SQLITE_ERROR: no such table: stress"}
+{"timestamp":"2025-05-22T16:52:01.251Z","conceptName":"Stress Update Process","conceptType":"General","error":"SQLITE_ERROR: no such table: monitoring_stress"}
+{"timestamp":"2025-05-22T16:54:06.499Z","conceptName":"Stress Update Process","conceptType":"General","error":"SQLITE_ERROR: no such table: stress"}
+{"timestamp":"2025-05-22T17:46:48.430Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.433Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.434Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.435Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.436Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.437Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.438Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.438Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.439Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.440Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.441Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.441Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.442Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.443Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.443Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.444Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.445Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T17:46:48.445Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.979Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.980Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.980Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.981Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.981Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.981Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.981Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.982Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.982Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.983Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.983Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.983Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.984Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.984Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.984Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.985Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.985Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:36:27.986Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.946Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.949Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.950Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.951Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.952Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.953Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.954Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.955Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.956Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.957Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.958Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.959Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.960Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.961Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.961Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.962Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.963Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:37:05.964Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.545Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.547Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para distanceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.548Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.549Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_rrConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.550Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.551Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.551Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.552Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.552Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.552Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.553Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.554Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.555Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.555Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para meterUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.556Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.557Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.558Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:38:13.559Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.484Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.486Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.487Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.488Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_speedConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.489Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.490Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para max_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.491Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.492Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para avg_cadenceConceptName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.493Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.494Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para beatsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.495Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitId - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:49:58.496Z","conceptType":"GARMIN ACTIVITY DATA","error":"Concepto no encontrado para breathsperminUnitName - continuando sin este concepto"}
+{"timestamp":"2025-05-22T20:54:42.708Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T20:54:42.901Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T20:54:43.077Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T20:54:43.258Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T20:54:43.473Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:06:50.608Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:08:58.919Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:08:59.273Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:08:59.630Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:09:00.023Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:09:00.369Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:13:32.190Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:13:32.401Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:13:32.588Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:13:32.775Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:13:32.984Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:18:17.324Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:18:17.523Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:18:17.725Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:18:17.929Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:18:18.107Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:19:08.481Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:19:08.686Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:19:08.884Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:19:09.072Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:19:09.233Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:21:29.118Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:21:29.477Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:21:29.744Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:21:30.095Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-05-22T21:21:30.370Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}

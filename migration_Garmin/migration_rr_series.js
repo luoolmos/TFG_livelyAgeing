@@ -10,18 +10,19 @@ const { generateMeasurementData } = require('../migration/formatData.js');
 const { getConceptUnit } = require('../getDBinfo/getConcept.js');
 
 
-/**
- * Migrar datos de rr de SQLite a PostgreSQL
- */
-async function migrateRrData(userDeviceId, lastSyncDate, userId, rrRows) {
-    const client = await pool.connect();
-    try {
 
+/*
+ * Formats respiration rate data  //rr, timestamp
+ *
+ * Migrar datos de rr de SQLite a PostgreSQL*/
+    
+async function migrateRrData(userDeviceId, lastSyncDate, userId, rrRows) {
         
         if (rrRows.length === 0) {
             console.log('No respiration rate data to migrate');
             return;
         }
+        //await logConceptError(constants.BREATHS_PER_MIN_STRING, 'Unit', 'Unidad no encontrada');
 
         //console.log('Formatting respiration rate data...');
         const values = await formatRrData(userId, rrRows);
@@ -36,52 +37,60 @@ async function migrateRrData(userDeviceId, lastSyncDate, userId, rrRows) {
                 throw error;
             }
         } else {
-            //console.log('No valid respiration rate data to migrate after formatting');
+            console.log('No valid respiration rate data to migrate after formatting');
         }
-    } catch (error) {
-        console.error('Error in respiration rate data migration:', error);
-        throw error;
-    } finally {
-        client.release();
-    }
-}
+} 
 
 /**
  * Formats respiration rate data  //rr, timestamp
  */
-async function formatRrData(userId, rrRows, sqliteDb) {
+async function formatRrData(userId, rrRows) {
     try {
         let insertMeasurementValue = [];
-        const {conceptId, conceptName} = await getConceptInfoMeasurement(constants.RR_STRING);
-        const { unitRRconceptId, unitRRconceptName } = await getConceptUnit(constants.BREATHS_PER_MIN_STRING);
-        const low = 12;
-        const high = 20;
+
+        const conceptResult = await getConceptInfoMeasurement(constants.RR_STRING);
+
+        if (!conceptResult || conceptResult.length === 0) {
+            await logConceptError(constants.RR_STRING, 'Measurement', 'Concepto no encontrado');
+            return [];
+        }
+        const { concept_id: conceptId, concept_name: conceptName } = conceptResult;
+
+        const unitResult = await getConceptUnit(constants.BREATHS_PER_MIN_STRING);
+        if (!unitResult || unitResult.length === 0) {
+            await logConceptError(constants.BREATHS_PER_MIN_STRING, 'Unit', 'Unidad no encontrada');
+            return [];
+        }
+        const { concept_id: unitconceptId, concept_name: unitconceptName } = unitResult;
 
         for (const row of rrRows) {
+            
             const measurementDate = formatValue.formatDate(row.timestamp);
             const measurementDatetime = formatValue.formatToTimestamp(row.timestamp);
-
+            const high = 20;
+            const low = 12;
             const baseValues = {
                 userId,
                 measurementDate: measurementDate,
                 measurementDatetime: measurementDatetime,
                 releatedId: null
             };
-            const rrMeasurement = generateMeasurementData(baseValues, row.rr, conceptId, conceptName, unitRRconceptId, unitRRconceptName, low, high);
+            const rrMeasurement = generateMeasurementData(baseValues, row.rr, conceptId, conceptName, unitconceptId, unitconceptName, low, high);
             if (rrMeasurement && rrMeasurement !== null) {  // Only add valid measurements
                 insertMeasurementValue.push(rrMeasurement);
             }
+            
         }
+        
         return insertMeasurementValue;
+
     } catch (error) {
-        console.error('Error al formatear datos de respiration rate:', error);
-        return [];
+        console.error('Error in respiration rate data formatting:', error);
+        throw error;
     }
 }
 
-
-
-/**
+/*
  * Obtiene los datos de rr de la base de datos SQLite
 */
 async function getRrData(lastSyncDate){
@@ -96,14 +105,14 @@ async function getRrData(lastSyncDate){
 }
 
 
-async function updateRrData(source, sqliteDb){
+async function updateRrData(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     //console.log('userId:', userId);
     let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
    
-    const rrRows = await getRrData(lastSyncDate);
+    const rrRows = await getRrData(lastSyncDateG);
 
     await migrateRrData(userDeviceId, lastSyncDateG, userId, rrRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
@@ -112,16 +121,18 @@ async function updateRrData(source, sqliteDb){
     await pool.end();
     //console.log('Conexiones cerradas');
 }
+
 /**
  * Función principal
  */
 async function main() {
-    const SOURCE = constants.GARMIN_VENU_SQ2;
-    updateRrData(SOURCE, sqliteDb).then(() => {
-        console.log('Migración de datos de RR completada.');
-    }).catch(err => {
-        console.error('Error en la migración de datos de RR:', err);
-    });
+    const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
+    console.log('antes del update');
+    updateRrData(SOURCE).then(() => {
+         console.log('Migración de datos de rr completada.');
+     }).catch(err => {
+         console.error('Error en la migración de datos de rr:', err);
+     });
 }
 
 main();

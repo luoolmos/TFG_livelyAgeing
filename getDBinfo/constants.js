@@ -22,26 +22,25 @@ module.exports = {
     // 
     SPO2_STRING: 'oxygen saturation in arterial blood by pulse oximetry',
     SPO2_STRING_ABREV: 'SPO2',
-    RR_STRING: 'respiration rate',
     HR_STRING: 'heart rate',
     DURATION_STRING: 'duration',
     STRESS_STRING: 'stress',
-    SLEEP_DURATION_STRING: 'sleep_duration',
-    SLEEP_SCORE_STRING: 'sleep_score',
-    SLEEP_AVG_STRESS_STRING: 'sleep_avg_stress',
-    SLEEP_AVG_SPO2_STRING: 'sleep_avg_spo2',
-    SLEEP_AVG_RR_STRING: 'sleep_avg_rr',
+    SLEEP_DURATION_STRING: 'sleep duration',
+    SLEEP_SCORE_STRING: 'sleep score', //https://athena.ohdsi.org/search-terms/terms/1619459
+    SLEEP_AVG_STRESS_STRING: 'stress level', 
+    SLEEP_AVG_STRESS_LOINC: 37020116, //https://athena.ohdsi.org/search-terms/terms/36031524
     SLEEP_REM_DURATION_STRING: 'rem sleep duration',
     SLEEP_LIGHT_DURATION_STRING: 'light sleep duration',
     SLEEP_DEEP_DURATION_STRING: 'deep sleep duration',
     SLEEP_AWAKE_DURATION_STRING: 'nighttime awakening duration',
-    DISTANCE_STRING: 'distance',
+    DISTANCE_STRING: 'distance', //https://athena.ohdsi.org/search-terms/terms/4077091
     CALORIES_STRING: 'calories burned',
     HEART_RATE_STRING: 'heart rate', //https://athena.ohdsi.org/search-terms/terms/3027018
     AVG_HR_STRING: 'mean heart rate',   //https://athena.ohdsi.org/search-terms/terms/3966397
     MAX_HR_STRING: 'maximum heart rate', //https://athena.ohdsi.org/search-terms/terms/3966129
-    RR_STRING: 'respiratory rate', //https://athena.ohdsi.org/search-terms/terms/4313591
-    AVG_RR_STRING: 'mean respiratory rate', //https://athena.ohdsi.org/search-terms/terms/3966397
+    RR_STRING: 'respiratory rate', //https://athena.ohdsi.org/search-terms/terms/4313591     RR_STRING: 'respiration rate',
+
+    AVG_RR_STRING: 'mean respiratory rate', //https://athena.ohdsi.org/search-terms/terms/3965542
     MAX_RR_STRING: 'maximum respiratory rate', //https://athena.ohdsi.org/search-terms/terms/3966211
     AVG_SPEED_STRING: 'avg_speed',
     MAX_SPEED_STRING: 'max_speed',
@@ -63,9 +62,9 @@ module.exports = {
     BEATS_PER_MIN_STRING: 'beats/min',
     PERCENT_UCUM: 4190629, //https://athena.ohdsi.org/search-terms/terms/4190629,
     PERCENT_STRING: 'percentage unit',
-    METER_STRING: 'm', //9546
+    METER_STRING: 'meter', //9546
     KCAL_STRING: 'kcal', //https://athena.ohdsi.org/search-terms/terms/710194
-
+    CELSIUS_STRING: 'degree celsius', //https://athena.ohdsi.org/search-terms/terms/586323
 
 
     //TYPE  

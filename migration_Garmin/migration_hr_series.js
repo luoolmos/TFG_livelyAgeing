@@ -56,10 +56,23 @@ async function formatHrData(userId, hrRows) {
     try {
         let insertMeasurementValue = [];
         // Llama una sola vez si el concepto es siempre el mismo
-        const {conceptId, conceptName} = await getConceptInfoMeasurement(constants.HR_STRING);
+        const conceptResult = await getConceptInfoMeasurement(constants.HR_STRING);
+
+        if (!conceptResult || conceptResult.length === 0) {
+            await logConceptError(constants.HR_STRING, 'Measurement', 'Concepto no encontrado');
+            return [];
+        }
+        const { concept_id, concept_name } = conceptResult;
+
+        const unitResult = await getConceptUnit(constants.BEATS_PER_MIN_STRING);
+        if (!unitResult || unitResult.length === 0) {
+            await logConceptError(constants.BEATS_PER_MIN_STRING, 'Unit', 'Unidad no encontrada');
+            return [];
+        }
+        const { concept_id: unitconceptId, concept_name: unitconceptName } = unitResult;
+
         const low = 60;
         const high = 100;
-        const { unitconceptId, unitconceptName } = await getConceptUnit(constants.BEATS_PER_MIN_STRING);
 
         // Mapea cada fila a una promesa
         const promises = hrRows.map(async (row) => {
@@ -73,7 +86,7 @@ async function formatHrData(userId, hrRows) {
                 releatedId: null
             };
 
-            const hrMeasurement = generateMeasurementData(baseValues, row.heart_rate, conceptId, conceptName, unitconceptId, unitconceptName, low, high);
+            const hrMeasurement = generateMeasurementData(baseValues, row.heart_rate, concept_id, concept_name, unitconceptId, unitconceptName, low, high);
             if (hrMeasurement && hrMeasurement.value_as_number !== null) {
                 return hrMeasurement;
             }
@@ -99,6 +112,7 @@ async function formatHrData(userId, hrRows) {
 async function getHrData(lastSyncDate){
     // Configuración de la base de datos SQLite
     const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
+    
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const hrRows = await sqlLite.fetchHrData(lastSyncDate,sqliteDb);
     console.log(`Retrieved ${hrRows.length} hr records from SQLite`);
