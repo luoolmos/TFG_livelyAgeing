@@ -70,7 +70,7 @@ async function getSteps() {
 // Función para obtener todos los pasos hasta el día actual y guardarlos en la BD
 async function getStepsAndSave(user_id, access_token, start_date) {
 
-
+    console.log('start_date:', start_date);
     try {
         //`https://api.fitbit.com/1/user/-/activities/steps/date/${start_date}/${end_date}.json`
         const response = await axios.get(
@@ -79,22 +79,25 @@ async function getStepsAndSave(user_id, access_token, start_date) {
         );
         //https://api.fitbit.com/1/user/-/activities/steps/date/{date}/1d/1min.json
         console.log('Response:', response.data);
-        const stepsData = response.data['activities-steps'];
+        const stepsData = response.data['activities-steps-intraday'].dataset; // Array con los pasos por minuto.data['activities-steps'];
 
         const { concept_id: stepConceptId, concept_name: stepConceptName } = await getConceptInfoObservation(constants.STEPS_STRING);
 
   
         for (const stepEntry of stepsData) {
+
             const steps = parseInt(stepEntry.value, 10);
-            const date = stepEntry.dateTime;
-            const timestamp = new Date(`${date}T00:00:00Z`); // Convertir a TIMESTAMPTZ
+            if(steps === 0) continue;
+
+            const timestamp = stepEntry.dateTime;
+            const date = timestamp.current.toISOString().split('T')[0]; // Convertir a TIMESTAMPTZ
   
             //console.log(`Pasos obtenidos: ${steps} el ${date} para el usuario ${user_id}`);
             
             const baseValues = {
                 userId: user_id,
-                observationDate,
-                observationDatetime,
+                observationDate: date,
+                observationDatetime: timestamp,
                 activityId: null
             };
             // Insertar en la tabla activity_series
@@ -243,100 +246,102 @@ async function checkEndpointAvailability(access_token) {
 }
 
 
-async function getSleepAndSave(user_id, access_token, start_date) {
-    //console.log('start_date:', start_date);
+async function getSleepAndSave(user_id, access_token, start_date, end_date, lastSyncTimestamp) {
     try {
         const response = await axios.get(
-            `https://api.fitbit.com/1.2/user/-/sleep/date/${start_date}.json`,
-            {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            }
+            `https://api.fitbit.com/1.2/user/-/sleep/date/${start_date}/${end_date}.json`,
+            { headers: { 'Authorization': `Bearer ${access_token}` } }
         );
-        //const existing = await getSleep(user_id, start_date);
-
-        //if (existing) {
-        //    console.log(`Ya existen datos de sueño para ${dateString}, se omite.`);
-        //    return;
-        //}
-  
         const sleepData = response.data.sleep;
-        console.log('sleepData:', sleepData);
-        
-        const { concept_id: durationSleepConceptId, concept_name: durationSleepConceptName } = await getConceptInfoObservation(constants.SLEEP_DURATION_STRING);
-        const { concept_id: efficiencySleepConceptId, concept_name: efficiencySleepConceptName } = await getConceptInfoObservation(constants.SLEEP_SCORE_STRING);
-        
-        const { concept_id: minuteConceptId, concept_name: minuteConceptName } = await getConceptUnit(constants.MINUTE_STRING);
+        const durationConcept = await getConceptInfoObservation(constants.SLEEP_DURATION_STRING);
+        if (!durationConcept) throw new Error(`No se encontró el concepto para SLEEP_DURATION_STRING: ${constants.SLEEP_DURATION_STRING}`);
+        const { concept_id: durationSleepConceptId, concept_name: durationSleepConceptName } = durationConcept;
+        const efficiencyConcept = await getConceptInfoObservation(constants.SLEEP_SCORE_STRING);
+        if (!efficiencyConcept) throw new Error(`No se encontró el concepto para SLEEP_SCORE_STRING: ${constants.SLEEP_SCORE_STRING}`);
+        const { concept_id: efficiencySleepConceptId, concept_name: efficiencySleepConceptName } = efficiencyConcept;
+        const minuteConcept = await getConceptUnit(constants.MINUTE_STRING);
+        if (!minuteConcept) throw new Error(`No se encontró el concepto para MINUTE_STRING: ${constants.MINUTE_STRING}`);
+        const { concept_id: minuteConceptId, concept_name: minuteConceptName } = minuteConcept;
 
-        //console.log('durationSleepConceptId:', durationSleepConceptId);
-        //console.log('efficiencySleepConceptId:', efficiencySleepConceptId);
-        //console.log('minuteConceptId:', minuteConceptId);
-
+        let successfulDates = [];
+        let failedDates = [];
 
         for (const sleep of sleepData) {
-            const sleepStart = new Date(sleep.startTime);
-            const sleepEnd = new Date(sleep.endTime);
+            let durationInsertion;
+            try {
+                const sleepStart = new Date(sleep.startTime);
+                const sleepEnd = new Date(sleep.endTime);
+                if (lastSyncTimestamp && sleepEnd <= lastSyncTimestamp) continue;
 
-            // Si el sueño termina ANTES o IGUAL que el lastSyncTimestamp, lo saltamos
-            if (sleepEnd <= lastSyncTimestamp) {
-                continue;
-            }
+                const duration = sleep.duration;
+                const efficiency = sleep.efficiency;
+                const observationDate = formatDate(sleep.dateOfSleep);
+                const observationDatetime = formatToTimestamp(sleep.startTime);
 
-            const duration = sleep.duration;
-            const efficiency = sleep.efficiency;
+                const firstInsertion = {
+                    userId: user_id,
+                    observationDate,
+                    observationDatetime,
+                    activityId: null
+                };
+                const durationValue = generateObservationData(firstInsertion, duration, durationSleepConceptId, durationSleepConceptName, minuteConceptId, minuteConceptName, null, null);
 
-            const observationDate = formatDate(sleep.dateOfSleep);
-            const observationDatetime = formatToTimestamp(sleep.dateOfSleep);
-            
-            //generate observation duration 
-            const firstInsertion = {
-                userId: user_id,
-                observationDate,
-                observationDatetime,
-                activityId: null
-            };
-            const durationValue = generateObservationData(firstInsertion, duration, durationSleepConceptId, durationSleepConceptName, minuteConceptId, minuteConceptName, null, null);
-            const durationInsertion = await inserts.insertObservation(durationValue);
-            console.log('durationInsertion:', durationInsertion);
-            
-            if (!durationInsertion) throw new Error('Failed to insert duration sleep observation');
+                try {
+                    durationInsertion = await inserts.insertObservation(durationValue);
+                    console.log('durationInsertion:', durationInsertion);
+                } catch (error) {
+                    console.error('Error inserting duration sleep observation:', error);
+                    failedDates.push(sleep.startTime);
+                    continue;
+                }
 
-            const baseValues = {
-                userId: user_id,
-                observationDate,
-                observationDatetime,
-                activityId: durationInsertion
-            };
-            console.log('sleep.levels:', sleep.levels);
-            
-            
-            // Si hay datos de etapas de sueño
-            if (sleep.levels && sleep.levels.summary) {
-                const stages = sleep.levels.summary;
-                let insertObservationValue = [];
+                const baseValues = {
+                    userId: user_id,
+                    observationDate,
+                    observationDatetime,
+                    activityId: durationInsertion
+                };
 
-                for (const [stage, data] of Object.entries(stages)) {
-                    if (stage !== 'total') {
-                        console.log('data:', data);
-                        const { sleepStageConceptId, sleepStageConceptName } = await getConceptInfoObservation(data.stage);
-                        const observationStage = generateObservationData(baseValues, data.minutes, sleepStageConceptId, sleepStageConceptName, constants.MINUTE_UCUM);
-                        insertObservationValue.push(observationStage);
+                if (sleep.levels && sleep.levels.summary) {
+                    const stages = sleep.levels.summary;
+                    let insertObservationValue = [];
+                    for (const [stage, data] of Object.entries(stages)) {
+                        if (stage !== 'total') {
+                            const stageConcept = await getConceptInfoObservation(data.stage);
+                            if (!stageConcept) {
+                                console.error(`No se encontró el concepto para stage: ${data.stage}`);
+                                continue;
+                            }
+                            const { concept_id: sleepStageConceptId, concept_name: sleepStageConceptName } = stageConcept;
+                            const observationStage = generateObservationData(baseValues, data.minutes, sleepStageConceptId, sleepStageConceptName, constants.MINUTE_UCUM);
+                            insertObservationValue.push(observationStage);
+                        }
+                    }
+                    try {
+                        await inserts.insertMultipleObservation(insertObservationValue);
+                    } catch (error) {
+                        console.error('Error inserting sleep stage observation:', error);
+                        failedDates.push(sleep.startTime);
+                        continue;
                     }
                 }
-                console.log('insertObservationValue:', insertObservationValue);
-                await inserts.insertMultipleObservation(insertObservationValue);
+
+                const efficiencyValue = generateObservationData(baseValues, efficiency, efficiencySleepConceptId, efficiencySleepConceptName, minuteConceptId, minuteConceptName, null, null);
+                try {
+                    await inserts.insertObservation(efficiencyValue);
+                    successfulDates.push(sleep.startTime);
+                } catch (error) {
+                    console.error('Error inserting efficiency sleep observation:', error);
+                    failedDates.push(sleep.startTime);
+                    continue;
+                }
+            } catch (error) {
+                console.warn('Error getting and saving sleep data:', error);
+                failedDates.push(sleep.startTime);
             }
-
-            //generate efficiency sleep observation
-            const efficiencyValue = generateObservationData(baseValues, efficiency, efficiencySleepConceptId, efficiencySleepConceptName, minuteConceptId, minuteConceptName, null, null);
-            const efficiencyInsertion = await inserts.insertObservation(efficiencyValue);
-            console.log('efficiencyInsertion:', efficiencyInsertion);
-            await inserts.insertObservation(efficiencyValue);
-
         }
-        console.log(`Sleep data saved for date: ${start_date}`);
-  
+        console.log(`Sleep data saved for range: ${start_date} to ${end_date}`);
+        return { successfulDates, failedDates };
     } catch (error) {
         console.error('Error getting and saving sleep data:', error);
         throw error;

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { makeAuthenticatedRequest, getStepsAndSave } = require('../fitbitApi');
+const constants = require('../../getDBinfo/constants.js');
+const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../../getDBinfo/getUserId.js');
 
 // Ruta para obtener los pasos
 router.get('/sensors/steps', async (req, res) => {
@@ -9,19 +11,25 @@ router.get('/sensors/steps', async (req, res) => {
     const source = constants.SAMSUNG_GALAXY_WATCH_4;
     let {userId, lastSyncDate, userDeviceId} = await getUserDeviceInfo(source);
     console.log('user_id:', userId);
+    lastSyncDate = '2025-03-10'; //hay pasos
     console.log('last_sync_date:', lastSyncDate);
-    lastSyncDate = '2025-05-05';
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
     let current = new Date(lastSyncDate);
 
     let successfulDates = [];
     let failedDates = [];
 
+    console.log('before while');
+    console.log('current:', current);
+    console.log('today:', today);
+
     while (current <= today) {
       const dateString = current.toISOString().split('T')[0];
+      console.log('dateString:', dateString);
       // Llama a la función que obtiene y guarda el sueño para ese día
       try {
+        console.log('before getStepsAndSave');
           await getStepsAndSave(userId, access_token, dateString);
           successfulDates.push(dateString);
       } catch (err) {
