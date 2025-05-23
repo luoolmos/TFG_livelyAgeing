@@ -8,7 +8,9 @@ const { refreshAccessToken } = require('./auth');
 const { isTokenExpiredError } = require('./utils');
 const { generateObservationData } = require('../migration/formatData.js');
 const constants = require('../getDBinfo/constants.js');
-const { getConceptUnit } = require('../getDBinfo/getConcept.js');
+const { getConceptUnit, getConceptInfoObservation } = require('../getDBinfo/getConcept.js');
+
+
 
 // Hace una petición autenticada con auto-refresh del token si es necesario
 async function makeAuthenticatedRequest(url, access_token, retryCount = 0) {
@@ -66,16 +68,10 @@ async function getSteps() {
 }
 
 // Función para obtener todos los pasos hasta el día actual y guardarlos en la BD
-async function getStepsAndSave({ username, device_id, access_token, start_date, end_date }) {
+async function getStepsAndSave(user_id, access_token, start_date) {
+
+
     try {
-        // Obtener user_id desde la BD
-        const user_id = await getUserId({ username, device_id });
-        start_date = '2025-04-07';
-        const today = new Date();
-        const end_date = today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-        console.log(`start_date: ${start_date}`);
-        console.log(`end_date: ${end_date}`);
-        // Llamada a la API de Fitbit para obtener pasos de los últimos 30 días
         //`https://api.fitbit.com/1/user/-/activities/steps/date/${start_date}/${end_date}.json`
         const response = await axios.get(
             `https://api.fitbit.com/1/user/-/activities/steps/date/${start_date}/1d/1min.json`,
@@ -84,6 +80,9 @@ async function getStepsAndSave({ username, device_id, access_token, start_date, 
         //https://api.fitbit.com/1/user/-/activities/steps/date/{date}/1d/1min.json
         console.log('Response:', response.data);
         const stepsData = response.data['activities-steps'];
+
+        const { concept_id: stepConceptId, concept_name: stepConceptName } = await getConceptInfoObservation(constants.STEPS_STRING);
+
   
         for (const stepEntry of stepsData) {
             const steps = parseInt(stepEntry.value, 10);
@@ -91,14 +90,18 @@ async function getStepsAndSave({ username, device_id, access_token, start_date, 
             const timestamp = new Date(`${date}T00:00:00Z`); // Convertir a TIMESTAMPTZ
   
             //console.log(`Pasos obtenidos: ${steps} el ${date} para el usuario ${user_id}`);
-          
+            
+            const baseValues = {
+                userId: user_id,
+                observationDate,
+                observationDatetime,
+                activityId: null
+            };
             // Insertar en la tabla activity_series
-            await pool.query(
-                `INSERT INTO activity_series (user_id, time, activity_type, steps, calories_burned, active_zone_minutes) 
-                 VALUES ($1, $2, $3, $4, $5, $6) 
-                 ON CONFLICT (user_id, time) DO UPDATE SET steps = EXCLUDED.steps;`,
-                [user_id, timestamp, 'steps', steps, null, null]
-            );
+
+            const stepValue = generateObservationData(baseValues, steps, stepConceptId, stepConceptName, null, null);
+            const stepInsertion = await inserts.insertObservation(stepValue);
+            console.log('stepInsertion:', stepInsertion);
         
             console.log(`Pasos guardados en la BD: ${steps} el ${timestamp} para el usuario ${user_id}`);
         }
@@ -241,7 +244,7 @@ async function checkEndpointAvailability(access_token) {
 
 
 async function getSleepAndSave(user_id, access_token, start_date) {
-    console.log('start_date:', start_date);
+    //console.log('start_date:', start_date);
     try {
         const response = await axios.get(
             `https://api.fitbit.com/1.2/user/-/sleep/date/${start_date}.json`,
@@ -251,20 +254,37 @@ async function getSleepAndSave(user_id, access_token, start_date) {
                 }
             }
         );
+        //const existing = await getSleep(user_id, start_date);
+
+        //if (existing) {
+        //    console.log(`Ya existen datos de sueño para ${dateString}, se omite.`);
+        //    return;
+        //}
   
         const sleepData = response.data.sleep;
         console.log('sleepData:', sleepData);
         
-        const { concept_id: durationSleepConceptId, concept_name: durationSleepConceptName } = await getConceptInfoObservation(constants.SLEEP_DURATION_LOINC);
+        const { concept_id: durationSleepConceptId, concept_name: durationSleepConceptName } = await getConceptInfoObservation(constants.SLEEP_DURATION_STRING);
         const { concept_id: efficiencySleepConceptId, concept_name: efficiencySleepConceptName } = await getConceptInfoObservation(constants.SLEEP_SCORE_STRING);
         
         const { concept_id: minuteConceptId, concept_name: minuteConceptName } = await getConceptUnit(constants.MINUTE_STRING);
 
+        //console.log('durationSleepConceptId:', durationSleepConceptId);
+        //console.log('efficiencySleepConceptId:', efficiencySleepConceptId);
+        //console.log('minuteConceptId:', minuteConceptId);
+
+
         for (const sleep of sleepData) {
+            const sleepStart = new Date(sleep.startTime);
+            const sleepEnd = new Date(sleep.endTime);
+
+            // Si el sueño termina ANTES o IGUAL que el lastSyncTimestamp, lo saltamos
+            if (sleepEnd <= lastSyncTimestamp) {
+                continue;
+            }
+
             const duration = sleep.duration;
             const efficiency = sleep.efficiency;
-            const startTime = sleep.startTime;
-            const endTime = sleep.endTime;
 
             const observationDate = formatDate(sleep.dateOfSleep);
             const observationDatetime = formatToTimestamp(sleep.dateOfSleep);

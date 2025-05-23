@@ -48,8 +48,9 @@ module.exports = {
     AVG_TEMPERATURE_STRING: 'body temperature', //https://athena.ohdsi.org/search-terms/terms/4302666
     MAX_TEMPERATURE_STRING: 'maximum body temperature', //https://athena.ohdsi.org/search-terms/terms/44809208
     MIN_TEMPERATURE_STRING: 'minimum body temperature', //https://athena.ohdsi.org/search-terms/terms/44813868
-
-
+    STEPS_STRING: 'number of steps in unspecified time pedometer', //https://athena.ohdsi.org/search-terms/terms/40758552
+    STEPS_STRING_ABREV: 'steps',
+    
 
     //UNIT
     MINUTE_UCUM: 8550, //https://athena.ohdsi.org/search-terms/terms/8550,
