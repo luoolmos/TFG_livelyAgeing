@@ -14,12 +14,7 @@ router.get('/sensors/save-sleep', async (req, res) => {
         console.log('user_id:', userId);
         console.log('last_sync_date:', lastSyncDate);
         lastSyncDate = '2025-05-05';
-        //const response = await makeAuthenticatedRequest(
-        //    `https://api.fitbit.com/1/user/-/sleep/date/${lastSyncDate}.json`,
-        //    access_token
-        //);
-        //console.log('response:', response.data);
-        //res.json(response.data);
+
         const today = new Date().toISOString().split('T')[0];
         const start = new Date(lastSyncDate);
         const end = new Date(today);

@@ -1,11 +1,14 @@
 // fitbitApi.js
 // Funciones para interactuar con la API de Fitbit y manejo de autenticación automática
 
+//REFRESH_TOKEN=871650f2c5eab09356b9632f1353cc4caab0b523a0ce4d38b67028105c52a04c
+
 const axios = require('axios');
 const { refreshAccessToken } = require('./auth');
 const { isTokenExpiredError } = require('./utils');
 const { generateObservationData } = require('../migration/formatData.js');
 const constants = require('../getDBinfo/constants.js');
+const { getConceptUnit } = require('../getDBinfo/getConcept.js');
 
 // Hace una petición autenticada con auto-refresh del token si es necesario
 async function makeAuthenticatedRequest(url, access_token, retryCount = 0) {
@@ -251,6 +254,11 @@ async function getSleepAndSave(user_id, access_token, start_date) {
   
         const sleepData = response.data.sleep;
         console.log('sleepData:', sleepData);
+        
+        const { concept_id: durationSleepConceptId, concept_name: durationSleepConceptName } = await getConceptInfoObservation(constants.SLEEP_DURATION_LOINC);
+        const { concept_id: efficiencySleepConceptId, concept_name: efficiencySleepConceptName } = await getConceptInfoObservation(constants.SLEEP_SCORE_STRING);
+        
+        const { concept_id: minuteConceptId, concept_name: minuteConceptName } = await getConceptUnit(constants.MINUTE_STRING);
 
         for (const sleep of sleepData) {
             const duration = sleep.duration;
@@ -268,8 +276,7 @@ async function getSleepAndSave(user_id, access_token, start_date) {
                 observationDatetime,
                 activityId: null
             };
-            const { durationSleepConceptId, durationSleepConceptName } = await getConceptInfoObservation(constants.SLEEP_DURATION_LOINC);
-            const durationValue = generateObservationData(firstInsertion, duration, durationSleepConceptId, durationSleepConceptName, constants.MINUTE_UCUM);
+            const durationValue = generateObservationData(firstInsertion, duration, durationSleepConceptId, durationSleepConceptName, minuteConceptId, minuteConceptName, null, null);
             const durationInsertion = await inserts.insertObservation(durationValue);
             console.log('durationInsertion:', durationInsertion);
             
@@ -298,8 +305,14 @@ async function getSleepAndSave(user_id, access_token, start_date) {
                     }
                 }
                 console.log('insertObservationValue:', insertObservationValue);
-                //await inserts.insertMultipleObservation(insertObservationValue);
+                await inserts.insertMultipleObservation(insertObservationValue);
             }
+
+            //generate efficiency sleep observation
+            const efficiencyValue = generateObservationData(baseValues, efficiency, efficiencySleepConceptId, efficiencySleepConceptName, minuteConceptId, minuteConceptName, null, null);
+            const efficiencyInsertion = await inserts.insertObservation(efficiencyValue);
+            console.log('efficiencyInsertion:', efficiencyInsertion);
+            await inserts.insertObservation(efficiencyValue);
 
         }
         console.log(`Sleep data saved for date: ${start_date}`);
