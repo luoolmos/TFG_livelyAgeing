@@ -2,8 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
 import Dashboard from './pages/Dashboard';
+import Users from './pages/Users';
 // Puedes crear y agregar más páginas aquí, por ejemplo:
-// import Users from './pages/Users';
+// import Devices from './pages/Devices';
 
 const App: React.FC = () => (
   <Router>
@@ -13,14 +14,14 @@ const App: React.FC = () => (
           LivelyAgeing
         </Typography>
         <Button color="inherit" component={Link} to="/">Dashboard</Button>
-        {/* <Button color="inherit" component={Link} to="/users">Usuarios</Button> */}
+        <Button color="inherit" component={Link} to="/users">Usuarios</Button>
         {/* <Button color="inherit" component={Link} to="/devices">Dispositivos</Button> */}
       </Toolbar>
     </AppBar>
     <Container sx={{ mt: 4 }}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        {/* <Route path="/users" element={<Users />} /> */}
+        <Route path="/users" element={<Users />} />
         {/* <Route path="/devices" element={<Devices />} /> */}
       </Routes>
     </Container>

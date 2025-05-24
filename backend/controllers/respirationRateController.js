@@ -1,6 +1,8 @@
 const { makeAuthenticatedRequest, getHeartRateAndSave } = require('../api/fitbitApi');
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo, updateLastSyncUserDevice } = require('../getDBinfo/getUserId.js');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
+
 
 // Controlador para frecuencia respiratoria
 exports.saveRespirationRate = async (req, res) => {

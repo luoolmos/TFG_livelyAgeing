@@ -1,4 +1,5 @@
 const { fetchAllFitbitData } = require('../api/fitbitApi');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
 
 // Controlador para datos agregados
 exports.logAllData = async (req, res) => {

@@ -1,5 +1,5 @@
 const express = require('express');
-require('dotenv').config({path: '.env' });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
 const router = express.Router();
 const { makeAuthenticatedRequest, getSleepAndSave } = require('../api/fitbitApi');
 const constants = require('../utils/constants.js');

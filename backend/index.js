@@ -2,10 +2,10 @@
 // npm install express
 // node index.js
 
-require('dotenv').config({path: '.env' });
+require('dotenv').config({ path: require('path').resolve(__dirname, './utils/.env') });
 const fs = require('fs');
-const path = require('path');
 const express = require('express');
+const cors = require('cors');
 const axios = require('axios');
 const querystring = require('querystring');
 const pool = require('./models/db');
@@ -29,6 +29,7 @@ const app = express();
 const PORT = 5003;
 
 // Middlewares globales primero
+app.use(cors());
 app.use(express.json());
 
 // Rutas con prefijos consistentes
@@ -59,8 +60,16 @@ async function getUserId({ device_id }) {
   return userDeviceInfo.userId;
 }
 
-refreshAccessToken(process.env.REFRESH_TOKEN);
-getUserProfile(process.env.ACCESS_TOKEN);
+pool.connect()
+.then(() => {
+  console.log('Conexión exitosa a la base de datos');
+})
+.catch((err) => {
+  console.error('Error al conectar a la base de datos:', err);
+});
+
+//refreshAccessToken(process.env.REFRESH_TOKEN);
+//getUserProfile(process.env.ACCESS_TOKEN);
 
 app.listen(5003, '0.0.0.0', () => {
     console.log('Servidor escuchando en http://0.0.0.0:5003');

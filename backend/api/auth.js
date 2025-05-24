@@ -9,7 +9,7 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 
 function updateEnvVariable(key, value) {
-  const envPath = path.resolve(__dirname, '../.env');
+  require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
 
 
     let envContent = '';

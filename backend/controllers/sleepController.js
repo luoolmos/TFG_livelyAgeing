@@ -4,6 +4,8 @@ const { makeAuthenticatedRequest, getSleepAndSave } = require('../api/fitbitApi'
 const constants = require('../getDBinfo/constants.js');
 const { getUserDeviceInfo, updateLastSyncUserDevice } = require('../getDBinfo/getUserId.js');
 const inserts = require('../getDBinfo/inserts.js');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
+
 
 exports.saveSleep = async (req, res) => {
     try {

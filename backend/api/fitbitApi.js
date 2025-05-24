@@ -3,6 +3,7 @@
 
 //REFRESH_TOKEN=871650f2c5eab09356b9632f1353cc4caab0b523a0ce4d38b67028105c52a04c
 
+require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
 const axios = require('axios');
 const { refreshAccessToken} = require('./auth');
 const { isTokenExpiredError,logApiResponse } = require('../utils/utils.js');

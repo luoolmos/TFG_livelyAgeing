@@ -1,4 +1,4 @@
-require('dotenv').config({path: '.env' });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
 const { updateEnvVariable } = require('../api/auth');
 const axios = require('axios');
 const querystring = require('querystring');

@@ -91,8 +91,38 @@ async function updateLastSyncUserDevice(userDeviceId) {
     return true;
 }
 
+
+async function getUsers() {
+  console.log('getUsers');
+    const query = `
+        SELECT * FROM custom.user_device;
+    `;
+    const result = await pool.query(query);
+    console.log('result', result.rows);
+    return result.rows;
+}
+
+async function getDevices() {
+    const query = `
+        SELECT * FROM custom.device;
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+}
+
+async function getUserInfo() {
+    const query = `
+        SELECT * FROM custom.person_info;
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+}
+
 module.exports = {
     getUserDeviceInfo,
     updateLastSyncUserDevice,
-    getUserAge
+    getUserAge,
+    getUsers,
+    getDevices,
+    getUserInfo
 };

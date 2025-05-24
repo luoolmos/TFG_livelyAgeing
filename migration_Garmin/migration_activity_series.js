@@ -1,6 +1,7 @@
 const path = require('path');
-require('dotenv').config({path: '../.env' });
+//require('dotenv').config({ path: require('path').resolve(__dirname, '../backend/utils/.env') });
 const pool = require('../backend/models/db');
+const constants = require('../backend/getDBinfo/constants.js');
 const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../backend/getDBinfo/getUserId.js');
 const { getConceptInfoMeasValue, getConceptInfoObservation, getConceptInfoMeasurement, getConceptUnit } = require('../backend/getDBinfo/getConcept.js');
 const { generateObservationData, generateMeasurementData } = require('../migration/formatData.js');

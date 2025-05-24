@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
 
-// GET /api/dashboard/daily-summary
+// Rutas del dashboard
 router.get('/daily-summary', dashboardController.getDailySummary);
+router.get('/user-info', dashboardController.getUserInfo);
 
 // GET /api/dashboard/users
 router.get('/users', dashboardController.getUsers);
