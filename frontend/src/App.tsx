@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 // Puedes crear y agregar más páginas aquí, por ejemplo:
@@ -8,8 +8,8 @@ import Users from './pages/Users';
 
 const App: React.FC = () => (
   <Router>
-    <AppBar position="static">
-      <Toolbar>
+    <AppBar position="static" sx={{ width: '100vw', left: 0, boxShadow: 2 }}>
+      <Toolbar sx={{ maxWidth: '100vw', width: '100%', px: { xs: 1, sm: 4 } }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           LivelyAgeing
         </Typography>
@@ -18,13 +18,13 @@ const App: React.FC = () => (
         {/* <Button color="inherit" component={Link} to="/devices">Dispositivos</Button> */}
       </Toolbar>
     </AppBar>
-    <Container sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4, width: '100vw', minHeight: 'calc(100vh - 64px)', background: '#232526', px: 0 }}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/users" element={<Users />} />
         {/* <Route path="/devices" element={<Devices />} /> */}
       </Routes>
-    </Container>
+    </Box>
   </Router>
 );
 

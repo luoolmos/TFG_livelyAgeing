@@ -118,11 +118,26 @@ async function getUserInfo() {
     return result.rows;
 }
 
+async function getUserModel(){
+  const query = `
+    SELECT 
+      ud.user_id, 
+      ud.device_id, 
+      ud.last_sync_date, 
+      d.model AS device_model
+    FROM custom.user_device ud
+    JOIN custom.device d ON ud.device_id = d.device_id
+  `;
+  const result = await pool.query(query);
+  return result.rows;
+}
+
 module.exports = {
     getUserDeviceInfo,
     updateLastSyncUserDevice,
     getUserAge,
     getUsers,
     getDevices,
-    getUserInfo
+    getUserInfo,
+    getUserModel
 };

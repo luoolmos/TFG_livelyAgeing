@@ -13,7 +13,13 @@ interface User {
   user_id: string | number;
   device_id: string;
   last_sync_date: string;
+  device_model: string;
 }
+
+const pastelGreen = "#b2f2bb";
+const pastelOrange = "#ffe066";
+const pastelBlue = "#a5d8ff";
+const pastelRed = "#ffa8a8";
 
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -45,19 +51,31 @@ const UserList: React.FC = () => {
     if (diffHours < 24) {
       return (
         <Chip
-          icon={<CheckCircleIcon color="success" />}
+          icon={<CheckCircleIcon sx={{ color: "#38d39f" }} />}
           label="Sincronizado"
-          color="success"
-          variant="outlined"
+          sx={{
+            bgcolor: pastelGreen,
+            color: "#222",
+            fontWeight: 600,
+            borderRadius: 2,
+            px: 1.5,
+            transition: "all 0.3s",
+          }}
         />
       );
     } else {
       return (
         <Chip
-          icon={<ErrorIcon color="warning" />}
+          icon={<ErrorIcon sx={{ color: "#ff922b" }} />}
           label="Desactualizado"
-          color="warning"
-          variant="outlined"
+          sx={{
+            bgcolor: pastelOrange,
+            color: "#222",
+            fontWeight: 600,
+            borderRadius: 2,
+            px: 1.5,
+            transition: "all 0.3s",
+          }}
         />
       );
     }
@@ -66,7 +84,7 @@ const UserList: React.FC = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
+        <CircularProgress color="info" />
       </Box>
     );
   }
@@ -80,50 +98,103 @@ const UserList: React.FC = () => {
   }
 
   return (
-    <Box sx={{ background: "#f5f6fa", borderRadius: 3, p: 3, boxShadow: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5" fontWeight={600}>
-          Lista de Usuarios
+    <Box
+      sx={{
+        background: "#232526",
+        borderRadius: 4,
+        p: { xs: 1, sm: 3 },
+        boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
+        maxWidth: 1100,
+        width: "100%",
+        mt: 4,
+        mb: 4,
+        mx: "auto"
+      }}
+    >
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4" fontWeight={700} color="#f5f6fa" fontFamily="Inter, Roboto, Arial">
+          Usuarios
         </Typography>
         <Button
           variant="contained"
-          color="primary"
+          color="info"
           startIcon={<RefreshIcon />}
           onClick={fetchUsers}
+          sx={{
+            fontWeight: 600,
+            fontSize: "1.1rem",
+            borderRadius: 2,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+            background: "linear-gradient(90deg, #38d39f 0%, #1976d2 100%)",
+            color: "#fff",
+            transition: "all 0.3s",
+            "&:hover": {
+              background: "linear-gradient(90deg, #1976d2 0%, #38d39f 100%)",
+              boxShadow: "0 4px 16px rgba(25, 118, 210, 0.18)"
+            }
+          }}
         >
-          Actualizar
+          ACTUALIZAR
         </Button>
       </Box>
-      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          borderRadius: 3,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
+          background: "#2d2f36"
+        }}
+      >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Usuario</TableCell>
-              <TableCell>Dispositivo</TableCell>
-              <TableCell>Última Sincronización</TableCell>
-              <TableCell>Estado</TableCell>
+              <TableCell sx={{ color: "#a5d8ff", fontWeight: 700, fontSize: "1.1rem" }}>Usuario</TableCell>
+              <TableCell sx={{ color: "#a5d8ff", fontWeight: 700, fontSize: "1.1rem" }}>Dispositivo</TableCell>
+              <TableCell sx={{ color: "#a5d8ff", fontWeight: 700, fontSize: "1.1rem" }}>Última Sincronización</TableCell>
+              <TableCell sx={{ color: "#a5d8ff", fontWeight: 700, fontSize: "1.1rem" }}>Estado</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {Array.isArray(users) && users.length > 0 ? (
               users.map((user) => (
-                <TableRow key={user.user_id}>
+                <TableRow
+                  key={user.user_id}
+                  hover
+                  sx={{
+                    transition: "background 0.3s",
+                    "&:hover": { background: "#232526" },
+                    height: 72
+                  }}
+                >
                   <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Avatar sx={{ bgcolor: "#1976d2" }}>
-                        {user.user_id[0]?.toUpperCase() || "U"}
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <Avatar sx={{
+                        bgcolor: pastelBlue,
+                        color: "#1976d2",
+                        fontWeight: 700,
+                        width: 44,
+                        height: 44,
+                        fontSize: "1.3rem"
+                      }}>
+                        {String(user.user_id)[0]?.toUpperCase() || "U"}
                       </Avatar>
-                      <Typography>{user.user_id}</Typography>
+                      <Typography fontWeight={600} fontSize="1.1rem" color="#f5f6fa" fontFamily="Inter, Roboto, Arial">
+                        {String(user.user_id)}
+                      </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Tooltip title="Dispositivo Wearable">
-                      <WatchIcon color="action" sx={{ mr: 1 }} />
-                    </Tooltip>
-                    <Typography variant="body2" component="span">{user.device_id}</Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Tooltip title="Dispositivo Wearable">
+                        <WatchIcon color="info" sx={{ mr: 1 }} />
+                      </Tooltip>
+                      <Typography variant="body1" color="#f5f6fa"> {user.device_model}</Typography>
+                    </Box>
                   </TableCell>
                   <TableCell>
-                    {new Date(user.last_sync_date).toLocaleString()}
+                    <Typography color="#f5f6fa" fontWeight={500}>
+                      {new Date(user.last_sync_date).toLocaleString()}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     {getSyncStatus(user.last_sync_date)}
@@ -133,7 +204,7 @@ const UserList: React.FC = () => {
             ) : (
               <TableRow>
                 <TableCell colSpan={4} align="center">
-                  No hay usuarios para mostrar.
+                  <Typography color="#f5f6fa">No hay usuarios para mostrar.</Typography>
                 </TableCell>
               </TableRow>
             )}

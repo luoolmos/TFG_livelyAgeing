@@ -36,7 +36,7 @@ const dashboardController = {
   // Obtener usuarios
   getUsers: async (req, res) => {
     try {
-      const result = await userInfo.getUsers();
+      const result = await userInfo.getUserModel();
       console.log('resultInsidedashboardController', result);
       res.json(result);
     } catch (err) {
@@ -70,5 +70,3 @@ const dashboardController = {
 
 module.exports = dashboardController;
 
-
-module.exports = dashboardController;
