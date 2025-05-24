@@ -1,4 +1,5 @@
-const constants = require('../getDBinfo/constants.js');
+const constants = require('../backend/getDBinfo/constants.js');
+//const { getUserDeviceInfo } = require('../backend/getDBinfo/getUserId.js');
 
 
 function generateObservationData(data, value, conceptId, conceptName, unitconceptId, unitconceptName) {

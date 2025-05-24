@@ -1,21 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const { makeAuthenticatedRequest, getSleepAndSave } = require('../fitbitApi');
-const constants = require('../../getDBinfo/constants.js');
-const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../../getDBinfo/getUserId.js');
-const inserts = require('../../getDBinfo/inserts.js');
+// Controlador para sueño
 
+const { makeAuthenticatedRequest, getSleepAndSave } = require('../api/fitbitApi');
+const constants = require('../getDBinfo/constants.js');
+const { getUserDeviceInfo, updateLastSyncUserDevice } = require('../getDBinfo/getUserId.js');
+const inserts = require('../getDBinfo/inserts.js');
 
-router.get('/sensors/save-sleep', async (req, res) => {
+exports.saveSleep = async (req, res) => {
     try {
         const access_token = process.env.ACCESS_TOKEN;
         const source = constants.SAMSUNG_GALAXY_WATCH_4;
         let {userId, lastSyncDate, userDeviceId} = await getUserDeviceInfo(source);
         console.log('user_id:', userId);
         console.log('last_sync_date:', lastSyncDate);
-        // lastSyncDate = '2025-05-05'; // Solo para pruebas, comenta o elimina en producción
-        const start_date = lastSyncDate.split('T')[0]; // solo la fecha
-        const end_date = new Date().toISOString().split('T')[0]; // solo la fecha
+        lastSyncDate = '2025-05-05'; // Solo para pruebas, comenta o elimina en producción
+        const start_date = new Date(lastSyncDate).toISOString().split('T')[0];
+        const end_date = new Date().toISOString().split('T')[0];
         const lastSyncTimestamp = new Date(lastSyncDate);
 
         const { successfulDates, failedDates } = await getSleepAndSave(userId, access_token, start_date, end_date, lastSyncTimestamp);
@@ -46,6 +45,4 @@ router.get('/sensors/save-sleep', async (req, res) => {
         console.error('Error in save-sleep endpoint:', error);
         res.status(500).json({ message: "Error guardando datos de sueño" });
     }
-});   
-
-module.exports = router;
+};

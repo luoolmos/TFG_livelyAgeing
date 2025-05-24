@@ -1,10 +1,10 @@
 const express = require('express');
 const path = require('path');
-const pool = require('../db'); 
+const pool = require('../models/db'); 
 const app = express();
 app.use(express.json());
 
-const constants = require('./constants');
+const constants = require('../utils/constants.js');
 
 const sleepConceptId = constants.SLEEP_DURATION_LOINC;
 const sleepConceptName = constants.SLEEP_DURATION_STRING;

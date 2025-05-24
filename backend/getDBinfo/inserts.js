@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const pool = require('../db'); 
+const pool = require('../models/db'); 
 const app = express();
 app.use(express.json());
 

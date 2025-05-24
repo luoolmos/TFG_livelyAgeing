@@ -8,29 +8,44 @@ const path = require('path');
 const express = require('express');
 const axios = require('axios');
 const querystring = require('querystring');
-const pool = require('../db');
-const inserts = require('../getDBinfo/inserts.js');
-const constants = require('../getDBinfo/constants.js');
-const {getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js');
-const update = require('../getDBinfo/upadte.js');
+const pool = require('./models/db');
+const constants = require('./getDBinfo/constants.js');
+const {getUserDeviceInfo, updateLastSyncUserDevice} = require('./getDBinfo/getUserId.js');
+const inserts = require('./getDBinfo/inserts.js');
+const update = require('./getDBinfo/upadte.js');
 const { configDotenv } = require('dotenv');
-const { refreshAccessToken } = require('./auth.js');
-const { getUserProfile } = require('./fitbitApi.js');
+const { refreshAccessToken } = require('./api/auth.js');
+const { getUserProfile } = require('./api/fitbitApi.js');
 
 const stepsRoutes = require('./routes/steps');
 const sleepRoutes = require('./routes/sleep');
+const heartRateRoutes = require('./routes/heartRate');
 const authRoutes = require('./routes/auth');
 const allDataRoutes = require('./routes/allData');
+const dashboardRoutes = require('./routes/dashboard');
 
 
 const app = express();
 const PORT = 5003;
-app.use(express.json());
-app.use(stepsRoutes);
-app.use(sleepRoutes);
-app.use(authRoutes);
-app.use(allDataRoutes);
 
+// Middlewares globales primero
+app.use(express.json());
+
+// Rutas con prefijos consistentes
+app.use('/api/steps', stepsRoutes);
+app.use('/api/sleep', sleepRoutes);
+app.use('/api/heart-rate', heartRateRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/all-data', allDataRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+
+// Ruta de prueba
+app.get('/sensors', (req, res) => {
+  res.json({ 
+    status: 'API funcionando',
+    message: 'Bienvenido a tu servidor backend'
+  });
+});
 
 //****SAMSUNG***** */
 const SAMSUNG_MODEL = constants.SAMSUNG_GALAXY_WATCH_4;
@@ -46,14 +61,6 @@ async function getUserId({ device_id }) {
 
 refreshAccessToken(process.env.REFRESH_TOKEN);
 getUserProfile(process.env.ACCESS_TOKEN);
-
-
-app.get('/sensors', (req, res) => {
-  res.json({ 
-    status: 'API funcionando',
-    message: 'Bienvenido a tu servidor backend'
-  });
-});
 
 app.listen(5003, '0.0.0.0', () => {
     console.log('Servidor escuchando en http://0.0.0.0:5003');

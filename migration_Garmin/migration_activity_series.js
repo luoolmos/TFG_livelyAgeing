@@ -1,13 +1,12 @@
 const path = require('path');
 require('dotenv').config({path: '../.env' });
-const pool = require('../db');
-const constants = require('../getDBinfo/constants.js');
-const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../getDBinfo/getUserId.js');
-const { getConceptInfoMeasValue, getConceptInfoObservation, getConceptInfoMeasurement, getConceptUnit } = require('../getDBinfo/getConcept.js');
+const pool = require('../backend/models/db');
+const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../backend/getDBinfo/getUserId.js');
+const { getConceptInfoMeasValue, getConceptInfoObservation, getConceptInfoMeasurement, getConceptUnit } = require('../backend/getDBinfo/getConcept.js');
 const { generateObservationData, generateMeasurementData } = require('../migration/formatData.js');
 const sqlLite = require('./sqlLiteconnection.js');
 const formatValue = require('../migration/formatValue.js');
-const inserts = require('../getDBinfo/inserts.js');
+const inserts = require('../backend/getDBinfo/inserts.js');
 const { logConceptError } = require('./conceptLogger');
 
 // Configuración de la base de datos SQLite
