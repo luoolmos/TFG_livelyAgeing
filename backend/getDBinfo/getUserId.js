@@ -7,14 +7,14 @@ app.use(express.json());
 /**
  * Recupera un UUID de usuario de la base de datos PostgreSQL
  */
-// Source: garminVenuSq2, garminForerunner255, garminVivoactive4, garminFenix7x...
+//source = device_id
 async function getUserDeviceInfo(source) {
     try {
         const query = `
           SELECT ud.user_id, ud.last_sync_date, ud.user_device_id
           FROM custom.user_device ud
           JOIN custom.device d ON ud.device_id = d.device_id
-          WHERE d.model = $1 AND ud.end_date IS NULL
+          WHERE d.device_id = $1 AND ud.end_date IS NULL
           ORDER BY ud.last_sync_date DESC
           LIMIT 1;
         `;
@@ -132,6 +132,14 @@ async function getUserModel(){
   return result.rows;
 }
 
+async function getAllAccessTokens() {
+  const query = `
+    SELECT access_token, user_id FROM custom.person_info;
+  `;
+  const result = await pool.query(query);
+  return result.rows;
+}
+
 module.exports = {
     getUserDeviceInfo,
     updateLastSyncUserDevice,
@@ -139,5 +147,6 @@ module.exports = {
     getUsers,
     getDevices,
     getUserInfo,
-    getUserModel
+    getUserModel,
+    getAllAccessTokens
 };

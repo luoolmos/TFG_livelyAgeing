@@ -1,6 +1,6 @@
 const path = require('path');
 //require('dotenv').config({ path: require('path').resolve(__dirname, '../backend/utils/.env') });
-const pool = require('../backend/models/db');
+//const pool = require('../backend/models/db');
 const constants = require('../backend/getDBinfo/constants.js');
 const { getUserDeviceInfo, updateLastSyncUserDevice} = require('../backend/getDBinfo/getUserId.js');
 const { getConceptInfoMeasValue, getConceptInfoObservation, getConceptInfoMeasurement, getConceptUnit } = require('../backend/getDBinfo/getConcept.js');
@@ -88,7 +88,7 @@ function generateMeasurementSummary(row, baseValues, concepts){
         { value: row.max_rr, conceptId: concepts.max_rrConceptId, conceptName: concepts.max_rrConceptName, unitId: concepts.breathsperminUnitId, unitName: concepts.breathsperminUnitName }
     ];
 
-    console.log('observations:', observations);
+    //console.log('observations:', observations);
 
     for (const { value, conceptId, conceptName, unitId, unitName } of observations) {
 
@@ -201,7 +201,7 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
         
         };
 
-        console.log('concepts:', concepts);
+        //console.log('concepts:', concepts);
 
         if (!await checkConcepts(concepts)) {
             return [];
@@ -220,10 +220,10 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
 
             // Insert sport observation
             const sport = row.sport.toLowerCase();
-            console.log('sport:', sport);
+            //console.log('sport:', sport);
             const { concept_id: sportConceptId, concept_name: sportConceptName } = await getConceptInfoMeasValue(sport);
-            console.log('sportConceptId:', sportConceptId);
-            console.log('sportConceptName:', sportConceptName);
+            //console.log('sportConceptId:', sportConceptId);
+            //console.log('sportConceptName:', sportConceptName);
             //const sportData = generateObservationData(firstInsertion, row.sport, sportConceptId, sportConceptName, constants.PHYSICAL_ACTIVITY_CONCEPT_ID);
             const sportData = generateObservationData(firstInsertion, row.sport, sportConceptId, sportConceptName, null, null);
             const insertedId = await inserts.insertObservation(sportData);
@@ -283,7 +283,7 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
 
             
             if (insertMeasureValue.length > 0) {
-                console.log('insertMeasureValue:', insertMeasureValue);
+                //console.log('insertMeasureValue:', insertMeasureValue);
                 await inserts.insertMultipleMeasurement(insertMeasureValue);
             }
 
@@ -292,7 +292,7 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
             }
         }
 
-        console.log('Inserted Activity data, end of formatActivityData function');
+        //console.log('Inserted Activity data, end of formatActivityData function');
     } catch (error) {
         console.error('Error in formatActivityData:', error);
         throw error;
@@ -310,7 +310,7 @@ async function getActivityData(lastSyncDate){
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const activityRows = await sqlLite.fetchActivityData(lastSyncDate, sqliteDb);
     const activityRecordsRows = await sqlLite.fetchACtivityRecordsData(lastSyncDate, sqliteDb);
-    console.log(`Retrieved ${activityRows.length} activity records from SQLite`);
+    //console.log(`Retrieved ${activityRows.length} activity records from SQLite`);
     sqliteDb.close();
     return {activityRows, activityRecordsRows};
 }
@@ -319,20 +319,21 @@ async function getActivityData(lastSyncDate){
 
 async function updateActivityData(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
-    console.log('userId:', userId);
-    console.log('lastSyncDate:', lastSyncDate);
-    console.log('userDeviceId:', userDeviceId);
+    //console.log('userId:', userId);
+    //console.log('lastSyncDate:', lastSyncDate);
+    //console.log('userDeviceId:', userDeviceId);
 
     const {activityRows, activityRecordsRows} = await getActivityData(lastSyncDate)
     await formatActivityData(userId, activityRows, activityRecordsRows);
     
-    await pool.end();
-    console.log('Conexiones cerradas');
+    //console.log('Conexiones cerradas');
 }
+
 
 /**
  * Función principal
 */
+/*
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;
     updateActivityData(SOURCE).then(() => {
@@ -343,5 +344,6 @@ async function main() {
 }
 
 main();
+*/
 module.exports = { updateActivityData };
 

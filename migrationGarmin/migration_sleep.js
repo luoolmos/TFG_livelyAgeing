@@ -1,5 +1,5 @@
 const path = require('path');
-const pool = require('../backend/models/db');
+//const pool = require('../backend/models/db');
 const constants = require('../backend/getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../backend/getDBinfo/getUserId.js');
 const formatValue = require('../migration/formatValue.js');
@@ -164,10 +164,10 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
                     );
                 }
                 
-                console.log('insertedId:', insertedId);
+                //console.log('insertedId:', insertedId);
                 // Insert sleep stages
                 for (const session of sessionsForDay) {
-                    console.log('session', session); 
+                    //console.log('session', session); 
                     try {
                         const stageObservationDate = formatValue.formatDate(session.timestamp);
                         const stageObservationDatetime = formatValue.formatToTimestamp(session.timestamp);
@@ -223,7 +223,7 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
                     { value: row.avg_stress, conceptId: concepts.stressConceptId, conceptName: concepts.stressConceptName, unitId: null, unitName: null },
                     { value: row.score, conceptId: concepts.scoreConceptId, conceptName: concepts.scoreConceptName, unitId: null, unitName: null },
                 ];
-                console.log('measurements:', measurements);
+                //console.log('measurements:', measurements);
                 for (const { value, conceptId, conceptName, unitId, unitName } of measurements) {
                     try {
                         if(value != null){
@@ -264,11 +264,11 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
                 }
 
                 if (insertObservationValue.length > 0) {
-                    console.log('insertObservationValue:', insertObservationValue);
+                    //console.log('insertObservationValue:', insertObservationValue);
                     await inserts.insertMultipleObservation(insertObservationValue);
                 }
                 if (insertMeasureValue.length > 0) {
-                    console.log('insertMeasureValue:', insertMeasureValue);
+                    //console.log('insertMeasureValue:', insertMeasureValue);
                     await inserts.insertMultipleMeasurement(insertMeasureValue);
                 }
 
@@ -295,7 +295,7 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
  * Migrar datos de sueño de SQLite a PostgreSQL
  */
 async function migrateSleepData(userDeviceId, lastSyncDate, userId, sleepRows, sleepEventsRows) {
-    const client = await pool.connect();
+    //const client = await pool.connect();
     try {
 
         await formatSleepData(userId, sleepRows, sleepEventsRows);
@@ -303,8 +303,6 @@ async function migrateSleepData(userDeviceId, lastSyncDate, userId, sleepRows, s
 
     } catch (error) {
         console.error('Error al migrar datos de sueño:', error);
-    } finally {
-        client.release();
     }
 }
 
@@ -324,16 +322,17 @@ async function getSleepData(lastSyncDate){
 }
 
 async function updateSleepData(source){
-    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
-    console.log('userId:', userId);
-    console.log('lastSyncDate:', lastSyncDate);
-    console.log('userDeviceId:', userDeviceId);
+    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source);
+
+    //console.log('userId:', userId);
+    //console.log('lastSyncDate:', lastSyncDate);
+    //console.log('userDeviceId:', userDeviceId);
 
     const {sleepRows, sleepEventsRows} = await getSleepData(lastSyncDate);
     await migrateSleepData( userDeviceId, lastSyncDate, userId, sleepRows, sleepEventsRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
-    await pool.end();
+    //await pool.end();
     console.log('Conexiones cerradas');
 }
 
@@ -341,6 +340,7 @@ async function updateSleepData(source){
 /**
  * Función principal
 */
+/*
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;
     updateSleepData(SOURCE).then(() => {
@@ -351,4 +351,5 @@ async function main() {
 }
 
 main();
+*/
 module.exports = { updateSleepData };

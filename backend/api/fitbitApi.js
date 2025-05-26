@@ -190,7 +190,6 @@ async function fetchAllFitbitData(userId, access_token, date = new Date().toISOS
               url: urls.FITBIT_SLEEP(date),
               name: 'sleep'
           },
-          // Corregimos los endpoints con problemas
           {
               url: urls.FITBIT_BREATHING_RATE(date),
               name: 'breathing_rate'

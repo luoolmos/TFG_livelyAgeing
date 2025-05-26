@@ -1,5 +1,5 @@
 const path = require('path');
-const pool = require('../backend/models/db');
+//const pool = require('../backend/models/db');
 const constants = require('../backend/getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../backend/getDBinfo/getUserId.js');
 const formatValue = require('../migration/formatValue.js');
@@ -141,11 +141,10 @@ async function updateStressData(source) {
             error.message || error
         );
         console.error('Error updating Stress data:', error);
-    } finally {
-        await pool.end();
     }
 }
 
+/*
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;
     updateStressData(SOURCE).then(() => {
@@ -155,5 +154,5 @@ async function main() {
     });
 }
 
-main();
+main();*/
 module.exports = { updateStressData };

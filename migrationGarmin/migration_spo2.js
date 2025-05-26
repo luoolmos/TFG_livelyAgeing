@@ -1,5 +1,5 @@
 const path = require('path');
-const pool = require('../backend/models/db');
+//const pool = require('../backend/models/db');
 const constants = require('../backend/getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../backend/getDBinfo/getUserId.js');
 const formatValue = require('../migration/formatValue.js');
@@ -16,7 +16,7 @@ const { logConceptError } = require('./conceptLogger');
  * Migrar datos de spo2 de SQLite a PostgreSQL
  */
 async function migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows) {
-    const client = await pool.connect();
+    //const client = await pool.connect();
     try {
         //console.log('Fetching spo2 data from SQLite...');
         //console.log(`Retrieved ${spo2Rows.length} spo2 records from SQLite`);
@@ -44,9 +44,7 @@ async function migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows) {
     } catch (Error) {
         console.error('Error in spo2 data migration:', Error);
         throw Error;
-    } finally {
-        client.release();
-    }
+    } 
 }
 
 
@@ -125,12 +123,13 @@ async function updateSpo2Data(source){
     await migrateSpo2Data(userDeviceId, lastSyncDateG, userId, spo2Rows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
-    await pool.end();
+    //await pool.end();
     //console.log('Conexiones cespo2adas');
 }
 /**
  * Función principal
  */
+/*
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;
     updateSpo2Data(SOURCE).then(() => {
@@ -141,4 +140,5 @@ async function main() {
 }
 
 main();
+*/
 module.exports = { updateSpo2Data };

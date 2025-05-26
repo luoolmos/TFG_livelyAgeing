@@ -1,6 +1,6 @@
 //require('dotenv').config({path: '../.env' });
 const path = require('path');
-const pool = require('../backend/models/db');
+//const pool = require('../backend/models/db');
 const constants = require('../backend/getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../backend/getDBinfo/getUserId.js');
 const formatValue = require('../migration/formatValue.js');
@@ -125,8 +125,8 @@ async function updateHrData(source){
         const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
         console.log('userId:', userId);
         let lastSyncDateG = '2025-04-01'; 
-        console.log('lastSyncDate:', lastSyncDate);
-        console.log('userDeviceId:', userDeviceId);
+        //console.log('lastSyncDate:', lastSyncDate);
+        //console.log('userDeviceId:', userDeviceId);
         const hrRows = await getHrData(lastSyncDate);
         await migrateHrData(userDeviceId, lastSyncDateG, userId, hrRows);
         //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
@@ -137,14 +137,13 @@ async function updateHrData(source){
         const endTime = Date.now();
         const duration = endTime - startTime;
         console.log(`Tiempo de ejecución: ${duration} milisegundos`);
-        console.log('Conexiones cerradas');
-        await pool.end();
+        //await pool.end();
     }
 }
 /**
  * Función principal
  */
-async function main() {
+/*async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
     console.log('antes del update');
     try {
@@ -155,5 +154,5 @@ async function main() {
     }
 }
 
-main();
+main();*/
 module.exports = { updateHrData };

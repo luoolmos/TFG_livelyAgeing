@@ -1,5 +1,5 @@
 const path = require('path');
-const pool = require('../backend/models/db');
+//const pool = require('../backend/models/db');
 const constants = require('../backend/getDBinfo/constants.js');
 const { getUserDeviceInfo } = require('../backend/getDBinfo/getUserId.js');
 const formatValue = require('../migration/formatValue.js');
@@ -118,13 +118,14 @@ async function updateRrData(source){
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
 
-    await pool.end();
+    //await pool.end();
     //console.log('Conexiones cerradas');
 }
 
 /**
  * Función principal
  */
+/*
 async function main() {
     const SOURCE = constants.GARMIN_VENU_SQ2;  // Cambia esto según sea necesario
     console.log('antes del update');
@@ -135,5 +136,5 @@ async function main() {
      });
 }
 
-main();
+main();*/
 module.exports = { updateRrData };
