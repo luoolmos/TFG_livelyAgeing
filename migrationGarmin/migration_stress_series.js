@@ -80,7 +80,7 @@ async function formatStressData(userId, stressRows) {
 /**
  * Migrar datos de stress de SQLite a PostgreSQL
  */
-async function migrateStressData(userDeviceId, lastSyncDate, userId, stressRows) {
+async function migrateStressData(lastSyncDate, userId, stressRows) {
     try {
         if (stressRows.length === 0) {
             console.log('No stress data to migrate');
@@ -92,7 +92,7 @@ async function migrateStressData(userDeviceId, lastSyncDate, userId, stressRows)
         if (values && values.length > 0) {
             try {
                 await inserts.insertMultipleMeasurement(values);
-                console.log(`Successfully migrated ${values.length} stress measurements`);
+                console.log(`Successfully migrated ${values.length} stress measurements for date ${lastSyncDate}`);
             } catch (error) {
                 await logConceptError(
                     'Stress Data Migration',
@@ -128,12 +128,11 @@ async function getStressData(lastSyncDate){
 }
 
 
-async function updateStressData(source) {
-    const { userId, lastSyncDate, userDeviceId } = await getUserDeviceInfo(source);
+async function updateStressData(userId, lastSyncDate) {
     
     try {
         const stressRows = await getStressData(lastSyncDate);
-        await migrateStressData(userDeviceId, lastSyncDate, userId, stressRows);
+        await migrateStressData(lastSyncDate, userId, stressRows);
     } catch (error) {
         await logConceptError(
             'Stress Update Process',

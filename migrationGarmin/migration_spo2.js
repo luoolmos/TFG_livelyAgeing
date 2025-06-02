@@ -112,8 +112,7 @@ async function getSpo2Data(lastSyncDate){
     return spo2Rows;
 }
 
-async function updateSpo2Data(source){
-    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
+async function updateSpo2Data(userId, lastSyncDate){
     //console.log('userId:', userId);
     //let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);

@@ -294,7 +294,7 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
 /**
  * Migrar datos de sueño de SQLite a PostgreSQL
  */
-async function migrateSleepData(userDeviceId, lastSyncDate, userId, sleepRows, sleepEventsRows) {
+async function migrateSleepData( userId, sleepRows, sleepEventsRows) {
     //const client = await pool.connect();
     try {
 
@@ -321,15 +321,14 @@ async function getSleepData(lastSyncDate){
     return {sleepRows, sleepEventsRows};
 }
 
-async function updateSleepData(source){
-    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source);
+async function updateSleepData(userId, lastSyncDate){
 
     //console.log('userId:', userId);
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
 
     const {sleepRows, sleepEventsRows} = await getSleepData(lastSyncDate);
-    await migrateSleepData( userDeviceId, lastSyncDate, userId, sleepRows, sleepEventsRows);
+    await migrateSleepData( userId, sleepRows, sleepEventsRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     //await pool.end();

@@ -29,7 +29,7 @@ async function logConceptError(concept, type, message) {
 /**
  * Migrar datos de hr de SQLite a PostgreSQL
  */
-async function migrateHrData(userDeviceId, lastSyncDate, userId, hrRows) {
+async function migrateHrData(lastSyncDate, userId, hrRows) {
     if (!Array.isArray(hrRows) || hrRows.length === 0) {
         console.warn('No heart rate data to migrate');
         return;
@@ -43,14 +43,14 @@ async function migrateHrData(userDeviceId, lastSyncDate, userId, hrRows) {
                 await inserts.insertMultipleMeasurement(values);
                 console.log(`Successfully migrated ${values.length} heart rate measurements`);
             } catch (error) {
-                console.error('Error during measurement insertion:', error, { userId, userDeviceId });
+                console.error('Error during measurement insertion:', error, { userId, lastSyncDate });
                 throw error;
             }
         } else {
             console.warn('No valid heart rate data to migrate after formatting');
         }
     } catch (error) {
-        console.error('Error in heart rate data migration:', error, { userId, userDeviceId });
+        console.error('Error in heart rate data migration:', error, { userId, lastSyncDate });
         throw error;
     }
 }
@@ -119,16 +119,14 @@ async function getHrData(lastSyncDate){
     return hrRows;
 }
 
-async function updateHrData(source){
+async function updateHrData(userId, lastSyncDate){
     const startTime = Date.now();
     try {
-        const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
-        console.log('userId:', userId);
         //let lastSyncDateG = '2025-04-01'; 
         //console.log('lastSyncDate:', lastSyncDate);
         //console.log('userDeviceId:', userDeviceId);
         const hrRows = await getHrData(lastSyncDate);
-        await migrateHrData(userDeviceId, lastSyncDate, userId, hrRows);
+        await migrateHrData(lastSyncDate, userId, hrRows);
         //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     } catch (err) {
         console.error('Error en updateHrData:', err);

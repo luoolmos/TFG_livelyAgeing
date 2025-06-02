@@ -23,45 +23,47 @@ async function migrateAllData() {
     }
     for (const source of sources) {
         const deviceId = source.device_id;
+        const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(deviceId); 
+
         console.log(`Migrating data for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         try {
-            await updateActivityData(deviceId);
+            await updateActivityData(userId, lastSyncDate);
             console.log(`Activity data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         } catch (error) {
             console.error(`Error migrating activity data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try {
-            await updateHrData(deviceId);
+            await updateHrData(userId, lastSyncDate);
             console.log(`Heart rate data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         } catch (error) {
             console.error(`Error migrating heart rate data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try {
-            await updateRrData(deviceId);
+            await updateRrData(userId, lastSyncDate);
             console.log(`Respiratory rate data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         } catch (error) {
             console.error(`Error migrating respiratory rate data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try{
-            await updateSpo2Data(deviceId);
+            await updateSpo2Data(userId, lastSyncDate);
             console.log(`SpO2 data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating SpO2 data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try{
-            await updateStressData(deviceId);
+            await updateStressData(userId, lastSyncDate);
             console.log(`Stress data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating Stress data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try{
-            await updateSleepData(deviceId);
+            await updateSleepData(userId, lastSyncDate);
             console.log(`Sleep data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating Sleep data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try{
-            await updatesummaryData(deviceId);
+            await updatesummaryData(userId, lastSyncDate);
             console.log(`Summary data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating Summary data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);

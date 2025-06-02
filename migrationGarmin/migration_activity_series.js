@@ -317,8 +317,7 @@ async function getActivityData(lastSyncDate){
 
 
 
-async function updateActivityData(source){
-    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
+async function updateActivityData(userId, lastSyncDate){
     //console.log('userId:', userId);
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);

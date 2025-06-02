@@ -27,7 +27,7 @@ const LOG_PATH = path.resolve(__dirname, 'logs', 'concept_errors.log');
     summary                 JSONB NOT NULL, 
     PRIMARY KEY (date, person_id)
 );*/
-async function migratesummaryData(userDeviceId, lastSyncDate, userId, summaryRows) {
+async function migratesummaryData(userId, summaryRows) {
     try {
         
         for (const row of summaryRows) {
@@ -74,14 +74,13 @@ async function getSummaryData(lastSyncDate){
     return summaryRows;
 }
 
-async function updatesummaryData(source){
+async function updatesummaryData(userId, lastSyncDate){
     const startTime = Date.now();
     try {
-        const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
         console.log('userId:', userId);
         //let lastSyncDateG = '2025-04-01'; 
         const summaryRows = await getSummaryData(lastSyncDate);
-        await migratesummaryData(userDeviceId, lastSyncDate, userId, summaryRows);
+        await migratesummaryData(userId, summaryRows);
     } catch (err) {
         console.error('Error en updatesummaryData:', err);
     } finally {
