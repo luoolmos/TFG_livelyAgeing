@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Grid, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, CircularProgress } from '@mui/material';
 import api from '../services/api';
 import DataCard from '../components/DataCard';
 
@@ -49,57 +49,45 @@ const Dashboard: React.FC = () => {
   const latestData = dailySummary[0] || null;
 
   return (
-    <Box p={2}>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      sx={{
+        maxWidth: 1100,
+        width: '100%',
+        mx: 'auto',
+        mt: 4,
+        mb: 4,
+        background: '#fff',
+        borderRadius: 4,
+        boxShadow: '0 4px 24px rgba(60,60,60,0.08)',
+        p: { xs: 2, sm: 4 }
+      }}
+    >
+      <Typography variant="h4" gutterBottom fontWeight={700} color="#222">
         Dashboard
       </Typography>
-      
       {userInfo && (
-        <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
-          <Typography variant="h6" gutterBottom>
+        <Box sx={{ mb: 3, p: 2, background: '#f7f8fa', borderRadius: 3 }}>
+          <Typography variant="h6" gutterBottom fontWeight={600} color="#1976d2">
             Información del Usuario
           </Typography>
-          <Typography>
-            ID de Usuario: {userInfo.userId}
-          </Typography>
-          <Typography>
-            ID de Dispositivo: {userInfo.deviceId}
-          </Typography>
-          <Typography>
-            Última Sincronización: {new Date(userInfo.lastSyncDate).toLocaleDateString()}
-          </Typography>
-        </Paper>
+          <Typography color="#333">ID de Usuario: {userInfo.userId}</Typography>
+          <Typography color="#333">ID de Dispositivo: {userInfo.deviceId}</Typography>
+          <Typography color="#333">Última Sincronización: {new Date(userInfo.lastSyncDate).toLocaleDateString()}</Typography>
+        </Box>
       )}
-
       {latestData && (
-        <Grid container spacing={2}>
+        <Grid container spacing={3} mb={2}>
           <Grid item xs={12} sm={6} md={3}>
-            <DataCard
-              title="Pasos"
-              value={latestData.steps}
-              unit="pasos"
-            />
+            <DataCard title="Pasos" value={latestData.steps} unit="pasos" iconColor="#1976d2" />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <DataCard
-              title="Frecuencia Cardíaca"
-              value={latestData.heartRate}
-              unit="bpm"
-            />
+            <DataCard title="Frecuencia Cardíaca" value={latestData.heartRate} unit="bpm" iconColor="#e53935" />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <DataCard
-              title="Duración del Sueño"
-              value={Math.round(latestData.sleepDuration / 60)}
-              unit="horas"
-            />
+            <DataCard title="Duración del Sueño" value={Math.round(latestData.sleepDuration / 60)} unit="horas" iconColor="#1976d2" />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <DataCard
-              title="Nivel de Estrés"
-              value={latestData.stress}
-              unit="%"
-            />
+            <DataCard title="Nivel de Estrés" value={latestData.stress} unit="%" iconColor="#ffb300" />
           </Grid>
         </Grid>
       )}

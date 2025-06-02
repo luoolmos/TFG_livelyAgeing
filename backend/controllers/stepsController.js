@@ -1,15 +1,15 @@
 // Controlador para pasos
 
 const { makeAuthenticatedRequest, getStepsAndSave } = require('../api/fitbitApi');
-const constants = require('../utils/constants.js');
+const constants = require('../getDBinfo/constants.js');
+
 const { getUserDeviceInfo, updateLastSyncUserDevice } = require('../getDBinfo/getUserId.js');
 require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
 
 
 exports.saveSteps = async (req, res) => {
   try {
-    const access_token = process.env.ACCESS_TOKEN;
-    const source = constants.SAMSUNG_GALAXY_WATCH_4;
+    const source = 'd1c1f7f5-17ee-49df-b4ff-38a63aada108';
     let { userId, lastSyncDate, userDeviceId } = await getUserDeviceInfo(source);
     console.log('user_id:', userId);
     lastSyncDate = '2025-03-10'; //hay pasos
@@ -27,6 +27,7 @@ exports.saveSteps = async (req, res) => {
     console.log('before while');
     console.log('current:', current);
     console.log('today:', today);
+    const access_token = process.env.ACCESS_TOKEN; // Asegúrate de que el token de acceso esté configurado correctamente
 
     //while (current <= today) {
       const dateString = current.toISOString().split('T')[0];

@@ -8,11 +8,11 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.e
 exports.saveHeartRate = async (req, res) => {
     try {
         const access_token = process.env.ACCESS_TOKEN;
-        const source = constants.SAMSUNG_GALAXY_WATCH_4;
+        const source = 'd1c1f7f5-17ee-49df-b4ff-38a63aada108';
         let {userId, lastSyncDate, userDeviceId} = await getUserDeviceInfo(source);
         console.log('user_id:', userId);
         console.log('last_sync_date:', lastSyncDate);
-        lastSyncDate = '2025-05-05'; // Solo para pruebas, comenta o elimina en producción
+        lastSyncDate = '2025-05-27'; // Solo para pruebas, comenta o elimina en producción
         const start_date = new Date(lastSyncDate).toISOString().split('T')[0];
         const lastSyncTimestamp = new Date(lastSyncDate);
         const end_date = new Date().toISOString().split('T')[0];

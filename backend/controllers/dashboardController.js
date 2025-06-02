@@ -65,8 +65,57 @@ const dashboardController = {
       console.error(err);
       res.status(500).json({ error: 'Error al obtener la información del usuario' });
     }
-  }
+  },
+
+  // Añadir usuario
+  addUser: async (req, res) => {
+    try {
+      const { name, email, device_id } = req.body;
+      if (!name || !email || !device_id) {
+        return res.status(400).json({ error: 'Faltan datos obligatorios' });
+      }
+      // Insertar en omop_cdm.person (puedes ajustar los valores por defecto según tu modelo)
+      const personResult = await pool.query(
+        `INSERT INTO omop_cdm.person (gender_concept_id, year_of_birth, race_concept_id, ethnicity_concept_id)
+         VALUES (8535, 1990, 8527, 8657) RETURNING person_id;`
+      );
+      const person_id = personResult.rows[0].person_id;
+      // Insertar en custom.person_info
+      await pool.query(
+        `INSERT INTO custom.person_info (person_id, email, name) VALUES ($1, $2, $3);`,
+        [person_id, email, name]
+      );
+      // Insertar en custom.user_device
+      await pool.query(
+        `INSERT INTO custom.user_device (user_id, device_id) VALUES ($1, $2);`,
+        [person_id, device_id]
+      );
+      res.status(201).json({ message: 'Usuario creado correctamente' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al crear el usuario' });
+    }
+  },
+
+  // Añadir dispositivo
+  addDevice: async (req, res) => {
+    try {
+      const { serial_number, manufacturer, model, token } = req.body;
+      if (!manufacturer || !model) {
+        return res.status(400).json({ error: 'Faltan datos obligatorios' });
+      }
+      const result = await pool.query(
+        `INSERT INTO custom.device (serial_number, manufacturer, model, token) VALUES ($1, $2, $3, $4) RETURNING *;`,
+        [serial_number, manufacturer, model, token]
+      );
+      res.status(201).json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al crear el dispositivo' });
+    }
+  },
 };
+
 
 module.exports = dashboardController;
 

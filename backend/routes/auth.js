@@ -6,7 +6,7 @@ const constants = require('../utils/constants.js');
 const { getUserDeviceInfo, updateLastSyncUserDevice } = require('../getDBinfo/getUserId.js');
 const axios = require('axios');
 const querystring = require('querystring');
-const { updateEnvVariable } = require('../api/auth.js');
+//const { updateEnvVariable } = require('../api/auth.js');
 const authController = require('../controllers/authController');
 
 

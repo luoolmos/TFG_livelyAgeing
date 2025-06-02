@@ -29,7 +29,12 @@ async function refreshAccessToken(refresh_token, client_id, client_secret, user_
   }
 }
 
+async function updateToken(access_token) {
+
+  // logic of update on the db
+}
+
 module.exports = {
-  updateEnvVariable,
-  refreshAccessToken
+  refreshAccessToken,
+  updateToken
 };

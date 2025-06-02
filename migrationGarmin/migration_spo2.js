@@ -115,12 +115,12 @@ async function getSpo2Data(lastSyncDate){
 async function updateSpo2Data(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     //console.log('userId:', userId);
-    let lastSyncDateG = '2025-03-01';
+    //let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
     const spo2Rows = await getSpo2Data(lastSyncDate);
    
-    await migrateSpo2Data(userDeviceId, lastSyncDateG, userId, spo2Rows);
+    await migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     //await pool.end();

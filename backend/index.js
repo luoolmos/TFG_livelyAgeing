@@ -23,7 +23,7 @@ const heartRateRoutes = require('./routes/heartRate');
 const authRoutes = require('./routes/auth');
 const allDataRoutes = require('./routes/allData');
 const dashboardRoutes = require('./routes/dashboard');
-
+const measurementsRoutes = require('./routes/measurements');
 
 const app = express();
 const PORT = 5003;
@@ -33,12 +33,13 @@ app.use(cors());
 app.use(express.json());
 
 // Rutas con prefijos consistentes
-app.use('/api/steps', stepsRoutes);
+app.use('/api', stepsRoutes);
 app.use('/api/sleep', sleepRoutes);
 app.use('/api/heart-rate', heartRateRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/', authRoutes);
 app.use('/api/all-data', allDataRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api', measurementsRoutes);
 
 // Ruta de prueba
 app.get('/sensors', (req, res) => {

@@ -80,7 +80,7 @@ async function getSteps() {
 async function getStepsAndSave(user_id, access_token, start_date) {
     console.log(`[getStepsAndSave] start_date:`, start_date);
     try {
-        const url = urls.FITBIT_STEPS(start_date);
+        const url = urls.FITBIT_STEPS_INTRADAY(start_date);
         const response = await axios.get(url, { headers: { 'Authorization': `Bearer ${access_token}` } });
         console.log(`[getStepsAndSave] Requesting URL:`, url);
         // Validación robusta de la respuesta
@@ -183,7 +183,7 @@ async function fetchAllFitbitData(userId, access_token, date = new Date().toISOS
               name: 'daily_activity'
           },
           {
-              url: urls.FITBIT_HEART_RATE(date),
+              url: urls.FITBIT_HEART_RATE_INTRADAY(date),
               name: 'heart_rate'
           },
           {
@@ -191,7 +191,7 @@ async function fetchAllFitbitData(userId, access_token, date = new Date().toISOS
               name: 'sleep'
           },
           {
-              url: urls.FITBIT_BREATHING_RATE(date),
+              url: urls.FITBIT_BREATHING_RATE_INTRADAY(date),
               name: 'breathing_rate'
           },
           {
@@ -203,7 +203,11 @@ async function fetchAllFitbitData(userId, access_token, date = new Date().toISOS
               name: 'temperature'
           },
           {
-              url: urls.FITBIT_HRV(date),
+              url: urls.FITBIT_HRV_INTRADAY(date),
+              name: 'hrv'
+          },
+          {
+              url: urls.FITBIT_STEPS_INTRADAY(date),
               name: 'hrv'
           },
           {
@@ -211,6 +215,9 @@ async function fetchAllFitbitData(userId, access_token, date = new Date().toISOS
               name: 'user_profile'
           }
       ];
+
+      const measurementEndpoints = [ 'heart_rate', 'breathing_rate', 'spo2', 'temperature', 'hrv' ];
+      //const observationEndpoints = [ 'daily_activity', 'sleep', 'steps' ];
   
       fs.truncateSync(path.join(__dirname, 'fitbit_api_logs.json'));
       for (const endpoint of endpoints) {
@@ -221,7 +228,14 @@ async function fetchAllFitbitData(userId, access_token, date = new Date().toISOS
               //truncate log file
               await logApiResponse(endpoint.name, response.data, userId);
               console.log(`Datos de ${endpoint.name} obtenidos correctamente`);
-              
+
+              // process the response data
+              if (measurementEndpoints().includes(endpoint.name)) {
+                    console.log(`Procesando datos de medición para ${endpoint.name}`);
+                    //function generateObservationData(data, value, conceptId, conceptName, unitconceptId, unitconceptName) {
+                   // await generateObservationData(response.data, endpoint.name, userId);
+              }
+
               await new Promise(resolve => setTimeout(resolve, 1000));
           } catch (error) {
               console.error(`Error fetching ${endpoint.name}:`, {
@@ -382,22 +396,42 @@ async function getSleepAndSave(user_id, access_token, start_date, end_date, last
 async function getHeartRateAndSave(user_id, access_token, start_date, end_date) {
     console.log('[getHeartRateAndSave] start_date:', start_date);
     try {
+        // Usar la URL correcta para datos intradía (1d/1min)
+        const url = urls.FITBIT_HEART_RATE_INTRADAY(start_date);
         const response = await axios.get(
-            urls.FITBIT_HEART_RATE(start_date, end_date),
+            url,
             {
                 headers: { 
                     'Authorization': `Bearer ${access_token}`
                 }
             }
         );
-        console.log('[getHeartRateAndSave] Response:', response.data);
+        console.log('[getHeartRateAndSave] Requesting URL:', url);
+        console.log('[getHeartRateAndSave] Response (full JSON):', JSON.stringify(response.data, null, 2));
         if (!response.data || !response.data['activities-heart']) {
             console.error('[getHeartRateAndSave] Respuesta inesperada de Fitbit:', response.data);
             return;
         }
         const heartRateData = response.data['activities-heart'];
+        const intraday = response.data['activities-heart-intraday'];
+        console.log('[getHeartRateAndSave] intraday:', intraday);
+        if (intraday && intraday.dataset) {
+            for (const point of intraday.dataset) {
+                // point.time gives the time (e.g., "00:00:00")
+                // point.value gives the heart rate at that time (e.g., 78)
+                console.log(`Time: ${point.time}, Heart Rate: ${point.value}`);
+            }
+        }
         console.log('[getHeartRateAndSave] heartRateData:', heartRateData);  
-
+        for (const entry of heartRateData) {
+            const date = entry.dateTime;
+            const valueObj = entry.value;
+            // For resting heart rate (if available)
+            const restingHeartRate = valueObj.restingHeartRate;
+            console.log('entry.value keys:', Object.keys(valueObj));
+            // Or access other properties inside valueObj
+        }
+        /*
         const heartRateConcept = await getConceptInfoObservation(constants.HEART_RATE_STRING);
         if (!heartRateConcept) throw new Error(`No se encontró el concepto para HEART_RATE_STRING: ${constants.HEART_RATE_STRING}`);
         const { concept_id: heartRateConceptId, concept_name: heartRateConceptName } = heartRateConcept;
@@ -427,6 +461,7 @@ async function getHeartRateAndSave(user_id, access_token, start_date, end_date) 
                 failedDates.push(heartRate.dateTime || heartRate.date);
             }   
         }
+            */
         console.log(`[getHeartRateAndSave] Heart rate data saved for date: ${start_date}`);
         return { successfulDates, failedDates };
     } catch (error) {

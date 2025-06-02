@@ -213,6 +213,21 @@ function fetchSleepEventsData(date,sqliteDb) {
   });
 }
 
+
+function fetchsummaryData(lastSyncDate, sqliteDb) {
+    //date to timestamptz
+    return new Promise((resolve, reject) => {
+        sqliteDb.all(
+            `SELECT hr_min, hr_max, rhr_avg, steps, rr_max, rr_min, spo2_avg, sleep_avg
+             FROM days_summary 
+             WHERE day >= ?`,
+            [lastSyncDate], 
+            (err, rows) => (err ? reject(err) : resolve(rows))
+        );
+    });
+}
+
+
 module.exports = {
     connectToSQLite,
     fetchActivityData,

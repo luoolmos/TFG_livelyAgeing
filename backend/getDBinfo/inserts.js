@@ -4,6 +4,27 @@ const pool = require('../models/db');
 const app = express();
 app.use(express.json());
 
+async function insertDailySummary(data){
+  try {
+    const insertQuery = `
+      INSERT INTO custom.daily_summary (
+       date, person_id steps, min_hr_bpm, max_hr_bpm, avg_hr_bpm, sleep_duration_minutes, min_rr_bpm, max_rr_bpm, spo2_avg           
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 , $10, $11)
+      ON CONFLICT (date, person_id) DO UPDATE SET
+      RETURNING daily_summary_id;
+    `;
+    const values = [
+      data.date, data.person_id, data.steps, data.min_hr_bpm, data.max_hr_bpm, data.avg_hr_bpm,
+      data.sleep_duration_minutes, data.min_rr_bpm, data.max_rr_bpm, data.spo2_avg
+    ];
+    const res = await pool.query(insertQuery, values);
+    return res.rows[0].daily_summary_id;  
+  } catch (err) {
+    console.error('Error inserting daily summary:', err);
+    throw err; // Propagate the error
+  }
+}
 
 async function insertCustomDevice(data) {
   try {
@@ -324,5 +345,6 @@ module.exports = {
     insertUserDevice,
     insertCustomDevice,
     insertPerson,
-    insertPersonInfo
+    insertPersonInfo, 
+    insertDailySummary
 };

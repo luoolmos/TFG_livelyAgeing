@@ -636,6 +636,7 @@ SELECT create_hypertable(
    number_partitions => 100
 )
 
+/*hr_min, hr_max, rhr_avg, steps, rr_max, rr_min, spo2_avg, sleep_avg*/
 -- TABLA: daily_summary
 CREATE TABLE custom.daily_summary (
     date                    DATE NOT NULL,
@@ -644,8 +645,11 @@ CREATE TABLE custom.daily_summary (
     min_hr_bpm              INTEGER CHECK (min_hr_bpm BETWEEN 30 AND 250),
     max_hr_bpm              INTEGER CHECK (max_hr_bpm BETWEEN 30 AND 250),
     avg_hr_bpm              INTEGER CHECK (avg_hr_bpm BETWEEN 30 AND 250),
-    sleep_score             INTEGER CHECK (sleep_score BETWEEN 0 AND 100),
+    --sleep_score             INTEGER CHECK (sleep_score BETWEEN 0 AND 100),
     sleep_duration_minutes  INTEGER CHECK (sleep_duration_minutes >= 0),
+	min_rr_bpm              INTEGER CHECK (min_rr_bpm BETWEEN 0 AND 100),
+	max_rr_bpm              INTEGER CHECK (max_rr_bpm BETWEEN 0 AND 100),
+	spo2_avg              	FLOAT CHECK (spo2_avg BETWEEN 0 AND 100),
     summary                 JSONB NOT NULL, 
     PRIMARY KEY (date, person_id)
 );

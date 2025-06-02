@@ -124,11 +124,11 @@ async function updateHrData(source){
     try {
         const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
         console.log('userId:', userId);
-        let lastSyncDateG = '2025-04-01'; 
+        //let lastSyncDateG = '2025-04-01'; 
         //console.log('lastSyncDate:', lastSyncDate);
         //console.log('userDeviceId:', userDeviceId);
         const hrRows = await getHrData(lastSyncDate);
-        await migrateHrData(userDeviceId, lastSyncDateG, userId, hrRows);
+        await migrateHrData(userDeviceId, lastSyncDate, userId, hrRows);
         //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     } catch (err) {
         console.error('Error en updateHrData:', err);

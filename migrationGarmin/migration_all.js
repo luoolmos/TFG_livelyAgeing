@@ -6,6 +6,7 @@ const { updateSpo2Data } = require("./migration_spo2.js");
 const { updateStressData } = require("./migration_stress_series.js");
 const { updateSleepData } = require("./migration_sleep.js");
 const pool = require('../backend/models/db');
+const { updatesummaryData } = require("./migrationDailySummary.js");
 
 //schtasks /create /tn "Garmin" /tr "C:\ruta\script.bat" /sc daily /st 09:00
 
@@ -58,6 +59,12 @@ async function migrateAllData() {
             console.log(`Sleep data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating Sleep data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
+        }
+        try{
+            await updatesummaryData(deviceId);
+            console.log(`Summary data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
+        }catch (error) {
+            console.error(`Error migrating Summary data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
     }
     // Cerrar el pool solo al final

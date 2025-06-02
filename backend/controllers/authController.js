@@ -1,5 +1,5 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
-const { updateEnvVariable } = require('../api/auth');
+//const { updateEnvVariable } = require('../api/auth');
 const axios = require('axios');
 const querystring = require('querystring');
 
@@ -42,8 +42,9 @@ exports.callbackFitbit = async (req, res) => {
             }
         });
         const { access_token, refresh_token } = response.data;
-        updateEnvVariable('ACCESS_TOKEN', access_token);
-        updateEnvVariable('REFRESH_TOKEN', refresh_token);
+        console.log('Tokens obtenidos:', { access_token, refresh_token });
+        //updateEnvVariable('ACCESS_TOKEN', access_token);
+        //updateEnvVariable('REFRESH_TOKEN', refresh_token);
         process.env.ACCESS_TOKEN = access_token;
         process.env.REFRESH_TOKEN = refresh_token;
         res.send("Autenticación exitosa. Tokens obtenidos correctamente.");

@@ -108,13 +108,13 @@ async function getRrData(lastSyncDate){
 async function updateRrData(source){
     const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
     //console.log('userId:', userId);
-    let lastSyncDateG = '2025-03-01';
+    //let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
    
-    const rrRows = await getRrData(lastSyncDateG);
+    const rrRows = await getRrData(lastSyncDate);
 
-    await migrateRrData(userDeviceId, lastSyncDateG, userId, rrRows);
+    await migrateRrData(userDeviceId, lastSyncDate, userId, rrRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
 

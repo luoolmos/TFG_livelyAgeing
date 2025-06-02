@@ -7,7 +7,7 @@ const Users: React.FC = () => {
     <Box
       sx={{
         width: '100vw',
-        minHeight: 'calc(100vh - 64px)', // Ajusta si tienes un header fijo
+        minHeight: 'calc(100vh - 64px)', 
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

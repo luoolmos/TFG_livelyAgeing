@@ -1,14 +1,17 @@
 const { fetchAllFitbitData } = require('../api/fitbitApi');
 require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
+const { getAllAccessTokens } = require('../getDBinfo/getUserId');
 
 // Controlador para datos agregados
 exports.logAllData = async (req, res) => {
     try {
-        let access_token = process.env.ACCESS_TOKEN;
-        // Intentar refrescar el token antes de empezar
-        const userId = 1; //LUO CHANGE THIS
-        const date = new Date().toISOString().split('T')[0];
-        await fetchAllFitbitData(userId, access_token, date);
+        const access_tokens = await getAllAccessTokens();
+        for (const token of access_tokens) {
+            const userId = token.user_id;
+            const access_token = token.access_token;
+            const date = new Date().toISOString().split('T')[0];
+            await fetchAllFitbitData(userId, access_token, date);
+        }
         res.json({
             message: 'Logging completo ejecutado con éxito',
             date: date
