@@ -74,7 +74,6 @@ async function getStepsAndSave(user_id, access_token, start_date) {
             console.error('[getStepsAndSave] No se obtuvo respuesta válida de Fitbit');
             return;
         }
-        // Validación robusta de la respuesta
         if (!response.data || !Array.isArray(response.data['activities-steps'])) {
             console.error('[getStepsAndSave] Respuesta inesperada de Fitbit:', response.data);
             return;

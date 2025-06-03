@@ -2,6 +2,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.e
 //const { updateEnvVariable } = require('../api/auth');
 const axios = require('axios');
 const querystring = require('querystring');
+const { updateTokensDB } = require('../getDBinfo/upadte');
 
 const CLIENT_ID = process.env.FITBIT_CLIENT_ID; 
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -43,10 +44,8 @@ exports.callbackFitbit = async (req, res) => {
         });
         const { access_token, refresh_token } = response.data;
         console.log('Tokens obtenidos:', { access_token, refresh_token });
-        //updateEnvVariable('ACCESS_TOKEN', access_token);
-        //updateEnvVariable('REFRESH_TOKEN', refresh_token);
-        process.env.ACCESS_TOKEN = access_token;
-        process.env.REFRESH_TOKEN = refresh_token;
+        const userId = 2; //MANEJAR LUO
+        updateTokensDB(userId, access_token, refresh_token);
         res.send("Autenticación exitosa. Tokens obtenidos correctamente.");
     } catch (error) {
         console.error('Error al obtener el token de acceso:', error.response ? error.response.data : error.message);
