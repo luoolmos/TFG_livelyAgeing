@@ -22,7 +22,7 @@ async function refreshAccessToken(refresh_token, client_id, client_secret, user_
         'Authorization': 'Basic ' + Buffer.from(`${client_id}:${client_secret}`).toString('base64')
       }
     });
-    await updateTokensDB(user_id, response.data.access_token);
+    await updateTokensDB(user_id, response.data.access_token, response.data.refresh_token);
     return response.data;
   } catch (error) {
     console.error('Error refrescando el token:', error.response ? error.response.data : error.message);

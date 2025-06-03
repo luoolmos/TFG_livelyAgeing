@@ -134,10 +134,32 @@ async function getUserModel(){
 
 async function getAllAccessTokens() {
   const query = `
-    SELECT access_token, user_id FROM custom.person_info;
+    SELECT access_token, refresh_token, person_id FROM custom.person_info
+    WHERE access_token IS NOT NULL AND refresh_token IS NOT NULL 
+    AND access_token != '' AND refresh_token != '';
   `;
   const result = await pool.query(query);
   return result.rows;
+}
+
+async function getInfoUserDeviceFromUserId(userId){
+  const query = `
+    SELECT 
+      ud.user_id, 
+      ud.device_id, 
+      ud.last_sync_date, 
+    FROM custom.user_device ud
+    WHERE ud.user_id = $1 AND ud.end_date IS NULL
+    ORDER BY ud.last_sync_date DESC
+    LIMIT 1;
+  `;
+  const result = await pool.query(query, [userId]);
+
+  return {
+  userId: result.rows[0].user_id,
+  deviceId: result.rows[0].device_id,
+  lastSyncDate: result.rows[0].last_sync_date
+  };
 }
 
 module.exports = {
@@ -148,5 +170,6 @@ module.exports = {
     getDevices,
     getUserInfo,
     getUserModel,
-    getAllAccessTokens
+    getAllAccessTokens,
+    getInfoUserDeviceFromUserId
 };

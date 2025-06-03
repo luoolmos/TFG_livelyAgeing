@@ -5,7 +5,7 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, './utils/.env') });
 const fs = require('fs');
 const express = require('express');
-const cors = require('cors');
+//const cors = require('cors');
 const axios = require('axios');
 const querystring = require('querystring');
 const pool = require('./models/db');
@@ -29,7 +29,7 @@ const app = express();
 const PORT = 5003;
 
 // Middlewares globales primero
-app.use(cors());
+//app.use(cors());
 app.use(express.json());
 
 // Rutas con prefijos consistentes
@@ -37,7 +37,7 @@ app.use('/api', stepsRoutes);
 app.use('/api/sleep', sleepRoutes);
 app.use('/api/heart-rate', heartRateRoutes);
 app.use('/', authRoutes);
-app.use('/api/all-data', allDataRoutes);
+app.use('/', allDataRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api', measurementsRoutes);
 
@@ -53,7 +53,6 @@ app.get('/sensors', (req, res) => {
 const SAMSUNG_MODEL = constants.SAMSUNG_GALAXY_WATCH_4;
 const SAMSUNG_TYPE = constants.SAMSUNG_TYPE;
 const SAMSUNG_SERIAL = constants.SAMSUNG_SERIAL;
-//let access_token = process.env.ACCESS_TOKEN;
 
 // Función para obtener datos de user 
 async function getUserId({ device_id }) {

@@ -547,7 +547,7 @@ CREATE TABLE custom.device (
     serial_number       VARCHAR,
     manufacturer        VARCHAR(50) NOT NULL,
     model               VARCHAR(100) NOT NULL,
-    token               TEXT UNIQUE,
+--    token               TEXT UNIQUE,
     first_use_date      TIMESTAMPTZ DEFAULT NOW()
 );
 
