@@ -309,9 +309,9 @@ async function migrateSleepData( userId, sleepRows, sleepEventsRows) {
 /**
  * Obtiene los datos de rr de la base de datos SQLite
 */
-async function getSleepData(lastSyncDate){
+async function getSleepData(lastSyncDate, userId){
     // Configuración de la base de datos SQLite
-    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN);
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN(userId));
     
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const sleepRows = await sqlLite.fetchSleepData(lastSyncDate,sqliteDb);
@@ -327,7 +327,7 @@ async function updateSleepData(userId, lastSyncDate){
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
 
-    const {sleepRows, sleepEventsRows} = await getSleepData(lastSyncDate);
+    const {sleepRows, sleepEventsRows} = await getSleepData(lastSyncDate, userId);
     await migrateSleepData( userId, sleepRows, sleepEventsRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     

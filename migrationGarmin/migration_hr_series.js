@@ -12,7 +12,6 @@ const { getConceptUnit } = require('../backend/getDBinfo/getConcept.js');
 const fs = require('fs');
 
 // Configuración de la base de datos SQLite
-const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
 const LOG_PATH = path.resolve(__dirname, 'logs', 'concept_errors.log');
 
 // Utilidad para loguear errores de concepto
@@ -111,7 +110,9 @@ async function formatHrData(userId, hrRows) {
 /**
  * Obtiene los datos de rr de la base de datos SQLite
 */
-async function getHrData(lastSyncDate){
+async function getHrData(lastSyncDate, userId){
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING(userId));
+
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const hrRows = await sqlLite.fetchHrData(lastSyncDate,sqliteDb);
     console.log(`Retrieved ${hrRows.length} hr records from SQLite`);
@@ -125,7 +126,7 @@ async function updateHrData(userId, lastSyncDate){
         //let lastSyncDateG = '2025-04-01'; 
         //console.log('lastSyncDate:', lastSyncDate);
         //console.log('userDeviceId:', userDeviceId);
-        const hrRows = await getHrData(lastSyncDate);
+        const hrRows = await getHrData(lastSyncDate,userId);
         await migrateHrData(lastSyncDate, userId, hrRows);
         //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     } catch (err) {

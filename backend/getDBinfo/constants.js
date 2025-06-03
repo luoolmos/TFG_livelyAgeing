@@ -10,11 +10,12 @@ module.exports = {
     GARMIN_FORERUNNER_255: 'Forerunner 255',
 
     //**************PATHS**************
-    SQLLITE_PATH_GARMIN: 'c:/Users/1308l/HealthData/DBs/garmin.db',
-    SQLLITE_PATH_GARMIN_ACTIVITIES: 'c:/Users/1308l/HealthData/DBs/garmin_activities.db',
-    SQLLITE_PATH_GARMIN_MONITORING: 'c:/Users/1308l/HealthData/DBs/garmin_monitoring.db',
-    SQLLITE_PATH_GARMIN_SUMMARY: 'c:/Users/1308l/HealthData/DBs/garmin_summary.db',
-    SQLLITE_PATH_SUMMARY: 'c:/Users/1308l/HealthData/DBs/summary.db',
+    SQLITE_PATH: 'c:/Users/1308l/HealthData/DBs',
+    SQLLITE_PATH_GARMIN:  (userId) => `c:/Users/1308l/HealthData/DBs/garmin_${userId}/garmin.db`,
+    SQLLITE_PATH_GARMIN_ACTIVITIES: (userId) => `c:/Users/1308l/HealthData/DBs/garmin_${userId}/garmin_activities.db`,
+    SQLLITE_PATH_GARMIN_MONITORING:  (userId) => `c:/Users/1308l/HealthData/DBs/garmin_${userId}/garmin_monitoring.db`,
+    SQLLITE_PATH_GARMIN_SUMMARY:  (userId) => `c:/Users/1308l/HealthData/DBs/garmin_${userId}/garmin_summary.db`,
+    SQLLITE_PATH_SUMMARY:  (userId) => `c:/Users/1308l/HealthData/DBs/garmin_${userId}/summary.db`,
     GARMIN_FORERUNNER_255: 'GarminForerunner255',
     GARMIN_VENU_SQ2: 'Venu Sq2',
 

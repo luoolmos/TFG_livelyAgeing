@@ -101,9 +101,9 @@ async function formatspo2Data(userId, spo2Rows) {
 /**
  * Obtiene los datos de spo2 de la base de datos SQLite
 */
-async function getSpo2Data(lastSyncDate){
+async function getSpo2Data(lastSyncDate, userId){
     // Configuración de la base de datos SQLite
-    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING(userId));
     
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const spo2Rows = await sqlLite.fetchSpo2Data(lastSyncDate,sqliteDb);
@@ -117,7 +117,7 @@ async function updateSpo2Data(userId, lastSyncDate){
     //let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
-    const spo2Rows = await getSpo2Data(lastSyncDate);
+    const spo2Rows = await getSpo2Data(lastSyncDate, userId);
    
     await migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización

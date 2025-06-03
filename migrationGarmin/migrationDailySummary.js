@@ -8,7 +8,6 @@ const inserts = require('../backend/getDBinfo/inserts.js');
 const fs = require('fs');
 
 // Configuración de la base de datos SQLite
-const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_SUMMARY);
 const LOG_PATH = path.resolve(__dirname, 'logs', 'concept_errors.log');
 
 //hr_min, hr_max, rhr_avg, steps, rr_max, rr_min, spo2_avg, sleep_avg --> 
@@ -66,7 +65,9 @@ async function migratesummaryData(userId, summaryRows) {
 /**
  * Obtiene los datos de rr de la base de datos SQLite
 */
-async function getSummaryData(lastSyncDate){
+async function getSummaryData(lastSyncDate, userId){
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_SUMMARY(userId));
+
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const summaryRows = await sqlLite.fetchsummaryData(lastSyncDate,sqliteDb);
     console.log(`Retrieved ${summaryRows.length} summary records from SQLite`);
@@ -79,7 +80,7 @@ async function updatesummaryData(userId, lastSyncDate){
     try {
         console.log('userId:', userId);
         //let lastSyncDateG = '2025-04-01'; 
-        const summaryRows = await getSummaryData(lastSyncDate);
+        const summaryRows = await getSummaryData(lastSyncDate, userId);
         await migratesummaryData(userId, summaryRows);
     } catch (err) {
         console.error('Error en updatesummaryData:', err);

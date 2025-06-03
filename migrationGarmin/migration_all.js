@@ -2,6 +2,7 @@ const { updateActivityData } = require("./migration_activity_series");
 const { updateHrData } = require("./migration_hr_series");
 const { updateRrData } = require("./migration_rr_series");
 const { getGarminDevice } = require("../backend/getDBinfo/getDevice.js");
+const { getUserDeviceInfo, updateLastSyncUserDevice } = require("../backend/getDBinfo/getUserId.js");
 const { updateSpo2Data } = require("./migration_spo2.js");
 const { updateStressData } = require("./migration_stress_series.js");
 const { updateSleepData } = require("./migration_sleep.js");
@@ -14,7 +15,7 @@ async function migrateAllData() {
 
     const sources = await getGarminDevice();
     console.log('sources', sources);
-    await pool.connect();
+    //await pool.connect();
 
     console.log("Migrating data from Garmin devices...");
     if (!sources || sources.length === 0) {
@@ -63,29 +64,29 @@ async function migrateAllData() {
             console.error(`Error migrating Sleep data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try{
-            await updatesummaryData(userId, lastSyncDate);
+            //await updatesummaryData(userId, lastSyncDate);
             console.log(`Summary data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating Summary data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
+        await updateLastSyncUserDevice(userDeviceId);    
+        console.log(`Last sync date updated for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
     }
-    // Cerrar el pool solo al final
+    // Cerrar el pool una vez completada la migración
     await pool.end();
-
 }
 
 /**
  * Función principal
  */
 async function main() {
-
     console.log('Migracion');
-    migrateAllData().then(() => {
-        console.log('Migración de datos de completada.');
-    }).catch(err => {
+    try {
+        await migrateAllData();
+        console.log('Migración de datos completada.');
+    } catch (err) {
         console.error('Error en la migración de datos:', err);
-    });
-
+    }
 }
 
 main();

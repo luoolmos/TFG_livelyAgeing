@@ -93,9 +93,9 @@ async function formatRrData(userId, rrRows) {
 /*
  * Obtiene los datos de rr de la base de datos SQLite
 */
-async function getRrData(lastSyncDate){
+async function getRrData(lastSyncDate, userId){
     // Configuración de la base de datos SQLite
-    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING);
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_MONITORING(userId));
     
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const rrRows = await sqlLite.fetchRrData(lastSyncDate,sqliteDb);
@@ -112,7 +112,7 @@ async function updateRrData(source){
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
    
-    const rrRows = await getRrData(lastSyncDate);
+    const rrRows = await getRrData(lastSyncDate,userId);
 
     await migrateRrData(userDeviceId, lastSyncDate, userId, rrRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización

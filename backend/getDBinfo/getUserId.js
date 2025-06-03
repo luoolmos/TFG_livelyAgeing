@@ -80,7 +80,6 @@ async function getDeviceInfo(source) {
 }
 
 async function updateLastSyncUserDevice(userDeviceId) {
-
     const query = `
         UPDATE custom.user_device
         SET last_sync_date = NOW()
@@ -147,7 +146,7 @@ async function getInfoUserDeviceFromUserId(userId){
     SELECT 
       ud.user_id, 
       ud.device_id, 
-      ud.last_sync_date, 
+      ud.last_sync_date 
     FROM custom.user_device ud
     WHERE ud.user_id = $1 AND ud.end_date IS NULL
     ORDER BY ud.last_sync_date DESC

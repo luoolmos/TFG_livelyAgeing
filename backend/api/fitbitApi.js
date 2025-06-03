@@ -15,6 +15,7 @@ const path = require('path');
 const urls = require('../utils/constants.js');
 const {formatDate, formatToTimestamp} = require('../../migration/formatValue.js');
 const { formatActivityData } = require('./formatData.js');
+const inserts = require('../getDBinfo/inserts.js');
 
 // Hace una petición autenticada con auto-refresh del token si es necesario
 async function makeAuthenticatedRequest(url, access_token, retryCount = 0) {
@@ -78,36 +79,51 @@ async function getStepsAndSave(user_id, access_token, start_date) {
             console.error('[getStepsAndSave] Respuesta inesperada de Fitbit:', response.data);
             return;
         }
-        const stepsData = response.data['activities-steps'];
-        console.log('[getStepsAndSave] stepsData:', stepsData);
-        if (stepsData.length === 0) return;
-        const { concept_id: stepConceptId, concept_name: stepConceptName } = await getConceptInfoObservation(constants.STEPS_STRING);
-        for (const stepEntry of stepsData) {
-            const steps = parseInt(stepEntry.value, 10);
-            if (steps === 0) continue;
-            const timestamp = stepEntry.dateTime;
-            const date = timestamp; // dateTime ya es YYYY-MM-DD
-            const baseValues = {
-                userId: user_id,
-                observationDate: date,
-                observationDatetime: timestamp,
-                activityId: null
-            };
-            const stepValue = generateObservationData(baseValues, steps, stepConceptId, stepConceptName, null, null);
-            try {
-                const stepInsertion = await inserts.insertObservation(stepValue);
-                console.log(`[getStepsAndSave] stepInsertion:`, stepInsertion);
-                console.log(`[getStepsAndSave] Pasos guardados en la BD: ${steps} el ${timestamp} para el usuario ${user_id}`);
-            } catch (dbErr) {
-                console.error('[getStepsAndSave] Error insertando pasos en la BD:', dbErr);
-            }
+        const stepsArray = response.data['activities-steps'];
+        if (!Array.isArray(stepsArray) || stepsArray.length === 0) {
+            console.error('[getStepsAndSave] No hay datos de pasos');
+            return;
         }
+        const { dateTime: timestamp, value: stepsValue } = stepsArray[0];
+        const steps = Number(stepsValue);
+        if (isNaN(steps) || steps === 0) {
+            console.log('[getStepsAndSave] 0 pasos o valor no numérico, omitiendo');
+            return;
+        }
+        console.log('[getStepsAndSave] stepsArray:', stepsArray);
+        const { concept_id: stepConceptId, concept_name: stepConceptName } = await getConceptInfoObservation(constants.STEPS_STRING);
+        //console.log('[getStepsAndSave] stepConceptId:', stepConceptId);
+        if (!stepConceptId || !stepConceptName) {
+            console.error(`[getStepsAndSave] No se encontró el concepto para STEPS_STRING: ${constants.STEPS_STRING}`);
+            return;
+        }
+
+        const date = timestamp; // dateTime ya es YYYY-MM-DD
+        const baseValues = {
+            userId: user_id,
+            observationDate: date,
+            observationDatetime: formatToTimestamp(timestamp),
+            activityId: null
+        };
+        const stepValue = generateObservationData(baseValues, steps, stepConceptId, stepConceptName, null, null);
+        try {
+            const observation_id = await inserts.insertObservation(stepValue);
+            console.log('[getStepsAndSave] stepValue:', steps);
+            console.log(`[getStepsAndSave] stepInsertion:`, observation_id);
+            console.log(`[getStepsAndSave] Pasos guardados en la BD: ${steps} el ${timestamp} para el usuario ${user_id}`);
+            if(observation_id !== null &&  observation_id !== undefined) {
+                console.log(`[getStepsAndSave] Pasos insertados correctamente para el usuario ${user_id} en la fecha ${timestamp}`);
+                return true; // Retornar true si se insertó al menos un registro
+            }
+        } catch (dbErr) {
+            console.error('[getStepsAndSave] Error insertando pasos en la BD:', dbErr);
+        }
+
     } catch (error) {
         if (error.response && error.response.status === 429) {
             const retryAfter = error.response.headers['retry-after'] || 60;
             console.warn(`[getStepsAndSave] Rate limit alcanzado. Esperando ${retryAfter} segundos antes de reintentar...`);
             await new Promise(res => setTimeout(res, retryAfter * 1000));
-            // Opcional: podrías reintentar aquí si lo deseas
             return;
         }
         console.error('[getStepsAndSave] Error obteniendo y guardando los pasos:', error.response ? error.response.data : error.message);
@@ -577,7 +593,7 @@ async function getHeartRateAndSave(user_id, access_token, date) {
             }
         }*/
 
-        console.log(`[getHeartRateAndSave] Heart rate data saved for date: ${start_date}`);
+        console.log(`[getHeartRateAndSave] Heart rate data saved for date: ${date}`);
         return { successfulDates, failedDates };
     } catch (error) {
         if (error.response && error.response.status === 429) {

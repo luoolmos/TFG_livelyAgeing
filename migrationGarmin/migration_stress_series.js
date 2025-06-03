@@ -116,9 +116,9 @@ async function migrateStressData(lastSyncDate, userId, stressRows) {
 /**
  * Obtiene los datos de stress de la base de datos SQLite
 */
-async function getStressData(lastSyncDate){
+async function getStressData(lastSyncDate, userId){
     // Configuración de la base de datos SQLite
-    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN);
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN(userId));
     
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const stressRows = await sqlLite.fetchStressData(lastSyncDate,sqliteDb);
@@ -131,7 +131,7 @@ async function getStressData(lastSyncDate){
 async function updateStressData(userId, lastSyncDate) {
     
     try {
-        const stressRows = await getStressData(lastSyncDate);
+        const stressRows = await getStressData(lastSyncDate, userId);
         await migrateStressData(lastSyncDate, userId, stressRows);
     } catch (error) {
         await logConceptError(

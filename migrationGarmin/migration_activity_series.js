@@ -303,9 +303,11 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
 /**
  * Obtiene los datos de activity de la base de datos SQLite
 */
-async function getActivityData(lastSyncDate){
+async function getActivityData(lastSyncDate, userId){
     // Configuración de la base de datos SQLite
-    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_ACTIVITIES);
+    // Add /{userId} to the path
+    const dbPath = path.resolve(constants.SQLLITE_PATH_GARMIN_ACTIVITIES(userId)
+    );
     
     const sqliteDb = await sqlLite.connectToSQLite(dbPath);
     const activityRows = await sqlLite.fetchActivityData(lastSyncDate, sqliteDb);
@@ -322,7 +324,7 @@ async function updateActivityData(userId, lastSyncDate){
     //console.log('lastSyncDate:', lastSyncDate);
     //console.log('userDeviceId:', userDeviceId);
 
-    const {activityRows, activityRecordsRows} = await getActivityData(lastSyncDate)
+    const {activityRows, activityRecordsRows} = await getActivityData(lastSyncDate,userId)
     await formatActivityData(userId, activityRows, activityRecordsRows);
     
     //console.log('Conexiones cerradas');
