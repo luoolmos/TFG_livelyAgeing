@@ -299,3 +299,31 @@
 {"timestamp":"2025-06-03T17:15:47.086Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
 {"timestamp":"2025-06-03T17:15:47.847Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
 {"timestamp":"2025-06-03T17:15:48.864Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:04:42.750Z","conceptName":"Stress Data Migration","conceptType":"Database","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:04:42.754Z","conceptName":"Stress Data Migration","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:04:42.756Z","conceptName":"Stress Update Process","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:04:44.354Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"insert or update on table \"_hyper_90_15_chunk\" violates foreign key constraint \"15_45_fpk_observation_person_id\""}
+{"timestamp":"2025-06-04T21:04:45.082Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"insert or update on table \"_hyper_90_16_chunk\" violates foreign key constraint \"16_57_fpk_observation_person_id\""}
+{"timestamp":"2025-06-04T21:04:45.681Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"insert or update on table \"_hyper_90_17_chunk\" violates foreign key constraint \"17_69_fpk_observation_person_id\""}
+{"timestamp":"2025-06-04T21:04:46.397Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"insert or update on table \"_hyper_90_18_chunk\" violates foreign key constraint \"18_81_fpk_observation_person_id\""}
+{"timestamp":"2025-06-04T21:04:47.136Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"insert or update on table \"_hyper_90_19_chunk\" violates foreign key constraint \"19_93_fpk_observation_person_id\""}
+{"timestamp":"2025-06-04T21:04:47.743Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"insert or update on table \"_hyper_90_20_chunk\" violates foreign key constraint \"20_105_fpk_observation_person_id\""}
+{"timestamp":"2025-06-04T21:04:48.338Z","conceptName":"Sleep Data Processing","conceptType":"General","error":"insert or update on table \"_hyper_90_21_chunk\" violates foreign key constraint \"21_117_fpk_observation_person_id\""}
+{"timestamp":"2025-06-04T21:25:25.505Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-06-04T21:25:25.780Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-06-04T21:25:26.055Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-06-04T21:25:26.415Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-06-04T21:25:26.643Z","conceptName":"Activity Records","conceptType":"Observation","error":"No se encontraron eventos de actividad para la actividad seleccionada"}
+{"timestamp":"2025-06-04T21:25:29.714Z","conceptName":"Stress Data Migration","conceptType":"Database","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:25:29.715Z","conceptName":"Stress Data Migration","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:25:29.717Z","conceptName":"Stress Update Process","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:25:31.243Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:25:31.542Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:25:31.822Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:25:32.444Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:25:32.770Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:25:32.972Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:25:33.186Z","conceptName":"Sleep Events","conceptType":"Observation","error":"No se encontraron eventos de sueño para el día seleccionado"}
+{"timestamp":"2025-06-04T21:38:35.871Z","conceptName":"Stress Data Migration","conceptType":"Database","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:38:35.873Z","conceptName":"Stress Data Migration","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+{"timestamp":"2025-06-04T21:38:35.875Z","conceptName":"Stress Update Process","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}

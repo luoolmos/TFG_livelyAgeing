@@ -15,7 +15,7 @@ const { logConceptError } = require('./conceptLogger');
 /**
  * Migrar datos de spo2 de SQLite a PostgreSQL
  */
-async function migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows) {
+async function migrateSpo2Data( lastSyncDate, userId, spo2Rows) {
     //const client = await pool.connect();
     try {
         //console.log('Fetching spo2 data from SQLite...');
@@ -119,7 +119,7 @@ async function updateSpo2Data(userId, lastSyncDate){
     //console.log('userDeviceId:', userDeviceId);
     const spo2Rows = await getSpo2Data(lastSyncDate, userId);
    
-    await migrateSpo2Data(userDeviceId, lastSyncDate, userId, spo2Rows);
+    await migrateSpo2Data( lastSyncDate, userId, spo2Rows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
     //await pool.end();

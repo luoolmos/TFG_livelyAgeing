@@ -58,7 +58,7 @@ async function migrateAllData() {
             console.error(`Error migrating Stress data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try{
-            await updateSleepData(userId, lastSyncDate);
+            //await updateSleepData(userId, lastSyncDate);
             console.log(`Sleep data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating Sleep data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);

@@ -36,11 +36,13 @@ function generateMeasurementData(data, value, conceptId, conceptName, unitconcep
     const valueAsNumber = typeof value === 'number' ? value : null;
     const valueAsString = typeof value === 'string' ? value : null;
 
+    //console.log(`Data` , data);
+
     return data = {
         person_id: data.userId,
         measurement_concept_id: conceptId,
-        measurement_date: data.observationDate,
-        measurement_datetime: data.observationDatetime,
+        measurement_date: data.measurementDate,
+        measurement_datetime: data.measurementDatetime,
         measurement_type_concept_id: constants.TYPE_CONCEPT_ID,
         operator_concept_id: null,
         value_as_number: valueAsNumber,

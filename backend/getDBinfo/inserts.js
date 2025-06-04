@@ -88,13 +88,13 @@ async function insertPerson(omop_cdm_person_data, custom_person_data) {
       const insertQuery = `
         INSERT INTO omop_modified.person (
           gender_concept_id, year_of_birth, month_of_birth, day_of_birth, birth_datetime,
-          death_datetime, race_concept_id, ethnicity_concept_id, location_id, provider_id, care_site_id,  
+           race_concept_id, ethnicity_concept_id, location_id, provider_id, care_site_id,  
           person_source_value, gender_source_value, gender_source_concept_id, birth_source_value,
           death_source_value, race_source_value, race_source_concept_id, ethnicity_source_value,
           ethnicity_source_concept_id
         )
         VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
         )
         RETURNING person_id;
       `;

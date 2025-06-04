@@ -90,8 +90,10 @@ async function formatHrData(userId, hrRows) {
                 measurementDatetime,
                 releatedId: null
             };
+            //console.log(`Processing HR data for userId: ${userId}, heart_rate: ${row.heart_rate}, timestamp: ${measurementDatetime}`);
             const hrMeasurement = generateMeasurementData(baseValues, row.heart_rate, concept_id, concept_name, unitconceptId, unitconceptName, low, high);
-            if (hrMeasurement && hrMeasurement.value_as_number !== null) {
+            if (hrMeasurement) {
+               // console.log(`Formatted HR measurement: ${JSON.stringify(hrMeasurement)}`);
                 return hrMeasurement;
             }
             return null;

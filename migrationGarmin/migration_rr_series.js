@@ -16,7 +16,7 @@ const { getConceptUnit } = require('../backend/getDBinfo/getConcept.js');
  *
  * Migrar datos de rr de SQLite a PostgreSQL*/
     
-async function migrateRrData(userDeviceId, lastSyncDate, userId, rrRows) {
+async function migrateRrData( lastSyncDate, userId, rrRows) {
         
         if (rrRows.length === 0) {
             console.log('No respiration rate data to migrate');
@@ -105,8 +105,7 @@ async function getRrData(lastSyncDate, userId){
 }
 
 
-async function updateRrData(source){
-    const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(source); 
+async function updateRrData(userId, lastSyncDate) {
     //console.log('userId:', userId);
     //let lastSyncDateG = '2025-03-01';
     //console.log('lastSyncDate:', lastSyncDate);
@@ -114,7 +113,7 @@ async function updateRrData(source){
    
     const rrRows = await getRrData(lastSyncDate,userId);
 
-    await migrateRrData(userDeviceId, lastSyncDate, userId, rrRows);
+    await migrateRrData( lastSyncDate, userId, rrRows);
     //await updateLastSyncUserDevice(userDeviceId); // Actualizar la fecha de sincronización
     
 

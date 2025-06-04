@@ -526,7 +526,7 @@ ALTER TABLE omop_modified.person ALTER COLUMN person_id SET DEFAULT nextval('omo
 
 -- TABLA: person
 CREATE TABLE custom.person_info (
-    person_id   INTEGER REFERENCES omop_cdm.person(person_id) ON DELETE CASCADE,
+    person_id   INTEGER REFERENCES omop_modified.person(person_id) ON DELETE CASCADE,
     email       VARCHAR(100) NOT NULL UNIQUE,
     name        VARCHAR(100) NOT NULL,
     profile     JSONB, 
