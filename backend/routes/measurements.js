@@ -17,7 +17,7 @@ router.get('/measurements', async (req, res) => {
         unit_concept_id,
         measurement_source_value,
         unit_source_value
-      FROM omop_cdm.measurement
+      FROM omop_modified.measurement
       WHERE 1=1
     `;
     const params = [];
@@ -63,7 +63,7 @@ router.get('/observations', async (req, res) => {
         unit_concept_id,
         observation_source_value,
         unit_source_value
-      FROM omop_cdm.observation
+      FROM omop_modified.observation
       WHERE 1=1
     `;
     const params = [];

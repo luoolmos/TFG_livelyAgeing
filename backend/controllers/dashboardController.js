@@ -13,7 +13,7 @@ const dashboardController = {
           MAX(CASE WHEN o.observation_source_value = $2 THEN o.value_as_number END) as heart_rate,
           MAX(CASE WHEN o.observation_source_value = $3 THEN o.value_as_number END) as sleep_duration,
           MAX(CASE WHEN o.observation_source_value = $4 THEN o.value_as_number END) as stress
-        FROM omop_cdm.observation o
+        FROM omop_modified.observation o
         WHERE o.observation_date >= CURRENT_DATE - INTERVAL '7 days'
         GROUP BY o.observation_date
         ORDER BY o.observation_date DESC
@@ -76,7 +76,7 @@ const dashboardController = {
       }
       // Insertar en omop_cdm.person (puedes ajustar los valores por defecto según tu modelo)
       const personResult = await pool.query(
-        `INSERT INTO omop_cdm.person (gender_concept_id, year_of_birth, race_concept_id, ethnicity_concept_id)
+        `INSERT INTO omop_modified.person (gender_concept_id, year_of_birth, race_concept_id, ethnicity_concept_id)
          VALUES (8535, 1990, 8527, 8657) RETURNING person_id;`
       );
       const person_id = personResult.rows[0].person_id;

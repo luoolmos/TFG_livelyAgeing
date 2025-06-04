@@ -15,7 +15,7 @@ const sleepConceptName = constants.SLEEP_DURATION_STRING;
 async function existingSleepRow(userId, timestamp) {
     try {
         const query = `
-            SELECT * FROM omop_cdm.observation 
+            SELECT * FROM omop_modified.observation 
             WHERE person_id = $1 AND observation_datetime = $2 AND concept_id = $3
         `;
         const result = await pool.query(query, [userId, timestamp, sleepConceptId]);

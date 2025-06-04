@@ -43,7 +43,7 @@ async function getUserDeviceInfo(source) {
 async function getUserAge(user_id) {
     const query = `
         SELECT p.year_of_birth
-        FROM omop_cdm.person p
+        FROM omop_modified.person p
         WHERE p.person_id = $1;
     `;
     const result = await pool.query(query, [user_id]);
@@ -141,6 +141,23 @@ async function getAllAccessTokens() {
   return result.rows;
 }
 
+async function getTokensFromDB(userId) {
+  const query = `
+    SELECT access_token, refresh_token FROM custom.person_info
+    WHERE person_id = $1;
+  `;
+  const result = await pool.query(query, [userId]);
+  if (result.rows.length > 0) {
+    return {
+      access_token: result.rows[0].access_token,
+      refresh_token: result.rows[0].refresh_token
+    };
+  } else {
+    console.log(`No se encontraron tokens para el usuario con ID ${userId}`);
+    return null;
+  } 
+}
+
 async function getInfoUserDeviceFromUserId(userId){
   const query = `
     SELECT 
@@ -170,5 +187,6 @@ module.exports = {
     getUserInfo,
     getUserModel,
     getAllAccessTokens,
-    getInfoUserDeviceFromUserId
+    getInfoUserDeviceFromUserId,
+    getTokensFromDB
 };

@@ -86,7 +86,7 @@ async function insertPerson(omop_cdm_person_data, custom_person_data) {
   }else{
     try {
       const insertQuery = `
-        INSERT INTO omop_cdm.person (
+        INSERT INTO omop_modified.person (
           gender_concept_id, year_of_birth, month_of_birth, day_of_birth, birth_datetime,
           death_datetime, race_concept_id, ethnicity_concept_id, location_id, provider_id, care_site_id,  
           person_source_value, gender_source_value, gender_source_concept_id, birth_source_value,
@@ -149,7 +149,7 @@ async function insertObservation(data) {
   try {
     // SQL query para insertar los datos en la tabla 'observation'
     const insertQuery = `
-      INSERT INTO omop_cdm.observation (
+      INSERT INTO omop_modified.observation (
         person_id, observation_concept_id, observation_date,
         observation_datetime, observation_type_concept_id,
         value_as_number, value_as_string, value_as_concept_id,
@@ -195,7 +195,7 @@ async function insertMultipleObservation(observations) {
   try {
     console.log('Inserting multiple observations');
     const insertQuery = `
-      INSERT INTO omop_cdm.observation (
+      INSERT INTO omop_modified.observation (
         person_id, observation_concept_id, observation_date,
         observation_datetime, observation_type_concept_id,
         value_as_number, value_as_string, value_as_concept_id,
@@ -237,7 +237,7 @@ async function insertMeasurement(data) {
   try {
     // SQL query para insertar los datos en la tabla 'observation'
     const insertQuery = `
-      INSERT INTO omop_cdm.measurement (
+      INSERT INTO omop_modified.measurement (
         person_id, measurement_concept_id, measurement_date,
         measurement_datetime, measurement_type_concept_id,
         operator_concept_id, value_as_number, value_as_concept_id,
@@ -293,7 +293,7 @@ async function insertMultipleMeasurement(measurements) {
       console.log(`Processing batch ${batchNum + 1}/${totalBatches} (${batchMeasurements.length} measurements)`);
 
       const insertQuery = `
-        INSERT INTO omop_cdm.measurement (
+        INSERT INTO omop_modified.measurement (
           person_id, measurement_concept_id, measurement_date,
           measurement_datetime, measurement_type_concept_id,
           operator_concept_id, value_as_number, value_as_concept_id,

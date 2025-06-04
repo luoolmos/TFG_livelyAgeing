@@ -1,15 +1,3 @@
---DO
---$$
---DECLARE
---    r RECORD;
---BEGIN
---    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'omop_cdm') LOOP
---        EXECUTE 'DROP TABLE omop_cdm.' || quote_ident(r.tablename) || ' CASCADE';
---    END LOOP;
---END
---$$;
---
-
 CREATE SCHEMA omop_cdm;  
 -- https://github.com/OHDSI/CommonDataModel/blob/v5.4.0/inst/ddl/5.4/postgresql/OMOPCDM_postgresql_5.4_ddl.sql
 CREATE SCHEMA custom;
@@ -117,14 +105,6 @@ CREATE TABLE omop_cdm.COHORT (
     cohort_end_date         date NOT NULL 
 );
 
---CREATE OR REPLACE VIEW omop_cdm.cohort AS
---  SELECT
---    NULL::integer AS cohort_definition_id,
---    NULL::integer AS subject_id,
---    NULL::date    AS cohort_start_date,
---    NULL::date    AS cohort_end_date
---  WHERE false;
-
 CREATE TABLE omop_cdm.COHORT_DEFINITION (
     cohort_definition_id            integer NOT NULL,
     cohort_definition_name          varchar(255) NOT NULL,
@@ -136,17 +116,6 @@ CREATE TABLE omop_cdm.COHORT_DEFINITION (
 );
 
 
---CREATE OR REPLACE VIEW omop_cdm.cohort_definition AS
---  SELECT
---	NULL::integer AS cohort_definition_id,
---	NULL::varchar(255) AS cohort_definition_name,
---	NULL::TEXT AS cohort_definition_description,
---	NULL::integer AS definition_type_concept_id,
---	NULL::TEXT AS cohort_definition_syntax,
---	NULL::integer AS subject_concept_id,
---	NULL::date AS cohort_initiation_date
---  WHERE false;
-
 CREATE TABLE omop_cdm.OBSERVATION_PERIOD (
 			observation_period_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -154,15 +123,6 @@ CREATE TABLE omop_cdm.OBSERVATION_PERIOD (
 			observation_period_end_date date NOT NULL,
 			period_type_concept_id integer NOT NULL );
 
-
---CREATE OR REPLACE VIEW omop_cdm.OBSERVATION_PERIOD AS
---  SELECT
---			NULL::integer AS observation_period_id,
---			NULL::integer AS person_id,
---			NULL::date AS observation_period_start_date,
---			NULL::date AS observation_period_end_date,
---			NULL::integer AS period_type_concept_id
---  WHERE false;
 
 
 CREATE TABLE omop_cdm.VISIT_OCCURRENCE (
@@ -186,28 +146,6 @@ CREATE TABLE omop_cdm.VISIT_OCCURRENCE (
 
 
 
---CREATE OR REPLACE VIEW omop_cdm.visit_occurrence AS
---  SELECT
---    NULL::integer AS visit_occurrence_id,
---    NULL::integer AS person_id,
---    NULL::integer AS visit_concept_id,
---    NULL::date    AS visit_start_date,
---    NULL::timestamp AS visit_start_datetime,
---    NULL::date    AS visit_end_date,
---    NULL::timestamp AS visit_end_datetime,
---    NULL::integer AS visit_type_concept_id,
---    NULL::integer AS provider_id,
---    NULL::integer AS care_site_id,
---    NULL::varchar(50) AS visit_source_value,
---    NULL::integer AS visit_source_concept_id,
---    NULL::integer AS admitted_from_concept_id,
---    NULL::varchar(50) AS admitted_from_source_value,
---    NULL::integer AS discharged_to_concept_id,
---    NULL::varchar(50) AS discharged_to_source_value,
---    NULL::integer AS preceding_visit_occurrence_id
---  WHERE false;
-
-
 CREATE TABLE omop_cdm.visit_detail (
 			visit_detail_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -229,28 +167,7 @@ CREATE TABLE omop_cdm.visit_detail (
 			parent_visit_detail_id integer NULL,
 			visit_occurrence_id integer NOT NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.visit_detail AS
---  SELECT
---    NULL::integer   AS visit_detail_id,
---    NULL::integer   AS person_id,
---    NULL::integer   AS visit_detail_concept_id,
---    NULL::date      AS visit_detail_start_date,
---    NULL::timestamp AS visit_detail_start_datetime,
---    NULL::date      AS visit_detail_end_date,
---    NULL::timestamp AS visit_detail_end_datetime,
---    NULL::integer   AS visit_detail_type_concept_id,
---    NULL::integer   AS provider_id,
---    NULL::integer   AS care_site_id,
---    NULL::varchar(50)  AS visit_detail_source_value,
---    NULL::integer   AS visit_detail_source_concept_id,
---    NULL::integer   AS admitted_from_concept_id,
---    NULL::varchar(50)  AS admitted_from_source_value,
---    NULL::varchar(50)  AS discharged_to_source_value,
---    NULL::integer   AS discharged_to_concept_id,
---    NULL::integer   AS preceding_visit_detail_id,
---    NULL::integer   AS parent_visit_detail_id,
---    NULL::integer   AS visit_occurrence_id
---  WHERE false;
+
 
 CREATE TABLE omop_cdm.CONDITION_OCCURRENCE (
 			condition_occurrence_id integer NOT NULL,
@@ -270,26 +187,6 @@ CREATE TABLE omop_cdm.CONDITION_OCCURRENCE (
 			condition_source_concept_id integer NULL,
 			condition_status_source_value varchar(50) NULL );
 
-
---CREATE OR REPLACE VIEW omop_cdm.condition_occurrence AS
---  SELECT
---    NULL::integer AS condition_occurrence_id,
---    NULL::integer AS person_id,
---    NULL::integer AS condition_concept_id,
---    NULL::date    AS condition_start_date,
---    NULL::timestamp AS condition_start_datetime,
---    NULL::date    AS condition_end_date,
---    NULL::timestamp AS condition_end_datetime,
---    NULL::integer AS condition_type_concept_id,
---    NULL::integer AS condition_status_concept_id,
---    NULL::varchar(20) AS stop_reason,
---    NULL::integer AS provider_id,
---    NULL::integer AS visit_occurrence_id,
---    NULL::integer AS visit_detail_id,
---    NULL::varchar(50) AS condition_source_value,
---    NULL::integer AS condition_source_concept_id,
---    NULL::varchar(50) AS condition_status_source_value
---  WHERE false;
 
 
 CREATE TABLE omop_cdm.DRUG_EXPOSURE (
@@ -317,33 +214,6 @@ CREATE TABLE omop_cdm.DRUG_EXPOSURE (
 			route_source_value varchar(50) NULL,
 			dose_unit_source_value varchar(50) NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.drug_exposure AS
---  SELECT
---    NULL::integer AS drug_exposure_id,
---    NULL::integer AS person_id,
---    NULL::integer AS drug_concept_id,
---    NULL::date    AS drug_exposure_start_date,
---    NULL::timestamp AS drug_exposure_start_datetime,
---    NULL::date    AS drug_exposure_end_date,
---    NULL::timestamp AS drug_exposure_end_datetime,
---    NULL::date    AS verbatim_end_date,
---    NULL::integer AS drug_type_concept_id,
---    NULL::varchar(20) AS stop_reason,
---    NULL::integer AS refills,
---    NULL::numeric AS quantity,
---    NULL::integer AS days_supply,
---    NULL::text   AS sig,
---    NULL::integer AS route_concept_id,
---    NULL::varchar(50) AS lot_number,
---    NULL::integer AS provider_id,
---    NULL::integer AS visit_occurrence_id,
---    NULL::integer AS visit_detail_id,
---    NULL::varchar(50) AS drug_source_value,
---    NULL::integer AS drug_source_concept_id,
---    NULL::varchar(50) AS route_source_value,
---    NULL::varchar(50) AS dose_unit_source_value
---  WHERE false;
-
 
 CREATE TABLE omop_cdm.PROCEDURE_OCCURRENCE (
 			procedure_occurrence_id integer NOT NULL,
@@ -364,27 +234,6 @@ CREATE TABLE omop_cdm.PROCEDURE_OCCURRENCE (
 			modifier_source_value varchar(50) NULL );
 
 
---CREATE OR REPLACE VIEW omop_cdm.procedure_occurrence AS
---  SELECT
---    NULL::integer    AS procedure_occurrence_id,
---    NULL::integer    AS person_id,
---    NULL::integer    AS procedure_concept_id,
---    NULL::date       AS procedure_date,
---    NULL::timestamp  AS procedure_datetime,
---    NULL::date       AS procedure_end_date,
---    NULL::timestamp  AS procedure_end_datetime,
---    NULL::integer    AS procedure_type_concept_id,
---    NULL::integer    AS modifier_concept_id,
---    NULL::integer    AS quantity,
---    NULL::integer    AS provider_id,
---    NULL::integer    AS visit_occurrence_id,
---    NULL::integer    AS visit_detail_id,
---    NULL::varchar(50) AS procedure_source_value,
---    NULL::integer    AS procedure_source_concept_id,
---    NULL::varchar(50) AS modifier_source_value
---  WHERE false;
-
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.DEVICE_EXPOSURE (
 			device_exposure_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -406,31 +255,7 @@ CREATE TABLE omop_cdm.DEVICE_EXPOSURE (
 			unit_source_value varchar(50) NULL,
 			unit_source_concept_id integer NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.device_exposure AS
---  SELECT
---    NULL::integer    AS device_exposure_id,
---    NULL::integer    AS person_id,
---    NULL::integer    AS device_concept_id,
---    NULL::date       AS device_exposure_start_date,
---    NULL::timestamp  AS device_exposure_start_datetime,
---    NULL::date       AS device_exposure_end_date,
---    NULL::timestamp  AS device_exposure_end_datetime,
---    NULL::integer    AS device_type_concept_id,
---    NULL::varchar(255) AS unique_device_id,
---    NULL::varchar(255) AS production_id,
---    NULL::integer    AS quantity,
---    NULL::integer    AS provider_id,
---    NULL::integer    AS visit_occurrence_id,
---    NULL::integer    AS visit_detail_id,
---    NULL::varchar(50)  AS device_source_value,
---    NULL::integer    AS device_source_concept_id,
---    NULL::integer    AS unit_concept_id,
---    NULL::varchar(50)  AS unit_source_value,
---    NULL::integer    AS unit_source_concept_id
---  WHERE false;
 
-
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.DEATH (
 			person_id integer NOT NULL,
 			death_date date NOT NULL,
@@ -440,18 +265,7 @@ CREATE TABLE omop_cdm.DEATH (
 			cause_source_value varchar(50) NULL,
 			cause_source_concept_id integer NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.death AS
---  SELECT
---    NULL::integer    AS person_id,
---    NULL::date       AS death_date,
---    NULL::timestamp  AS death_datetime,
---    NULL::integer    AS death_type_concept_id,
---    NULL::integer    AS cause_concept_id,
---    NULL::varchar(50) AS cause_source_value,
---    NULL::integer    AS cause_source_concept_id
---  WHERE false;	
 
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.NOTE (
 			note_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -470,29 +284,6 @@ CREATE TABLE omop_cdm.NOTE (
 			note_event_id bigint NULL,
 			note_event_field_concept_id integer NULL );
 
-
---CREATE OR REPLACE VIEW omop_cdm.note AS
---  SELECT
---    NULL::integer    AS note_id,
---    NULL::integer    AS person_id,
---    NULL::date       AS note_date,
---    NULL::timestamp  AS note_datetime,
---    NULL::integer    AS note_type_concept_id,
---    NULL::integer    AS note_class_concept_id,
---    NULL::varchar(250) AS note_title,
---    NULL::text       AS note_text,
---    NULL::integer    AS encoding_concept_id,
---    NULL::integer    AS language_concept_id,
---    NULL::integer    AS provider_id,
---    NULL::integer    AS visit_occurrence_id,
---    NULL::integer    AS visit_detail_id,
---    NULL::varchar(50)  AS note_source_value,
---    NULL::bigint     AS note_event_id,
---    NULL::integer    AS note_event_field_concept_id
---  WHERE false;
-
-
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.NOTE_NLP (
 			note_nlp_id integer NOT NULL,
 			note_id integer NOT NULL,
@@ -510,25 +301,6 @@ CREATE TABLE omop_cdm.NOTE_NLP (
 			term_modifiers varchar(2000) NULL );
 
  
---CREATE OR REPLACE VIEW omop_cdm.note_nlp AS
---  SELECT
---    NULL::integer    AS note_nlp_id,
---    NULL::integer    AS note_id,
---    NULL::integer    AS section_concept_id,
---    NULL::varchar(250) AS snippet,
---    NULL::varchar(50)  AS "offset",
---    NULL::varchar(250) AS lexical_variant,
---    NULL::integer    AS note_nlp_concept_id,
---    NULL::integer    AS note_nlp_source_concept_id,
---    NULL::varchar(250) AS nlp_system,
---    NULL::date       AS nlp_date,
---    NULL::timestamp  AS nlp_datetime,
---    NULL::varchar(1)  AS term_exists,
---    NULL::varchar(50) AS term_temporal,
---    NULL::varchar(2000) AS term_modifiers
---  WHERE false;
-
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.SPECIMEN (
 			specimen_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -547,26 +319,6 @@ CREATE TABLE omop_cdm.SPECIMEN (
 			disease_status_source_value varchar(50) NULL );
 
 
---CREATE OR REPLACE VIEW omop_cdm.specimen AS
---  SELECT
---    NULL::integer    AS specimen_id,
---    NULL::integer    AS person_id,
---    NULL::integer    AS specimen_concept_id,
---    NULL::integer    AS specimen_type_concept_id,
---    NULL::date       AS specimen_date,
---    NULL::timestamp  AS specimen_datetime,
---    NULL::numeric    AS quantity,
---    NULL::integer    AS unit_concept_id,
---    NULL::integer    AS anatomic_site_concept_id,
---    NULL::integer    AS disease_status_concept_id,
---    NULL::varchar(50)  AS specimen_source_id,
---    NULL::varchar(50)  AS specimen_source_value,
---    NULL::varchar(50)  AS unit_source_value,
---    NULL::varchar(50)  AS anatomic_site_source_value,
---    NULL::varchar(50)  AS disease_status_source_value
---  WHERE false;
-
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.FACT_RELATIONSHIP (
 			domain_concept_id_1 integer NOT NULL,
 			fact_id_1 integer NOT NULL,
@@ -574,18 +326,6 @@ CREATE TABLE omop_cdm.FACT_RELATIONSHIP (
 			fact_id_2 integer NOT NULL,
 			relationship_concept_id integer NOT NULL );
 
-
---CREATE OR REPLACE VIEW omop_cdm.FACT_RELATIONSHIP AS
---SELECT
---			NULL::integer AS domain_concept_id_1,
---			NULL::integer AS fact_id_1,
---			NULL::integer AS domain_concept_id_2,
---			NULL::integer AS fact_id_2,
---			NULL::integer AS relationship_concept_id
---WHERE false;
-
-
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.LOCATION (
 			location_id integer NOT NULL,
 			address_1 varchar(50) NULL,
@@ -600,23 +340,8 @@ CREATE TABLE omop_cdm.LOCATION (
 			latitude NUMERIC NULL,
 			longitude NUMERIC NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.location AS
---  SELECT
---    NULL::integer    AS location_id,
---    NULL::varchar(50)  AS address_1,
---    NULL::varchar(50)  AS address_2,
---    NULL::varchar(50)  AS city,
---    NULL::varchar(2)   AS state,
---    NULL::varchar(9)   AS zip,
---    NULL::varchar(20)  AS county,
---    NULL::varchar(50)  AS location_source_value,
---    NULL::integer    AS country_concept_id,
---    NULL::varchar(80)  AS country_source_value,
---    NULL::numeric    AS latitude,
---    NULL::numeric    AS longitude
---  WHERE false;
 
---HINT DISTRIBUTE ON RANDOM
+
 CREATE TABLE omop_cdm.CARE_SITE (
 			care_site_id integer NOT NULL,
 			care_site_name varchar(255) NULL,
@@ -626,18 +351,6 @@ CREATE TABLE omop_cdm.CARE_SITE (
 			place_of_service_source_value varchar(50) NULL );
 
 
---CREATE OR REPLACE VIEW omop_cdm.CARE_SITE AS
---SELECT
---			NULL::integer AS care_site_id,
---			NULL::varchar(255) AS care_site_name,
---			NULL::integer AS place_of_service_concept_id,
---			NULL::integer AS location_id,
---			NULL::varchar(50) AS care_site_source_value,
---			NULL::varchar(50) AS place_of_service_source_value
---WHERE false;
-
-
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.PROVIDER (
 			provider_id integer NOT NULL,
 			provider_name varchar(255) NULL,
@@ -653,24 +366,6 @@ CREATE TABLE omop_cdm.PROVIDER (
 			gender_source_value varchar(50) NULL,
 			gender_source_concept_id integer NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.provider AS
---  SELECT
---    NULL::integer     AS provider_id,
---    NULL::varchar(255) AS provider_name,
---    NULL::varchar(20)  AS npi,
---    NULL::varchar(20)  AS dea,
---    NULL::integer     AS specialty_concept_id,
---    NULL::integer     AS care_site_id,
---    NULL::integer     AS year_of_birth,
---    NULL::integer     AS gender_concept_id,
---    NULL::varchar(50)  AS provider_source_value,
---    NULL::varchar(50)  AS specialty_source_value,
---    NULL::integer     AS specialty_source_concept_id,
---    NULL::varchar(50)  AS gender_source_value,
---    NULL::integer     AS gender_source_concept_id
---  WHERE false;
-
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.PAYER_PLAN_PERIOD (
 			payer_plan_period_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -690,29 +385,6 @@ CREATE TABLE omop_cdm.PAYER_PLAN_PERIOD (
 			stop_reason_source_value varchar(50) NULL,
 			stop_reason_source_concept_id integer NULL );
 
-
---CREATE OR REPLACE VIEW omop_cdm.payer_plan_period AS
---  SELECT
---    NULL::integer    AS payer_plan_period_id,
---    NULL::integer    AS person_id,
---    NULL::date       AS payer_plan_period_start_date,
---    NULL::date       AS payer_plan_period_end_date,
---    NULL::integer    AS payer_concept_id,
---    NULL::varchar(50) AS payer_source_value,
---    NULL::integer    AS payer_source_concept_id,
---    NULL::integer    AS plan_concept_id,
---    NULL::varchar(50) AS plan_source_value,
---    NULL::integer    AS plan_source_concept_id,
---    NULL::integer    AS sponsor_concept_id,
---    NULL::varchar(50) AS sponsor_source_value,
---    NULL::integer    AS sponsor_source_concept_id,
---    NULL::varchar(50) AS family_source_value,
---    NULL::integer    AS stop_reason_concept_id,
---    NULL::varchar(50) AS stop_reason_source_value,
---    NULL::integer    AS stop_reason_source_concept_id
---  WHERE false;
-
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.COST (
 			cost_id integer NOT NULL,
 			cost_event_id integer NOT NULL,
@@ -737,34 +409,7 @@ CREATE TABLE omop_cdm.COST (
 			drg_concept_id integer NULL,
 			drg_source_value varchar(3) NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.cost AS
---  SELECT
---    NULL::integer    AS cost_id,
---    NULL::integer    AS cost_event_id,
---    NULL::varchar(20) AS cost_domain_id,
---    NULL::integer    AS cost_type_concept_id,
---    NULL::integer    AS currency_concept_id,
---    NULL::numeric    AS total_charge,
---    NULL::numeric    AS total_cost,
---    NULL::numeric    AS total_paid,
---    NULL::numeric    AS paid_by_payer,
---    NULL::numeric    AS paid_by_patient,
---    NULL::numeric    AS paid_patient_copay,
---    NULL::numeric    AS paid_patient_coinsurance,
---    NULL::numeric    AS paid_patient_deductible,
---    NULL::numeric    AS paid_by_primary,
---    NULL::numeric    AS paid_ingredient_cost,
---    NULL::numeric    AS paid_dispensing_fee,
---    NULL::integer    AS payer_plan_period_id,
---    NULL::numeric    AS amount_allowed,
---    NULL::integer    AS revenue_code_concept_id,
---    NULL::varchar(50) AS revenue_code_source_value,
---    NULL::integer    AS drg_concept_id,
---    NULL::varchar(3)  AS drg_source_value
---  WHERE false;
 
-
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.DRUG_ERA (
 			drug_era_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -775,18 +420,7 @@ CREATE TABLE omop_cdm.DRUG_ERA (
 			gap_days integer NULL );
 
 
---CREATE OR REPLACE VIEW omop_cdm.drug_era AS
---  SELECT
---			NULL::integer AS drug_era_id,
---			NULL::integer AS person_id,
---			NULL::integer AS drug_concept_id,
---			NULL::timestamp AS drug_era_start_date,
---			NULL::timestamp AS drug_era_end_date,
---			NULL::integer AS drug_exposure_count,
---			NULL::integer AS gap_days
---  WHERE false;
 
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.DOSE_ERA (
 			dose_era_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -796,18 +430,7 @@ CREATE TABLE omop_cdm.DOSE_ERA (
 			dose_era_start_date TIMESTAMP NOT NULL,
 			dose_era_end_date TIMESTAMP NOT NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.dose_era AS
---  SELECT
---			NULL::integer AS dose_era_id,
---			NULL::integer AS person_id,
---			NULL::integer AS drug_concept_id,
---			NULL::integer AS unit_concept_id,
---			NULL::numeric AS dose_value,
---			NULL::timestamp AS dose_era_start_date,
---			NULL::timestamp AS dose_era_end_date
---  WHERE false;
 
---HINT DISTRIBUTE ON KEY (person_id)
 CREATE TABLE omop_cdm.CONDITION_ERA (
 			condition_era_id integer NOT NULL,
 			person_id integer NOT NULL,
@@ -817,17 +440,8 @@ CREATE TABLE omop_cdm.CONDITION_ERA (
 			condition_occurrence_count integer NULL );
 
 
---CREATE OR REPLACE VIEW omop_cdm.condition_era AS
---  SELECT
---			NULL::integer AS condition_era_id,
---			NULL::integer AS person_id,
---			NULL::integer AS condition_concept_id,
---			NULL::timestamp AS condition_era_start_date,
---			NULL::timestamp AS condition_era_end_date,
---			NULL::integer AS condition_occurrence_count
---  WHERE false;
 
---HINT DISTRIBUTE ON KEY (person_id)
+
 CREATE TABLE omop_cdm.EPISODE (
 			episode_id bigint NOT NULL,
 			person_id bigint NOT NULL,
@@ -843,37 +457,13 @@ CREATE TABLE omop_cdm.EPISODE (
 			episode_source_value varchar(50) NULL,
 			episode_source_concept_id integer NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.EPISODE AS
---  SELECT
---			NULL::bigint AS episode_id,
---			NULL::bigint AS person_id,
---			NULL::integer AS episode_concept_id,
---			NULL::date AS episode_start_date,
---			NULL::timestamp AS episode_start_datetime,
---			NULL::date AS episode_end_date,
---			NULL::timestamp AS episode_end_datetime,
---			NULL::bigint AS episode_parent_id,
---			NULL::integer AS episode_number,
---			NULL::integer AS episode_object_concept_id,
---			NULL::integer AS episode_type_concept_id,
---			NULL::varchar(50) AS episode_source_value,
---			NULL::integer AS episode_source_concept_id
---  WHERE false;
 
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.EPISODE_EVENT (
 			episode_id bigint NOT NULL,
 			event_id bigint NOT NULL,
 			episode_event_field_concept_id integer NOT NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.EPISODE_EVENT AS
---  SELECT
---			NULL::bigint AS episode_id,
---			NULL::bigint AS event_id,
---			NULL::integer AS episode_event_field_concept_id
---  WHERE false;
 
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.METADATA (
 			metadata_id integer NOT NULL,
 			metadata_concept_id integer NOT NULL,
@@ -885,20 +475,7 @@ CREATE TABLE omop_cdm.METADATA (
 			metadata_date date NULL,
 			metadata_datetime TIMESTAMP NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.metadata AS
---  SELECT
---			NULL::integer AS metadata_id,
---			NULL::integer AS metadata_concept_id,
---			NULL::integer AS metadata_type_concept_id,
---			NULL::varchar(250) AS name,
---			NULL::varchar(250) AS value_as_string,
---			NULL::integer AS value_as_concept_id,
---			NULL::numeric AS value_as_number,
---			NULL::date AS metadata_date,
---			NULL::timestamp AS metadata_datetime
---  WHERE false;
 
---HINT DISTRIBUTE ON RANDOM
 CREATE TABLE omop_cdm.CDM_SOURCE (
 			cdm_source_name varchar(255) NOT NULL,
 			cdm_source_abbreviation varchar(25) NOT NULL,
@@ -912,20 +489,7 @@ CREATE TABLE omop_cdm.CDM_SOURCE (
 			cdm_version_concept_id integer NOT NULL,
 			vocabulary_version varchar(20) NOT NULL );
 
---CREATE OR REPLACE VIEW omop_cdm.cdm_source AS
---  SELECT
---			NULL::varchar(255) AS cdm_source_name,
---			NULL::varchar(25)  AS cdm_source_abbreviation,
---			NULL::varchar(255) AS cdm_holder,
---			NULL::text         AS source_description,
---			NULL::varchar(255) AS source_documentation_reference,
---			NULL::varchar(255) AS cdm_etl_reference,
---			NULL::date        AS source_release_date,
---			NULL::date        AS cdm_release_date,
---			NULL::varchar(10)  AS cdm_version,
---			NULL::integer     AS cdm_version_concept_id,
---			NULL::varchar(20)  AS vocabulary_version
---  WHERE false;
+
 
 
 /** * **Campos:**
@@ -1327,124 +891,16 @@ Standardized clinical data
 ************************/
 
 CLUSTER omop_modified.person  USING idx_person_id ;
---CREATE INDEX idx_gender ON omop_cdm.person (gender_concept_id ASC);
 CREATE INDEX idx_person_id  ON omop_modified.person  (person_id ASC);
---
---CREATE INDEX idx_observation_period_id_1  ON omop_cdm.observation_period  (person_id ASC);
---CLUSTER omop_cdm.observation_period  USING idx_observation_period_id_1 ;
---
---CREATE INDEX idx_visit_person_id_1  ON omop_cdm.visit_occurrence  (person_id ASC);
---CLUSTER omop_cdm.visit_occurrence  USING idx_visit_person_id_1 ;
---CREATE INDEX idx_visit_concept_id_1 ON omop_cdm.visit_occurrence (visit_concept_id ASC);
---
---CREATE INDEX idx_visit_det_person_id_1  ON omop_cdm.visit_detail  (person_id ASC);
---CLUSTER omop_cdm.visit_detail  USING idx_visit_det_person_id_1 ;
---CREATE INDEX idx_visit_det_concept_id_1 ON omop_cdm.visit_detail (visit_detail_concept_id ASC);
---CREATE INDEX idx_visit_det_occ_id ON omop_cdm.visit_detail (visit_occurrence_id ASC);
---
---CREATE INDEX idx_condition_person_id_1  ON omop_cdm.condition_occurrence  (person_id ASC);
---CLUSTER omop_cdm.condition_occurrence  USING idx_condition_person_id_1 ;
---CREATE INDEX idx_condition_concept_id_1 ON omop_cdm.condition_occurrence (condition_concept_id ASC);
---CREATE INDEX idx_condition_visit_id_1 ON omop_cdm.condition_occurrence (visit_occurrence_id ASC);
---
---CREATE INDEX idx_drug_person_id_1  ON omop_cdm.drug_exposure  (person_id ASC);
---CLUSTER omop_cdm.drug_exposure  USING idx_drug_person_id_1 ;
---CREATE INDEX idx_drug_concept_id_1 ON omop_cdm.drug_exposure (drug_concept_id ASC);
---CREATE INDEX idx_drug_visit_id_1 ON omop_cdm.drug_exposure (visit_occurrence_id ASC);
---
---CREATE INDEX idx_procedure_person_id_1  ON omop_cdm.procedure_occurrence  (person_id ASC);
---CLUSTER omop_cdm.procedure_occurrence  USING idx_procedure_person_id_1 ;
---CREATE INDEX idx_procedure_concept_id_1 ON omop_cdm.procedure_occurrence (procedure_concept_id ASC);
---CREATE INDEX idx_procedure_visit_id_1 ON omop_cdm.procedure_occurrence (visit_occurrence_id ASC);
---
---CREATE INDEX idx_device_person_id_1  ON omop_cdm.device_exposure  (person_id ASC);
---CLUSTER omop_cdm.device_exposure  USING idx_device_person_id_1 ;
---CREATE INDEX idx_device_concept_id_1 ON omop_cdm.device_exposure (device_concept_id ASC);
---CREATE INDEX idx_device_visit_id_1 ON omop_cdm.device_exposure (visit_occurrence_id ASC);
---
+
 CREATE INDEX idx_measurement_person_id_1  ON omop_modified.measurement  (person_id ASC);
 CREATE INDEX idx_measurement_concept_id_1 ON omop_modified.measurement (measurement_concept_id ASC);
 CLUSTER omop_modified.measurement  USING idx_measurement_person_id_1 ;
---CREATE INDEX idx_measurement_visit_id_1 ON omop_cdm.measurement (visit_occurrence_id ASC);
---
+
 CREATE INDEX idx_observation_person_id_1  ON omop_modified.observation  (person_id ASC);
 CREATE INDEX idx_observation_concept_id_1 ON omop_modified.observation (observation_concept_id ASC);
 CLUSTER omop_modified.observation  USING idx_observation_person_id_1 ;
---CREATE INDEX idx_observation_visit_id_1 ON omop_cdm.observation (visit_occurrence_id ASC);
---
---CREATE INDEX idx_death_person_id_1  ON omop_cdm.death  (person_id ASC);
---CLUSTER omop_cdm.death  USING idx_death_person_id_1 ;
---
---CREATE INDEX idx_note_person_id_1  ON omop_cdm.note  (person_id ASC);
---CLUSTER omop_cdm.note  USING idx_note_person_id_1 ;
---CREATE INDEX idx_note_concept_id_1 ON omop_cdm.note (note_type_concept_id ASC);
---CREATE INDEX idx_note_visit_id_1 ON omop_cdm.note (visit_occurrence_id ASC);
---
---CREATE INDEX idx_note_nlp_note_id_1  ON omop_cdm.note_nlp  (note_id ASC);
---CLUSTER omop_cdm.note_nlp  USING idx_note_nlp_note_id_1 ;
---CREATE INDEX idx_note_nlp_concept_id_1 ON omop_cdm.note_nlp (note_nlp_concept_id ASC);
---
---CREATE INDEX idx_specimen_person_id_1  ON omop_cdm.specimen  (person_id ASC);
---CLUSTER omop_cdm.specimen  USING idx_specimen_person_id_1 ;
---CREATE INDEX idx_specimen_concept_id_1 ON omop_cdm.specimen (specimen_concept_id ASC);
---
---CREATE INDEX idx_fact_relationship_id1 ON omop_cdm.fact_relationship (domain_concept_id_1 ASC);
---CREATE INDEX idx_fact_relationship_id2 ON omop_cdm.fact_relationship (domain_concept_id_2 ASC);
---CREATE INDEX idx_fact_relationship_id3 ON omop_cdm.fact_relationship (relationship_concept_id ASC);
---
---/************************
---
---Standardized health system data
---
---************************/
---
---CREATE INDEX idx_location_id_1  ON omop_cdm.location  (location_id ASC);
---CLUSTER omop_cdm.location  USING idx_location_id_1 ;
---
---CREATE INDEX idx_care_site_id_1  ON omop_cdm.care_site  (care_site_id ASC);
---CLUSTER omop_cdm.care_site  USING idx_care_site_id_1 ;
---
---CREATE INDEX idx_provider_id_1  ON omop_cdm.provider  (provider_id ASC);
---CLUSTER omop_cdm.provider  USING idx_provider_id_1 ;
---
---/************************
---
---Standardized health economics
---
---************************/
---
---CREATE INDEX idx_period_person_id_1  ON omop_cdm.payer_plan_period  (person_id ASC);
---CLUSTER omop_cdm.payer_plan_period  USING idx_period_person_id_1 ;
---
---CREATE INDEX idx_cost_event_id  ON omop_cdm.cost (cost_event_id ASC);
---
---/************************
---
---Standardized derived elements
---
---************************/
---
---CREATE INDEX idx_drug_era_person_id_1  ON omop_cdm.drug_era  (person_id ASC);
---CLUSTER omop_cdm.drug_era  USING idx_drug_era_person_id_1 ;
---CREATE INDEX idx_drug_era_concept_id_1 ON omop_cdm.drug_era (drug_concept_id ASC);
---
---CREATE INDEX idx_dose_era_person_id_1  ON omop_cdm.dose_era  (person_id ASC);
---CLUSTER omop_cdm.dose_era  USING idx_dose_era_person_id_1 ;
---CREATE INDEX idx_dose_era_concept_id_1 ON omop_cdm.dose_era (drug_concept_id ASC);
---
---CREATE INDEX idx_condition_era_person_id_1  ON omop_cdm.condition_era  (person_id ASC);
---CLUSTER omop_cdm.condition_era  USING idx_condition_era_person_id_1 ;
---CREATE INDEX idx_condition_era_concept_id_1 ON omop_cdm.condition_era (condition_concept_id ASC);
---
---/**************************
---
---Standardized meta-data
---
---***************************/
---
---CREATE INDEX idx_metadata_concept_id_1  ON omop_cdm.metadata  (metadata_concept_id ASC);
---CLUSTER omop_cdm.metadata  USING idx_metadata_concept_id_1 ;
---
+
 --/**************************
 --
 --Standardized vocabularies
@@ -1491,6 +947,3 @@ CREATE INDEX idx_source_to_concept_map_c ON omop_cdm.source_to_concept_map (sour
 CREATE INDEX idx_drug_strength_id_1  ON omop_cdm.drug_strength  (drug_concept_id ASC);
 CLUSTER omop_cdm.drug_strength  USING idx_drug_strength_id_1 ;
 CREATE INDEX idx_drug_strength_id_2 ON omop_cdm.drug_strength (ingredient_concept_id ASC);
---
---\copy omop_cdm.concept (concept_id, concept_name, domain_id, vocabulary_id, concept_class_id, standard_concept, concept_code, valid_start_date, valid_end_date, invalid_reason) FROM 'C:\Users\1308l\OneDrive\Documentos\INGINF\S8\TFG\DB\vocabulary_download_v5_{0e1335ba-7eb9-4be6-9638-4a966ab22f87}_1745604953094\CONCEPT.csv' DELIMITER ';' CSV HEADER ENCODING 'UTF8' QUOTE '"' ESCAPE '\'
---
