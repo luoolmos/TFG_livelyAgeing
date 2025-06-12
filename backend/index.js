@@ -14,8 +14,9 @@ const {getUserDeviceInfo, updateLastSyncUserDevice} = require('./getDBinfo/getUs
 const inserts = require('./getDBinfo/inserts.js');
 const update = require('./getDBinfo/upadte.js');
 const { configDotenv } = require('dotenv');
-const { refreshAccessToken } = require('./api/auth.js');
+const { refreshAccessToken, checkToken } = require('./api/auth.js');
 const { getUserProfile } = require('./api/fitbitApi.js');
+const {checkToken} = require('./api/auth.js');
 
 const stepsRoutes = require('./routes/steps');
 const sleepRoutes = require('./routes/sleep');
@@ -68,7 +69,7 @@ pool.connect()
   console.error('Error al conectar a la base de datos:', err);
 });
 
-//refreshAccessToken(process.env.REFRESH_TOKEN);
+checkToken();
 //getUserProfile(process.env.ACCESS_TOKEN);
 
 app.listen(5003, '0.0.0.0', () => {

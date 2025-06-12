@@ -17,7 +17,7 @@ exports.logAllData = async (req, res) => {
             const { lastSyncDate } = await getInfoUserDeviceFromUserId(userId);
             const start = lastSyncDate ? new Date(lastSyncDate) : today;
 
-            await fetchFitbitDailyData(userId, accessToken, today);
+            await fetchFitbitDailyData(userId, accessToken, today, lastSyncDate);
             /*for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
                 const dateStr = d.toISOString().split('T')[0];
                 // pequeño delay para respetar rate limit

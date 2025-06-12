@@ -3,11 +3,12 @@ module.exports = {
   FITBIT_STEPS: (date) => `https://api.fitbit.com/1/user/-/activities/steps/date/${date}.json`,
   FITBIT_STEPS_INTRADAY: (date) => `https://api.fitbit.com/1/user/-/activities/steps/date/${date}/1d/1min.json`,
   FITBIT_DAILY_ACTIVITY: (date) => `https://api.fitbit.com/1/user/-/activities/date/${date}.json`,
-  FITBIT_ACTIVITY_LIST: (date) => `https://api.fitbit.com/1/user/-/activities/list.json?afterDate=${date}T00:00:00&sort=asc&limit=10&offset=0`,
+  FITBIT_ACTIVITY_LIST: (date) => `https://api.fitbit.com/1/user/-/activities/list.json?afterDate=${date}T00:00:00&sort=asc&limit=30&offset=0`,
   FITBIT_HEART_RATE: (date, end_date) => `https://api.fitbit.com/1/user/-/activities/heart/date/${date}/${end_date}.json`,
   FITBIT_HEART_RATE_INTRADAY: (date) => `https://api.fitbit.com/1/user/-/activities/heart/date/${date}/1d/5.json`,
   FITBIT_HEART_RATE_INTRADAY_INTERVAL: (date, startTime, endTime) => `https://api.fitbit.com/1/user/-/activities/heart/date/${date}/1d/1min/time/${startTime}/${endTime}.json`,
   FITBIT_SLEEP: (date) => `https://api.fitbit.com/1.2/user/-/sleep/date/${date}.json`,
+  FITBIT_SLEEP_LIST: (date) => `https://api.fitbit.com/1.2/user/-/sleep/list.json?afterDate=${date}&sort=asc&offset=0&limit=30`,
   FITBIT_SLEEP_RANGE: (start, end) => `https://api.fitbit.com/1.2/user/-/sleep/date/${start}/${end}.json`,
   FITBIT_BREATHING_RATE: (date) => `https://api.fitbit.com/1/user/-/br/date/${date}/${date}.json`,
   FITBIT_BREATHING_RATE_INTRADAY: (date) => `https://api.fitbit.com/1/user/-/br/date/${date}/1d/5min.json`,
@@ -19,6 +20,8 @@ module.exports = {
   FITBIT_ACTIVITIES_INTRDAY : (date) => `https://api.fitbit.com/1/user/-/activities/date/${date}/1d/5min.json`,
   FITBIT_PROFILE: `https://api.fitbit.com/1/user/-/profile.json`,
   FITBIT_DEVICES: `https://api.fitbit.com/1/user/-/devices.json`,
-  FITBIT_ACTIVITY_SUMMARY: (date) => `https://api.fitbit.com/1/user/-/activities/date/${date}.json`
+  FITBIT_ACTIVITY_SUMMARY: (date) => `https://api.fitbit.com/1/user/-/activities/date/${date}.json`,
+  FITBIT_VO2_MAX : (date) => `https://api.fitbit.com/1/user/-/cardioscore/date/${date}.json`,
+  FITBIT_VO2_MAX_INTERVAL: (date, end_date) => `https://api.fitbit.com/1/user/-/cardioscore/date/${date}/${end_date}.json`,
 };
 

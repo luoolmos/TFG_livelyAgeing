@@ -16,9 +16,10 @@ const urls = require('../utils/constants.js');
 const {formatDate, formatToTimestamp} = require('../../migration/formatValue.js');
 const { formatActivityData } = require('./formatData.js');
 const inserts = require('../getDBinfo/inserts.js');
+const { getTokensFromDB, updateLastSyncUserDevice } = require('../getDBinfo/getUserId.js');
 
 // Hace una petición autenticada con auto-refresh del token si es necesario
-async function makeAuthenticatedRequest(url, access_token, retryCount = 0) {
+async function makeAuthenticatedRequest(url, user_id, access_token, retryCount = 0) {
     try {
         const response = await axios.get(url, {
             headers: {
@@ -29,11 +30,14 @@ async function makeAuthenticatedRequest(url, access_token, retryCount = 0) {
     } catch (error) {
         if (isTokenExpiredError(error) && retryCount === 0) {
             console.log('Token expirado, intentando refresh...');
-            const newTokens = await refreshAccessToken(access_token);
-            if (newTokens?.access_token) {
-                console.log('Token refrescado exitosamente');
-                // Reintentar la petición con el nuevo token
-                return makeAuthenticatedRequest(url, newTokens.access_token, retryCount + 1);
+            const stored = await getTokensFromDB(user_id);
+            if (stored?.refresh_token) {
+                const newTokens = await refreshAccessToken(user_id, stored.refresh_token);
+                if (newTokens?.access_token) {
+                    console.log('Token refrescado exitosamente');
+                    // Reintentar la petición con el nuevo token
+                    return makeAuthenticatedRequest(url, user_id, newTokens.access_token, retryCount + 1);
+                }
             }
         }
         throw error;
@@ -68,8 +72,8 @@ async function getUserProfile(access_token) {
 async function getStepsAndSave(user_id, access_token, start_date) {
     console.log(`[getStepsAndSave] start_date:`, start_date);
     try {
-        const url = urls.FITBIT_STEPS(start_date);
-        const response = await makeAuthenticatedRequest(url, access_token);
+        const url = urls.FITBIT_STEPS_INTRADAY(start_date);
+        const response = await makeAuthenticatedRequest(url, user_id, access_token);
         if (!response || !response.data) {  
             console.error('[getStepsAndSave] No se obtuvo respuesta válida de Fitbit');
             return;
@@ -136,21 +140,35 @@ async function getStepsAndSave(user_id, access_token, start_date) {
  * Valida la respuesta, maneja rate limit y errores, y loguea información útil.
  * @param {string} user_id - ID del usuario en la BD
  * @param {string} access_token - Token de acceso válido de Fitbit
- * @param {string} date - Fecha inicial (YYYY-MM-DD)
  * @param {Date} lastSyncTimestamp - Última fecha de sincronización
+ * @param {string} date - Fecha inicial (YYYY-MM-DD)
  */
-async function getSleepAndSave(user_id, access_token, date) {
+
+function getObservationEventString(event) {
+    event = event.toLowerCase(); 
+    const eventSourceValueMap = {
+        deep: constants.SLEEP_DEEP_DURATION_STRING,
+        deep: constants.SLEEP_LIGHT_DURATION_STRING,
+        rem: constants.SLEEP_REM_DURATION_STRING,
+        awake: constants.SLEEP_AWAKE_DURATION_STRING
+    };
+
+    const eventSourceValue = eventSourceValueMap[event] || null;
+    return eventSourceValue;
+}
+async function getSleepAndSave(user_id, access_token, date, date_end) {
     try {
-        const url = urls.FITBIT_SLEEP(date);
-        const response = await makeAuthenticatedRequest(url, access_token);
+        //all data after date
+        //take into account that a day can have multiple sleep records in different timestamps
+        const url = urls.FITBIT_SLEEP_LIST(date);
+        const response = await makeAuthenticatedRequest(url, user_id, access_token);
         console.log('[getSleepAndSave] Response:', response.data);
         if (!response.data || !Array.isArray(response.data.sleep)) {
             console.error('[getSleepAndSave] Respuesta inesperada de Fitbit:', response.data);
             return { successfulDates: [], failedDates: [] };
         }
-        const sleepRecords = await response.data.sleep;
-        const sleepData = sleepRecords.find(s => s.isMainSleep); 
-
+        const sleepRecords = response.data.sleep;
+        
         //const sleepData = response.data.sleep;
         const durationConcept = await getConceptInfoObservation(constants.SLEEP_DURATION_STRING);
         if (!durationConcept) throw new Error(`No se encontró el concepto para SLEEP_DURATION_STRING: ${constants.SLEEP_DURATION_STRING}`);
@@ -161,48 +179,60 @@ async function getSleepAndSave(user_id, access_token, date) {
         const minuteConcept = await getConceptUnit(constants.MINUTE_STRING);
         if (!minuteConcept) throw new Error(`No se encontró el concepto para MINUTE_STRING: ${constants.MINUTE_STRING}`);
         const { concept_id: minuteConceptId, concept_name: minuteConceptName } = minuteConcept;
+        
+        const successfulDates = [];
+        const failedDates = [];
+        
+        for (const sleep of sleepRecords) {
+            const lastSyncdate = new Date(sleep.dateOfSleep);
+            if (!sleep.isMainSleep) continue;
 
-        let durationInsertion;
-        try {
-            const sleepStart = new Date(sleepData.startTime);
-            const sleepEnd = new Date(sleepData.endTime);
-            const duration = sleepData.duration;
-            const efficiency = sleepData.efficiency;
-            const observationDate = formatDate(sleepData.dateOfSleep);
+            const sleepEnd = new Date(sleep.endTime);
+            if (lastSyncdate && sleepEnd <= lastSyncdate) continue;
+
+            const sleepStart = new Date(sleep.startTime);
+            // Mapear timeInBed (minutos) como duración de sueño
+            const duration = sleep.timeInBed;
+            const efficiency = sleep.efficiency;
+            const observationDate = formatDate(sleep.dateOfSleep);
             const observationDatetime = formatToTimestamp(sleepStart);
-            const firstInsertion = {
-                userId: user_id,
-                observationDate,
-                observationDatetime,
-                activityId: null
-            };
+
+
+            console.log('[getSleepAndSave] Sleep startTime:', sleep.startTime, 'timeInBed:', duration, 'efficiency:', efficiency);
+            
+            const firstInsertion = {userId: user_id, observationDate, observationDatetime, activityId: null};
             const durationValue = generateObservationData(firstInsertion, duration, durationSleepConceptId, durationSleepConceptName, minuteConceptId, minuteConceptName, null, null);
-            try {
-                durationInsertion = await inserts.insertObservation(durationValue);
-                console.log('[getSleepAndSave] durationInsertion:', durationInsertion);
-            } catch (error) {
+            try{
+
+                const durationInsertion = await inserts.insertObservation(durationValue);
+            }catch (error) {
                 console.error('[getSleepAndSave] Error insertando duración del sueño:', error);
-                return false;
+                failedDates.push(sleep.startTime);
+                continue; // Saltar a la siguiente iteración si hay un error
             }
-            const baseValues = {
-                userId: user_id,
-                observationDate,
-                observationDatetime,
-                activityId: durationInsertion
-            };
-            if (sleepData.levels && sleepData.levels.summary) {
-                const stages = sleepData.levels.summary;
-                const observations = [];
-                for (const [stage, data] of Object.entries(stages)) {
-                    // Create observation per sleep stage (deep, light, rem, wake)
-                    const stageConcept = await getConceptInfoObservation(stage);
-                    if (!stageConcept) {
-                        console.error(`[getSleepAndSave] No se encontró el concepto para stage: ${stage}`);
-                        continue;
-                    }
-                    const { concept_id: sleepStageConceptId, concept_name: sleepStageConceptName } = stageConcept;
-                    // Use minutes value and minute unit concept
-                    const stageObs = generateObservationData(
+                const baseValues = {
+                    userId: user_id,
+                    observationDate,
+                    observationDatetime,
+                    activityId: durationInsertion
+                };
+                if(sleep.levels?.summary){
+                    const observations = [];
+
+                    const stages = sleep.levels.summary;
+                    
+                    for (const [stage, data] of Object.entries(stages)) {
+                        // Create observation per sleep stage (deep, light, rem, wake)
+                        const stageFormat = getObservationEventString(stage);
+                        console.log(`[getSleepAndSave] stageFormat: ${stageFormat}`);
+                        const stageConcept = await getConceptInfoObservation(stageFormat);
+                        if (!stageConcept) {
+                            console.error(`[getSleepAndSave] No se encontró el concepto para stage: ${stage}`);
+                            continue;
+                        }
+                        const { concept_id: sleepStageConceptId, concept_name: sleepStageConceptName } = stageConcept;
+                        // Use minutes value and minute unit concept
+                        const stageObs = generateObservationData(
                         baseValues,
                         data.minutes,
                         sleepStageConceptId,
@@ -218,26 +248,29 @@ async function getSleepAndSave(user_id, access_token, date) {
                     await inserts.insertMultipleObservation(observations);
                 } catch (error) {
                     console.error('[getSleepAndSave] Error insertando etapas del sueño:', error);
-                    return false;
+                    continue;
                 }
+
+                const efficiencyValue = generateObservationData(baseValues, efficiency, efficiencySleepConceptId, efficiencySleepConceptName, minuteConceptId, minuteConceptName, null, null);
+                try {
+                    await inserts.insertObservation(efficiencyValue);
+                } catch (error) {
+                    console.error('[getSleepAndSave] Error insertando eficiencia del sueño:', error);
+                    continue;
+                }
+                successfulDates.push(sleep.startTime);
+
             }
-            const efficiencyValue = generateObservationData(baseValues, efficiency, efficiencySleepConceptId, efficiencySleepConceptName, minuteConceptId, minuteConceptName, null, null);
-            try {
-                await inserts.insertObservation(efficiencyValue);
-            } catch (error) {
-                console.error('[getSleepAndSave] Error insertando eficiencia del sueño:', error);
-                return false;
-            }
-        } catch (error) {
-            console.warn('[getSleepAndSave] Error procesando datos de sueño:', error);
         }
-        console.log(`[getSleepAndSave] Sleep data saved for range: ${date}`);
-        return true;
+        
+        return { successfulDates, failedDates };
     } catch (error) {
         if (error.response && error.response.status === 429) {
             const retryAfter = error.response.headers['retry-after'] || 60;
             console.warn(`[getSleepAndSave] Rate limit alcanzado. Esperando ${retryAfter} segundos antes de reintentar...`);
-            await new Promise(res => setTimeout(res, retryAfter * 1000));
+            //LUO OBTAIN userDeviceId
+            await updateLastSyncUserDevice(); // Actualizar la última sincronización en la BD
+            //await new Promise(res => setTimeout(res, retryAfter * 1000));
             // Opcional: podrías reintentar aquí si lo deseas
             return { successfulDates: [], failedDates: [] };
         }
@@ -246,64 +279,11 @@ async function getSleepAndSave(user_id, access_token, date) {
     }
 }
 
+
 //**ACTIVITY_SERIES */
 /*************************************************************** */ 
-async function getActivityAndSave({ username, device_id, access_token, start_date }) {
-    try {
-      const user_id = await getUserId({ username, device_id });
-      const today = new Date();
-      const start_date = '2025-04-07'; // Puedes parametrizar esto
-      const end_date = today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-  
-      console.log(`Recuperando actividad desde ${start_date} hasta ${end_date}`);
-  
-      // Llamada a la API de Fitbit para obtener datos de actividad
-      const response = await axios.get(
-        urls.FITBIT_DAILY_ACTIVITY(start_date),
-        { headers: { 'Authorization': `Bearer ${access_token}` } }
-      );
-      console.log('Response:', response.data);
-      const activityData = response.data.summary;
-      /*
-      // Insertar datos en la base de datos
-      await pool.query(
-        `INSERT INTO activity_series (user_id, time, activity_type, steps, calories_burned, active_zone_minutes, distance) 
-         VALUES ($1, $2, 'activity', $3, $4, $5, $6) 
-         ON CONFLICT (user_id, time) 
-         DO UPDATE SET 
-            steps = EXCLUDED.steps, 
-            calories_burned = EXCLUDED.calories_burned,
-            active_zone_minutes = EXCLUDED.active_zone_minutes,
-            distance = EXCLUDED.distance;`,
-        [
-          user_id,
-          new Date(`${start_date}T00:00:00Z`),
-          activityData.steps || 0,
-          activityData.caloriesOut || 0,
-          activityData.activeZoneMinutes || 0,
-          activityData.distances.find(d => d.activity === "total")?.distance || 0
-        ]
-      );
-  
-      console.log(`Actividad guardada para ${start_date} del usuario ${user_id}`);
-      */
-    } catch (error) {
-      console.error('Error obteniendo y guardando la actividad:', 
-        error.response ? error.response.data : error.message);
-    }
-}
 
-
-async function fetchFitbitActivityData(accessToken, date, userId) {
-
-  // 1. Obtener lista de actividades en esa fecha
-  const activityUrl = urls.FITBIT_ACTIVITY_LIST(date);
-  const activityRes = await makeAuthenticatedRequest(activityUrl, accessToken);
-  if (!activityRes.ok) throw new Error("Error fetching activity list");
-  const activityData = await activityRes.json();
-  const activities = activityData.activities || [];
-
-  for (const activity of activities) {
+async function formatActivityByActivity(userId, activity, date, accessToken) {
     try{
 
         const startTime = new Date(activity.startTime).toTimeString().slice(0, 5); // '10:05'
@@ -311,7 +291,7 @@ async function fetchFitbitActivityData(accessToken, date, userId) {
         
         
         const heartUrl = urls.FITBIT_HEART_RATE_INTRADAY_INTERVAL(date, startTime, endTime);
-        const heartRes = await makeAuthenticatedRequest(heartUrl, accessToken);
+        const heartRes = await makeAuthenticatedRequest(heartUrl, userId, accessToken);
         const heartData = await heartRes.json();
         
         // Extraer valores de HR
@@ -339,12 +319,29 @@ async function fetchFitbitActivityData(accessToken, date, userId) {
         
     }catch (error) {
         console.error(`Error fetching heart rate data for activity ${activity.activityName} on ${date}:`, error);
-        continue; // Saltar a la siguiente actividad si hay un error
+        return; // Saltar a la siguiente actividad si hay un error
     }
-  }
-
 }
 
+async function fetchFitbitActivityData(accessToken, userId, date, date_end) {
+
+    const last = new Date(date);
+    const date_end = new Date(date_end);
+
+    //LUO formatear fecha
+    // 1. Obtener lista de actividades en esa fecha
+    const activityUrl = urls.FITBIT_ACTIVITY_LIST(last); //all activities after date
+    const activityRes = await makeAuthenticatedRequest(activityUrl, userId, accessToken);
+    if (!activityRes.ok) throw new Error("Error fetching activity list");
+    const activityData = await activityRes.json();
+    const activities = activityData.activities || [];
+    
+    for (const activity of activities) {
+        const date_activity = activity.dateTime; // Fecha de la actividad
+        formatActivityByActivity(userId, activity, date_activity, accessToken)
+    }
+   
+}
 
 
 //**ALL */
@@ -355,19 +352,48 @@ async function fetchFitbitActivityData(accessToken, date, userId) {
  * @param {string} access_token - Token de acceso válido de Fitbit
  * @param {string} date - Fecha en formato YYYY-MM-DD
  */
-async function fetchFitbitDailyData(userId, access_token, date) {
+async function fetchFitbitDailyData(userId, access_token, date, lastSyncTimestamp) {
     console.log('Fetching all fitbit data for date:'+ date + ' and userId: ' + userId);
+    if(access_token == null && access_token == undefined) {
+        console.error('Access token is null or undefined for userId:', userId);
+        return; // No se puede continuar sin un token de acceso válido
+    }
     console.log('Access token:', access_token);
+
     date = '2025-04-08';
-    //insert activity data formatted on the database 
-    if(access_token !== null && access_token !== undefined) {
-       
-        //await fetchFitbitActivityData(access_token, date);
-        //await getSleepAndSave(userId, access_token, date);
+    const start = new Date(lastSyncTimestamp);
+    const end   = new Date(date);
+    const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+
+    const chunkSize = 30;
+    const chunks = Math.ceil(diffDays / chunkSize);
+
+    let i = 0;
+    let isInterval = true;
+    if( diffDays < 0) {
+        console.log(`No hay nuevas actividades para el usuario ${userId} en la fecha ${date}. Última sincronización: ${lastSyncTimestamp}`);
+        return; // No hay nuevas actividades para procesar
+    }
+    isInterval = (diffDays > 1); // Si el rango es mayor a 1 día, usar intervalo
+
+    for (let j = 0; j < chunks; j++) { // en grupos de 30 días
+        const rangeStart = new Date(start.getTime() + j * chunkSize * 24 * 60 * 60 * 1000);
+        // El end debe ser el menor entre el rango proyectado y el `end` original
+        const projectedEnd = new Date(rangeStart.getTime() + chunkSize * 24 * 60 * 60 * 1000);
+        const rangeEnd = projectedEnd > end ? end : projectedEnd;
+
+        //LUO no se si se estan replicando los heart rate 
+        await fetchFitbitActivityData(access_token, userId, rangeStart, rangeEnd); // works for all activity data regardless if there are one or multiple days to sync
+        await getSleepAndSave(userId, access_token, rangeStart, rangeEnd);
         await getStepsAndSave(userId, access_token, date);
         await getHeartRateAndSave(userId, access_token, date);
-        //await getBreathingRateAndSave(userId, access_token, date, date);
-        
+        await getBreathingRateAndSave(userId, access_token, date);
+        //VO2MAX
+        //summary
+        //hrv 
+        //spo2
+
+            
     }
 }
 
@@ -427,10 +453,13 @@ async function getSleepAndSaveRange(user_id, access_token, start_date, end_date,
                 const sleepStart = new Date(sleep.startTime);
                 const sleepEnd = new Date(sleep.endTime);
                 if (lastSyncTimestamp && sleepEnd <= lastSyncTimestamp) continue;
-                const duration = sleep.duration;
+                // Mapear timeInBed (minutos) como duración de sueño
+                const duration = sleep.timeInBed;
                 const efficiency = sleep.efficiency;
                 const observationDate = formatDate(sleep.dateOfSleep);
-                const observationDatetime = formatToTimestamp(sleep.startTime);
+                // Usar startTime para timestamp de la observación
+                const observationDatetime = formatToTimestamp(sleepStart);
+                console.log('[getSleepAndSave] Sleep startTime:', sleep.startTime, 'timeInBed:', duration, 'efficiency:', efficiency);
                 const firstInsertion = {
                     userId: user_id,
                     observationDate,
@@ -452,8 +481,8 @@ async function getSleepAndSaveRange(user_id, access_token, start_date, end_date,
                     observationDatetime,
                     activityId: durationInsertion
                 };
-                if (sleep.levels && sleep.levels.summary) {
-                    const stages = sleep.levels.summary;
+                if (sleep.levels && sleep.summary) {
+                    const stages = sleep.summary;
                     const observations = [];
                     for (const [stage, data] of Object.entries(stages)) {
                         // Create observation per sleep stage (deep, light, rem, wake)
@@ -619,7 +648,7 @@ async function getBreathingRateAndSave(user_id, access_token, start_date, end_da
     console.log('[getBreathingRateAndSave] start_date:', start_date);
     try {
         const response = await axios.get(
-            urls.FITBIT_BREATHING_RATE(start_date, end_date),
+            urls.FITBIT_BREATHING_RATE_INTRADAY(start_date, end_date),
             {
                 headers: { 
                     'Authorization': `Bearer ${access_token}`
@@ -678,14 +707,88 @@ async function getBreathingRateAndSave(user_id, access_token, start_date, end_da
     }
 }
 
+
+/**
+ * Obtiene y guarda los datos de respiración de un usuario para una fecha específica.
+ * Valida la respuesta, maneja rate limit y errores, y loguea información útil.
+ * @param {string} user_id - ID del usuario en la BD
+ * @param {string} access_token - Token de acceso válido de Fitbit
+ * @param {string} start_date - Fecha en formato YYYY-MM-DD
+ * @param {string} end_date - Fecha en fobrmato YYYY-MM-DD
+ */
+async function getVO2MaxAndSave(user_id, access_token, start_date, end_date) {
+    console.log('[getVO2MaxAndSave] start_date:', start_date);
+    let url;
+    console.log('[getSleepAndSave] Response:', response.data);
+
+    const start = new Date(start_date);
+    const end   = new Date(end_date);
+    const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+    //Maximum range: 30 days
+
+
+    const response = await makeAuthenticatedRequest(url, user_id, access_token);
+    try {
+
+        console.log('[getVO2MaxAndSave] Response:', response.data);
+        if (!response.data || !response.data['activities-VO2MAX']) {
+            console.error('[getVO2MaxAndSave] Respuesta inesperada de Fitbit:', response.data);
+            return;
+        }
+        const breathingRateData = response.data['activities-breathingRate'];
+        console.log('[getVO2MaxAndSave] breathingRateData:', breathingRateData);  
+
+        const breathingRateConcept = await getConceptInfoObservation(constants.RR_STRING);
+        if (!breathingRateConcept) throw new Error(`No se encontró el concepto para RESPIRATION_RATE_STRING: ${constants.RR_STRING}`);
+        const { concept_id: breathingRateConceptId, concept_name: breathingRateConceptName } = breathingRateConcept;
+        const unitBreathingRateConcept = await getConceptUnit(constants.BREATHS_PER_MIN_STRING);
+        if (!unitBreathingRateConcept) throw new Error(`No se encontró el concepto para BREATHS_PER_MIN_STRING: ${constants.BREATHS_PER_MIN_STRING}`);
+        const { concept_id: unitBreathingRateConceptId, concept_name: unitBreathingRateConceptName } = unitBreathingRateConcept;
+        
+        let successfulDates = [];
+        let failedDates = [];
+        for (const breathingRate of breathingRateData) {
+            const observationDate = breathingRate.date;
+            const observationDatetime = breathingRate.dateTime;
+            const firstInsertion = {
+                userId: user_id,
+                observationDate,
+                observationDatetime,
+                activityId: null
+            };     
+            const value = breathingRate.value && breathingRate.value.breathingRate ? breathingRate.value.breathingRate : null;
+            if (value === null) continue;
+            const breathingRateValue = generateObservationData(firstInsertion, value, breathingRateConceptId, breathingRateConceptName, unitBreathingRateConceptId, unitBreathingRateConceptName, null, null);
+            try {
+                await inserts.insertObservation(breathingRateValue);
+                successfulDates.push(breathingRate.dateTime || breathingRate.date);
+            } catch (error) {
+                console.error('[getVO2MaxAndSave] Error insertando observación de respiración:', error);
+                failedDates.push(breathingRate.dateTime || breathingRate.date);
+            }   
+        }
+        console.log(`[getVO2MaxAndSave] Breathing rate data saved for date: ${start_date}`);
+        return { successfulDates, failedDates };
+    } catch (error) {
+        if (error.response && error.response.status === 429) {
+            const retryAfter = error.response.headers['retry-after'] || 60;
+            console.warn(`[getVO2MaxAndSave] Rate limit alcanzado. Esperando ${retryAfter} segundos antes de reintentar...`);
+            await new Promise(res => setTimeout(res, retryAfter * 1000));
+            // Opcional: podrías reintentar aquí si lo deseas
+            return { successfulDates: [], failedDates: [] };
+        }
+        console.error('[getVO2MaxAndSave] Error obteniendo y guardando los datos de respiración:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+}
 module.exports = {
     makeAuthenticatedRequest,
     getUserProfile,
     getStepsAndSave,
-    getActivityAndSave,
     fetchFitbitDailyData,
     checkEndpointAvailability,
     getSleepAndSave,
     getHeartRateAndSave,
-    getBreathingRateAndSave
+    getBreathingRateAndSave,
+    getVO2MaxAndSave
 };

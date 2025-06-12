@@ -13,12 +13,12 @@
 CREATE SCHEMA omop_cdm;  
 -- https://github.com/OHDSI/CommonDataModel/blob/v5.4.0/inst/ddl/5.4/postgresql/OMOPCDM_postgresql_5.4_ddl.sql
 CREATE SCHEMA custom;
-CREATE SCHEMA omop_cdm;
+CREATE SCHEMA omop_modified;
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 --  OMOP: concept 
 CREATE TABLE omop_cdm.concept (
-    concept_id          INTEGER PRIMARY KEY,
+    concept_id          INTEGER NOT NULL,
     concept_name        VARCHAR(255),
     domain_id           VARCHAR(50),
     vocabulary_id       VARCHAR(20),
@@ -936,13 +936,13 @@ CREATE TABLE omop_cdm.CDM_SOURCE (
 */ -- Tabla OMOP: person
 CREATE TABLE omop_modified.person (
     person_id                       SERIAL PRIMARY KEY,
-    gender_concept_id               integer NOT NULL,
+    gender_concept_id               integer ,
     year_of_birth                   integer NOT NULL,
     month_of_birth                  integer NULL,
     day_of_birth                    integer NULL,
     birth_datetime                  TIMESTAMP NULL,
-    race_concept_id                 integer NOT NULL,
-    ethnicity_concept_id            integer NOT NULL,
+    race_concept_id                 integer ,
+    ethnicity_concept_id            integer ,
     location_id                     integer NULL,
     provider_id                     integer NULL,
     care_site_id                    integer NULL,
@@ -962,9 +962,11 @@ ALTER TABLE omop_modified.person ALTER COLUMN person_id SET DEFAULT nextval('omo
 
 -- TABLA: person
 CREATE TABLE custom.person_info (
-    person_id   INTEGER REFERENCES omop_cdm.person(person_id) ON DELETE CASCADE,
+    person_id   INTEGER REFERENCES omop_modified.person(person_id) ON DELETE CASCADE PRIMARY KEY,
     email       VARCHAR(100) NOT NULL UNIQUE,
     name        VARCHAR(100) NOT NULL,
+	access_token VARCHAR(100),
+	refresh_token VARCHAR(100),
     profile     JSONB, 
     created_at  TIMESTAMPTZ DEFAULT NOW() NOT NULL
 ); 
@@ -1022,7 +1024,6 @@ CREATE OR REPLACE VIEW omop_cdm.measurement AS
   SELECT * FROM omop_modified.measurement;
 
 ALTER TABLE omop_modified.measurement
-  DROP CONSTRAINT xpk_MEASUREMENT,
   ADD PRIMARY KEY (measurement_id, measurement_datetime, person_id);
 
 
@@ -1078,7 +1079,7 @@ SELECT create_hypertable(
 -- TABLA: daily_summary
 CREATE TABLE custom.daily_summary (
     date                    DATE NOT NULL,
-    person_id               INTEGER NOT NULL REFERENCES omop_cdm.person(person_id) ON DELETE CASCADE,
+    person_id               INTEGER NOT NULL REFERENCES omop_modified.person(person_id) ON DELETE CASCADE,
     steps                   INTEGER CHECK (steps >= 0),
     min_hr_bpm              INTEGER CHECK (min_hr_bpm BETWEEN 30 AND 250),
     max_hr_bpm              INTEGER CHECK (max_hr_bpm BETWEEN 30 AND 250),
@@ -1326,9 +1327,9 @@ Standardized clinical data
 
 ************************/
 
-CLUSTER omop_modified.person  USING idx_person_id ;
 --CREATE INDEX idx_gender ON omop_cdm.person (gender_concept_id ASC);
 CREATE INDEX idx_person_id  ON omop_modified.person  (person_id ASC);
+CLUSTER omop_modified.person  USING idx_person_id ;
 --
 --CREATE INDEX idx_observation_period_id_1  ON omop_cdm.observation_period  (person_id ASC);
 --CLUSTER omop_cdm.observation_period  USING idx_observation_period_id_1 ;
