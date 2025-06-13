@@ -965,7 +965,7 @@ CREATE TABLE custom.person_info (
     person_id   INTEGER REFERENCES omop_modified.person(person_id) ON DELETE CASCADE PRIMARY KEY,
     email       VARCHAR(100) NOT NULL UNIQUE,
     name        VARCHAR(100) NOT NULL,
-	access_token VARCHAR(100),
+	access_token VARCHAR(),
 	refresh_token VARCHAR(100),
     profile     JSONB, 
     created_at  TIMESTAMPTZ DEFAULT NOW() NOT NULL

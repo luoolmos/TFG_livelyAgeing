@@ -16,7 +16,6 @@ const update = require('./getDBinfo/upadte.js');
 const { configDotenv } = require('dotenv');
 const { refreshAccessToken, checkToken } = require('./api/auth.js');
 const { getUserProfile } = require('./api/fitbitApi.js');
-const {checkToken} = require('./api/auth.js');
 
 const stepsRoutes = require('./routes/steps');
 const sleepRoutes = require('./routes/sleep');

@@ -2,6 +2,12 @@ const constants = require('../getDBinfo/constants.js');
 const { getConceptUnit, getConceptInfoObservation } = require('../getDBinfo/getConcept.js');
 const { getConceptInfoMeasurement, getConceptInfoMeasValue } = require('../getDBinfo/getConcept.js');
 const {generateMeasurementData, generateObservationData} = require('../../migration/formatData.js');
+const formatValue = require('../../migration/formatValue.js');
+
+// Función para registrar errores de concepto
+async function logConceptError(concept, source, message) {
+    console.error(`[ConceptError][${source}] ${concept}: ${message}`);
+}
 
 async function checkConcepts(concepts) {
     // Verificar duration primero, ya que es crítico
@@ -11,6 +17,7 @@ async function checkConcepts(concepts) {
             'SAMSUNG ACTIVITY DURATION DATA',
             'Concepto de duración no encontrado - deteniendo ejecución'
         );
+
         return false;
     }
 
@@ -68,7 +75,7 @@ async function formatActivityData(userId, data) {
             beatspermin: await getConceptUnit(constants.BEATS_PER_MIN_STRING),
         }; 
 
-
+        //console.log('console de los concepts:', conceptsRaw);
         const concepts = {
             durationConceptId: conceptsRaw.duration?.concept_id,
             durationConceptName: conceptsRaw.duration?.concept_name,
@@ -88,25 +95,7 @@ async function formatActivityData(userId, data) {
             max_hrConceptId: conceptsRaw.max_hr?.concept_id,
             max_hrConceptName: conceptsRaw.max_hr?.concept_name,
 
-            respiratory_rateConceptId: conceptsRaw.respiratory_rate?.concept_id,
-            respiratory_rateConceptName: conceptsRaw.respiratory_rate?.concept_name,
-
-            max_rrConceptId: conceptsRaw.max_rr?.concept_id,
-            max_rrConceptName: conceptsRaw.max_rr?.concept_name,
-
-            avg_rrConceptId: conceptsRaw.avg_rr?.concept_id,
-            avg_rrConceptName: conceptsRaw.avg_rr?.concept_name,
-
-            max_temperatureConceptId: conceptsRaw.max_temperature?.concept_id,
-            max_temperatureConceptName: conceptsRaw.max_temperature?.concept_name,
-
-            avg_temperatureConceptId: conceptsRaw.avg_temperature?.concept_id,
-            avg_temperatureConceptName: conceptsRaw.avg_temperature?.concept_name,
-
-            min_temperatureConceptId: conceptsRaw.min_temperature?.concept_id,
-            min_temperatureConceptName: conceptsRaw.min_temperature?.concept_name,
             
-
             minuteUnitId: conceptsRaw.minute?.concept_id,
             minuteUnitName: conceptsRaw.minute?.concept_name,
 
@@ -119,11 +108,6 @@ async function formatActivityData(userId, data) {
             beatsperminUnitId: conceptsRaw.beatspermin?.concept_id,
             beatsperminUnitName: conceptsRaw.beatspermin?.concept_name,
 
-            breathsperminUnitId: conceptsRaw.breathspermin?.concept_id,
-            breathsperminUnitName: conceptsRaw.breathspermin?.concept_name,
-
-            temperatureUnitId: conceptsRaw.temperature?.concept_id,
-            temperatureUnitName: conceptsRaw.temperature?.concept_name,
         
         };
 
@@ -159,7 +143,10 @@ async function formatActivityData(userId, data) {
             // Insert sport observation
             const sport = data.activityName.toLowerCase();
             //console.log('sport:', sport);
-            const { concept_id: sportConceptId, concept_name: sportConceptName } = await getConceptInfoMeasValue(sport);
+            // Obtener el concepto de deporte de forma segura
+            const sportConceptRaw = await getConceptInfoMeasValue(sport);
+            const sportConceptId = sportConceptRaw?.concept_id;
+            const sportConceptName = sportConceptRaw?.concept_name;
             //console.log('sportConceptId:', sportConceptId);
             //console.log('sportConceptName:', sportConceptName);
             //const sportData = generateObservationData(firstInsertion, data.sport, sportConceptId, sportConceptName, constants.PHYSICAL_ACTIVITY_CONCEPT_ID);

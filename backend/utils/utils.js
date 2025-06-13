@@ -26,8 +26,13 @@ async function logApiResponse(endpoint, data, userId) {
 
 // Verifica si el error es de token expirado
 function isTokenExpiredError(error) {
-    return error.response?.data?.includes('Access token expired') ||
-           error.response?.status === 401;
+    const status = error.response?.status;
+    const data = error.response?.data;
+    // Asegurarse de trabajar siempre con string
+    const message = typeof data === 'string'
+        ? data
+        : (data?.message || JSON.stringify(data));
+    return message.includes('Access token expired') || status === 401;
 }
 
 

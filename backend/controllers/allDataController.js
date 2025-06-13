@@ -15,7 +15,8 @@ exports.logAllData = async (req, res) => {
             const userId = token.person_id;
             const accessToken = token.access_token;
             const { lastSyncDate } = await getInfoUserDeviceFromUserId(userId);
-            const start = lastSyncDate ? new Date(lastSyncDate) : today;
+            //const start = lastSyncDate ? new Date(lastSyncDate) : today;
+
 
             await fetchFitbitDailyData(userId, accessToken, today, lastSyncDate);
             /*for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {

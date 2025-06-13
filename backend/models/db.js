@@ -5,7 +5,6 @@ const dotenv = require('dotenv');
 // Carga .env desde la raíz del proyecto para POSTGRESQL_ADDON_URI
 dotenv.config({ path: path.resolve(__dirname, '..', 'utils', '.env') });
 
-console.log('Database URL:', process.env.POSTGRESQL_ADDON_URI);
 
 // Configuración de conexión a TimeSCaleDB
 const pool = new Pool({
