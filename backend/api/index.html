@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Health Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Estilos básicos pestañas */
+    #tabs { list-style: none; padding: 0; display: flex; border-bottom: 1px solid #ccc; }
+    #tabs li { margin: 0 10px; padding: 5px 10px; cursor: pointer; }
+    #tabs li.active { border-bottom: 2px solid blue; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <!-- Pestañas para seleccionar tipo de dato -->
+  <ul id="tabs">
+    <li data-endpoint="heart-rate" class="active">Frecuencia Cardíaca</li>
+    <li data-endpoint="respiration-rate">Respiración</li>
+  </ul>
+
+  <!-- Contenedores para los gráficos -->
+  <canvas id="hrChart" width="800" height="400"></canvas>
+  <canvas id="brChart" width="800" height="400" style="display:none;"></canvas>
+
+  <script>
+    const charts = {};
+    const ctxHR = document.getElementById('hrChart').getContext('2d');
+    const ctxBR = document.getElementById('brChart').getContext('2d');
+
+    function drawChart(ctx, label, color, data) {
+      return new Chart(ctx, {
+        type: 'line',
+        data: { labels: data.map(d => new Date(d.ts).toLocaleTimeString()), datasets: [{ label, data: data.map(d => d.value), borderColor: color, fill: false }] },
+        options: { scales: { x: { display: true, title: { display: true, text: 'Hora' } }, y: { display: true, title: { display: true, text: label } } } }
+      });
+    }
+
+    async function loadData(endpoint) {
+      const res = await fetch(`/api/${endpoint}`);
+      const data = await res.json();
+      return data.map(d => ({ ts: d.ts, value: endpoint === 'heart-rate' ? d.hr : d.br }));
+    }
+
+    async function showTab(endpoint) {
+      // Marcar pestaña activa
+      document.querySelectorAll('#tabs li').forEach(li => li.classList.toggle('active', li.dataset.endpoint === endpoint));
+      // Mostrar/ocultar canvas
+      document.getElementById('hrChart').style.display = endpoint === 'heart-rate' ? 'block' : 'none';
+      document.getElementById('brChart').style.display = endpoint === 'respiration-rate' ? 'block' : 'none';
+      // Cargar y dibujar si no existe
+      if (!charts[endpoint]) {
+        const raw = await loadData(endpoint);
+        const cfg = endpoint === 'heart-rate'
+          ? ['Frecuencia Cardíaca (bpm)', 'red']
+          : ['Respiración (rpm)', 'green'];
+        const ctx = endpoint === 'heart-rate' ? ctxHR : ctxBR;
+        charts[endpoint] = drawChart(ctx, cfg[0], cfg[1], raw);
+      }
+    }
+
+    // Eventos de pestañas
+    document.querySelectorAll('#tabs li').forEach(li => li.addEventListener('click', () => showTab(li.dataset.endpoint)));
+
+    // Carga inicial
+    showTab('heart-rate');
+  </script>
+</body>
+</html>

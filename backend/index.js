@@ -5,6 +5,7 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, './utils/.env') });
 const fs = require('fs');
 const express = require('express');
+const path = require('path');
 //const cors = require('cors');
 const axios = require('axios');
 const querystring = require('querystring');
@@ -24,13 +25,14 @@ const authRoutes = require('./routes/auth');
 const allDataRoutes = require('./routes/allData');
 const dashboardRoutes = require('./routes/dashboard');
 const measurementsRoutes = require('./routes/measurements');
-
+const visualization = require('./routes/visualization');
 const app = express();
 const PORT = 5003;
 
 // Middlewares globales primero
 //app.use(cors());
 app.use(express.json());
+app.use('/api', express.static(path.join(__dirname, 'api')));
 
 // Rutas con prefijos consistentes
 app.use('/api', stepsRoutes);
@@ -40,6 +42,7 @@ app.use('/', authRoutes);
 app.use('/', allDataRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api', measurementsRoutes);
+app.use(visualization);
 
 // Ruta de prueba
 app.get('/sensors', (req, res) => {
@@ -60,20 +63,25 @@ async function getUserId({ device_id }) {
   return userDeviceInfo.userId;
 }
 
-pool.connect()
-.then(() => {
-  console.log('Conexión exitosa a la base de datos');
-})
-.catch((err) => {
-  console.error('Error al conectar a la base de datos:', err);
-});
+// Export app for testing
+module.exports = app;
 
-checkToken();
-//getUserProfile(process.env.ACCESS_TOKEN);
+// Only connect and start server if run directly
+if (require.main === module) {
+  pool.connect()
+    .then(() => {
+      console.log('Conexión exitosa a la base de datos');
+    })
+    .catch((err) => {
+      console.error('Error al conectar a la base de datos:', err);
+    });
 
-app.listen(5003, '0.0.0.0', () => {
-    console.log('Servidor escuchando en http://0.0.0.0:5003');
-});
+  checkToken();
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor escuchando en http://0.0.0.0:${PORT}`);
+  });
+}
 
 
 /*************************************************************** */ 

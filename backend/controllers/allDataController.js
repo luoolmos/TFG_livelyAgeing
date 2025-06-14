@@ -1,4 +1,4 @@
-const { fetchFitbitDailyData } = require('../api/fitbitApi');
+const { fetchFitbitDailyData } = require('../api/fitbitApi.js');
 require('dotenv').config({ path: require('path').resolve(__dirname, '../utils/.env') });
 const { getAllAccessTokens } = require('../getDBinfo/getUserId');
 const { getInfoUserDeviceFromUserId } = require('../getDBinfo/getUserId'); // Asegúrate de tener esta función disponible
@@ -15,15 +15,12 @@ exports.logAllData = async (req, res) => {
             const userId = token.person_id;
             const accessToken = token.access_token;
             const { lastSyncDate } = await getInfoUserDeviceFromUserId(userId);
+            console.log(`Procesando datos para el usuario: ${userId}, Última sincronización: ${lastSyncDate}`);
             //const start = lastSyncDate ? new Date(lastSyncDate) : today;
 
+            let aux = new Date('2025-06-13T00:00:00Z'); // Fecha de inicio fija para pruebas
+            await fetchFitbitDailyData(userId, accessToken, today, aux);
 
-            await fetchFitbitDailyData(userId, accessToken, today, lastSyncDate);
-            /*for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
-                const dateStr = d.toISOString().split('T')[0];
-                // pequeño delay para respetar rate limit
-                await new Promise(r => setTimeout(r, 1000));
-            }*/
         }
         res.json({
             message: 'Logging completo ejecutado con éxito',

@@ -5,7 +5,7 @@ module.exports = {
   FITBIT_DAILY_ACTIVITY: (date) => `https://api.fitbit.com/1/user/-/activities/date/${date}.json`,
   FITBIT_ACTIVITY_LIST: (date) => `https://api.fitbit.com/1/user/-/activities/list.json?afterDate=${date}T00:00:00&sort=asc&limit=30&offset=0`,
   FITBIT_HEART_RATE: (date, end_date) => `https://api.fitbit.com/1/user/-/activities/heart/date/${date}/${end_date}.json`,
-  FITBIT_HEART_RATE_INTRADAY: (date) => `https://api.fitbit.com/1/user/-/activities/heart/date/${date}/1d/5.json`,
+  FITBIT_HEART_RATE_INTRADAY: (date) => `https://api.fitbit.com/1/user/-/activities/date/${date}.json`,
   FITBIT_HEART_RATE_INTRADAY_INTERVAL: (date, startTime, endTime) => `https://api.fitbit.com/1/user/-/activities/heart/date/${date}/1d/1min/time/${startTime}/${endTime}.json`,
   FITBIT_SLEEP: (date) => `https://api.fitbit.com/1.2/user/-/sleep/date/${date}.json`,
   FITBIT_SLEEP_LIST: (date) => `https://api.fitbit.com/1.2/user/-/sleep/list.json?afterDate=${date}&sort=asc&offset=0&limit=30`,

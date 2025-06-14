@@ -156,4 +156,5 @@ async function updateHrData(userId, lastSyncDate){
 }
 
 main();*/
-module.exports = { updateHrData };
+// Export functions for testing
+module.exports = { updateHrData, formatHrData, migrateHrData };

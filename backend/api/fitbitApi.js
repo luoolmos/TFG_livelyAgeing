@@ -152,14 +152,18 @@ async function fetchFitbitDailyData(userId, access_token, date, lastSyncTimestam
 
     //Un fetch por cada día
     let limit= false;
-    for (let i = 0; i >= diffDays && !limit; i++) {
+    let aux = new Date('2025-06-13T00:00:00Z'); // Fecha de inicio fija para pruebas
+
+    await getHeartRateAndSave(userId, access_token, aux)
+    //for (let i = 0; diffDays <= i && !limit; i++) {
+        //console.log(`Iteración ${i + 1} de ${diffDays + 1} para el usuario ${userId}`);
         // calcular la fecha que toca en esta iteración
-        const iterDate = formatDate(new Date(lastSyncTimestamp.getTime() + i * DAY));
+        //const iterDate = formatDate(new Date(lastSyncTimestamp.getTime() + i * DAY));
         // 1) Heart Rate
-        if (limit = await getHeartRateAndSave(userId, access_token, iterDate)) {
-            console.log('Se alcanzó el límite de HR, paro aquí');
-            break;
-        }
+        //if (limit = await getHeartRateAndSave(userId, access_token, iterDate)) {
+        //    console.log('Se alcanzó el límite de HR, paro aquí');
+        //    break;
+        //}
         /*
         // 2) Activity Data
         if (limit = await getDistanceIntrdayData(access_token, userId, iterDate, iterDate)) {
@@ -182,7 +186,7 @@ async function fetchFitbitDailyData(userId, access_token, date, lastSyncTimestam
             break;
         }*/
 
-    }
+    //}
     /*
     if(!limit){
         // 6) Sleep Data
@@ -392,10 +396,10 @@ async function getHeartRateAndSave(user_id, access_token, date) {
         const { concept_id: unitConceptId, concept_name: unitConceptName } = unitConcept;
 
         console.log('[getHeartRateAndSave] Requesting URL:', url);
-        console.log('[getHeartRateAndSave] Response (full JSON):', JSON.stringify(response.data, null, 2));
-
+        
         const heartRateData = response.data['activities-heart'];
         const intraday = response.data['activities-heart-intraday'];
+        console.log('[getHeartRateAndSave] Response Intraday:', intraday);
 
         // insertar datos intradía
         if (intraday && Array.isArray(intraday.dataset)) {
@@ -413,7 +417,7 @@ async function getHeartRateAndSave(user_id, access_token, date) {
                 );
                 try {
                     await inserts.insertObservation(obs);
-                    console.log(`[getHeartRateAndSave] Heart rate data saved for timestamp: ${timestamp}`);
+                    //console.log(`[getHeartRateAndSave] Heart rate data saved for timestamp: ${timestamp}`);
                 } catch (e) {
                     console.error(`[getHeartRateAndSave] Error inserting heart rate data for timestamp ${timestamp}:`, e);
                 }

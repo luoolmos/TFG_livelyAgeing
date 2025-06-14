@@ -327,3 +327,13 @@
 {"timestamp":"2025-06-04T21:38:35.871Z","conceptName":"Stress Data Migration","conceptType":"Database","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
 {"timestamp":"2025-06-04T21:38:35.873Z","conceptName":"Stress Data Migration","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
 {"timestamp":"2025-06-04T21:38:35.875Z","conceptName":"Stress Update Process","conceptType":"General","error":"NULL value in column \"measurement_datetime\" violates not-null constraint"}
+[2025-06-14T14:47:23.265Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T14:47:23.282Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T14:52:26.343Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T14:52:26.361Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T14:59:36.804Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T14:59:36.821Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T15:26:58.481Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T15:26:58.499Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T16:07:37.315Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-14T16:07:37.317Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado

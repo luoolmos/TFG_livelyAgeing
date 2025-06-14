@@ -346,5 +346,5 @@ async function main() {
 
 main();
 */
-module.exports = { updateActivityData };
+module.exports = { updateActivityData, formatActivityRecordsMesData, checkConcepts, generateMeasurementSummary };
 
