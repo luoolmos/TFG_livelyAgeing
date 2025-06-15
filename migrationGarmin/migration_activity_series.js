@@ -18,16 +18,28 @@ async function formatActivityRecordsMesData(data, row, concepts){
     let insertMeasureValue = [];
 
     const dataDistance = generateMeasurementData(data, row.distance, concepts.distanceConceptId, concepts.distanceConceptName, concepts.meterUnitId, concepts.meterUnitName, null, null);
-    insertMeasureValue.push(dataDistance);
+    if(dataDistance.value_source_value){
+        console.log(' [ACTIVITY RECORDS -' + dataDistance.measurement_source_value + ']: ' + dataDistance.value_source_value);
+        insertMeasureValue.push(dataDistance);
+    }
 
     const dataHR = generateMeasurementData(data, row.hr, concepts.heart_rateConceptId, concepts.heart_rateConceptName, concepts.beatsperminUnitId, concepts.beatsperminUnitName, null, null);
-    insertMeasureValue.push(dataHR);
+    if(dataHR.value_source_value){
+        console.log(' [ACTIVITY RECORDS -' + dataHR.measurement_source_value + ']: ' + dataHR.value_source_value);
+        insertMeasureValue.push(dataHR);
+    }
 
     const dataRR = generateMeasurementData(data, row.rr, concepts.respiratory_rateConceptId, concepts.respiratory_rateConceptName, concepts.breathsperminUnitId, concepts.breathsperminUnitName, null, null);
-    insertMeasureValue.push(dataRR);
+    if(dataRR.value_source_value){
+        console.log(' [ACTIVITY RECORDS -' + dataRR.measurement_source_value + ']: ' + dataRR.value_source_value);
+        insertMeasureValue.push(dataRR);
+    }
 
     const dataTemperature = generateMeasurementData(data, row.temperature, concepts.max_temperatureConceptId, concepts.max_temperatureConceptName, concepts.temperatureUnitId, concepts.temperatureUnitName, null, null);
-    insertMeasureValue.push(dataTemperature);
+    if(dataTemperature.value_source_value){
+        console.log(' [ACTIVITY RECORDS -' + dataTemperature.measurement_source_value + ']: ' + dataTemperature.value_source_value);
+        insertMeasureValue.push(dataTemperature);
+    }
 
     return insertMeasureValue;
 
@@ -63,7 +75,6 @@ async function checkConcepts(concepts) {
 function generateMeasurementSummary(row, baseValues, concepts){
     console.log('row:', row);
     let summaryMeasureValue = [];
-    let summaryObservationValue = [];
 
     const measurements = [
         { value: row.distance, conceptId: concepts.distanceConceptId, conceptName: concepts.distanceConceptName, unitId: concepts.meterUnitId, unitName: concepts.meterUnitName },
@@ -73,40 +84,32 @@ function generateMeasurementSummary(row, baseValues, concepts){
         { value: row.avg_rr, conceptId: concepts.avg_rrConceptId, conceptName: concepts.avg_rrConceptName, unitId: concepts.breathsperminUnitId, unitName: concepts.breathsperminUnitName },
         { value: row.max_temperature, conceptId: concepts.max_temperatureConceptId, conceptName: concepts.max_temperatureConceptName, unitId: concepts.temperatureUnitId, unitName: concepts.temperatureUnitName },
         { value: row.avg_temperature, conceptId: concepts.avg_temperatureConceptId, conceptName: concepts.avg_temperatureConceptName, unitId: concepts.temperatureUnitId, unitName: concepts.temperatureUnitName },
-        { value: row.min_temperature, conceptId: concepts.min_temperatureConceptId, conceptName: concepts.min_temperatureConceptName, unitId: concepts.temperatureUnitId, unitName: concepts.temperatureUnitName }
+        { value: row.min_temperature, conceptId: concepts.min_temperatureConceptId, conceptName: concepts.min_temperatureConceptName, unitId: concepts.temperatureUnitId, unitName: concepts.temperatureUnitName },
+        { value: row.max_rr, conceptId: concepts.max_rrConceptId, conceptName: concepts.max_rrConceptName, unitId: concepts.breathsperminUnitId, unitName: concepts.breathsperminUnitName }
+
     ];
 
     for (const { value, conceptId, conceptName, unitId, unitName } of measurements) {
         
         if(value != null){
             const measurementData = generateMeasurementData(baseValues, value, conceptId, conceptName, unitId, unitName, null, null);
-            summaryMeasureValue.push(measurementData);
+            if(measurementData.value_source_value) {
+                console.log(' [ACTIVITY SUMMARY -' + measurementData.measurement_source_value + ']: ' + measurementData.value_source_value);
+                summaryMeasureValue.push(measurementData);
+            } else {
+                console.warn(`Measurement data for ${conceptName} is null or undefined, skipping insertion.`);
+            }
+
         }
     }
 
-    const observations = [
-        { value: row.max_rr, conceptId: concepts.max_rrConceptId, conceptName: concepts.max_rrConceptName, unitId: concepts.breathsperminUnitId, unitName: concepts.breathsperminUnitName }
-    ];
 
-    //console.log('observations:', observations);
-
-    for (const { value, conceptId, conceptName, unitId, unitName } of observations) {
-
-        if(value != null){
-            const observationData = generateObservationData(baseValues, value, conceptId, conceptName, unitId, unitName, null, null);
-            summaryObservationValue.push(observationData);
-        }
-    }
-
-    return {summaryMeasureValue, summaryObservationValue};
+    return summaryMeasureValue;
 }
 //activity_id, start_time, stop_time, ---type---, sport, sub_sport, training_load, training_effect, anaerobic_training_effect, distance, calories, avg_hr, max_hr, avg_rr, max_rr, avg_speed, max_speed, avg_cadence, max_cadence, avg_temperature, max_temperature, min_temperature, ascent, descent, self_eval_feel,self_eval_effort 
 async function formatActivityData(userId, activityRows, activityRecordsRows) {
     try {
-        //max_speed: await getConceptInfoMeasurement(constants.MAX_SPEED_STRING),
-        //avg_speed: await getConceptInfoMeasurement(constants.AVG_SPEED_STRING),
-        //avg_cadence: await getConceptInfoMeasurement(constants.AVG_CADENCE_STRING),
-        //max_cadence: await getConceptInfoMeasurement(constants.MAX_CADENCE_STRING),
+
         const conceptsRaw = {
             duration: await getConceptInfoObservation(constants.DURATION_STRING),
             distance: await getConceptInfoMeasValue(constants.DISTANCE_STRING),
@@ -128,21 +131,6 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
             temperature: await getConceptUnit(constants.CELSIUS_STRING),
         }; 
 
-        //console.log('conceptsRaw:', conceptsRaw);
-
-        /*            
-            max_speedConceptId: conceptsRaw.max_speed?.concept_id,
-            max_speedConceptName: conceptsRaw.max_speed?.concept_name,
-
-            avg_speedConceptId: conceptsRaw.avg_speed?.concept_id,
-            avg_speedConceptName: conceptsRaw.avg_speed?.concept_name,
-
-            max_cadenceConceptId: conceptsRaw.max_cadence?.concept_id,
-            max_cadenceConceptName: conceptsRaw.max_cadence?.concept_name,
-
-            avg_cadenceConceptId: conceptsRaw.avg_cadence?.concept_id,
-            avg_cadenceConceptName: conceptsRaw.avg_cadence?.concept_name,
-        */ 
         const concepts = {
             durationConceptId: conceptsRaw.duration?.concept_id,
             durationConceptName: conceptsRaw.duration?.concept_name,
@@ -201,20 +189,20 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
         
         };
 
-        //console.log('concepts:', concepts);
 
         if (!await checkConcepts(concepts)) {
+            console.error('Concepts not found, stopping execution');
             return [];
         }
 
         for (const row of activityRows) {
-            const observationDate = formatValue.formatDate(row.start_time);
-            const observationDatetime = formatValue.formatToTimestamp(row.start_time);
+            const date = formatValue.formatDate(row.start_time);
+            const datetime = formatValue.formatToTimestamp(row.start_time);
 
             const firstInsertion = {
                 userId,
-                observationDate,
-                observationDatetime,
+                date,
+                datetime,
                 releatedId: null
             };
 
@@ -222,10 +210,8 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
             const sport = row.sport.toLowerCase();
             //console.log('sport:', sport);
             const { concept_id: sportConceptId, concept_name: sportConceptName } = await getConceptInfoMeasValue(sport);
-            //console.log('sportConceptId:', sportConceptId);
-            //console.log('sportConceptName:', sportConceptName);
-            //const sportData = generateObservationData(firstInsertion, row.sport, sportConceptId, sportConceptName, constants.PHYSICAL_ACTIVITY_CONCEPT_ID);
             const sportData = generateObservationData(firstInsertion, row.sport, sportConceptId, sportConceptName, null, null);
+            console.log('[SPORT DATA -' + sportData.observation_source_value + ']: ' + sportData.value_source_value);
             const insertedId = await inserts.insertObservation(sportData);
 
             if (!insertedId) {
@@ -240,7 +226,6 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
 
             // Measurement list to insert
             const insertMeasureValue = [];
-            const insertObservationValue = [];
 
             // Activity records (stages)
             const activityRecordsForRow = activityRecordsRows.filter(record => row.activity_id === record.activity_id);
@@ -260,36 +245,43 @@ async function formatActivityData(userId, activityRows, activityRecordsRows) {
 
                 const stageValues = {
                     userId,
-                    observationDate: stageObservationDate,
-                    observationDatetime: stageObservationDatetime,
+                    date: stageObservationDate,
+                    datetime: stageObservationDatetime,
                     releatedId: insertedId
                 };
 
-                const measurementData = formatActivityRecordsMesData(stageValues, record);
-                insertMeasureValue.push(...measurementData);
+                const measurementData = await formatActivityRecordsMesData(stageValues, record, concepts);
+                if (Array.isArray(measurementData)) {
+                 insertMeasureValue.push(...measurementData);
+                } else {
+                console.error('measurementData no es un array:', measurementData);
+                }
             }
 
             
             const baseValues = {
                 userId,
-                observationDate: observationDate,
-                observationDatetime: observationDatetime,
+                date: date,
+                datetime: datetime,
                 releatedId: insertedId
             };
 
-            const {summaryMeasureValue, summaryObservationValue} = generateMeasurementSummary(row, baseValues, concepts);
+            const summaryMeasureValue = generateMeasurementSummary(row, baseValues, concepts);
             insertMeasureValue.push(...summaryMeasureValue);
-            insertObservationValue.push(...summaryObservationValue);
-
             
             if (insertMeasureValue.length > 0) {
                 //console.log('insertMeasureValue:', insertMeasureValue);
+                //eliminar duplicados en (person_id, measurement_concept_id, measurement_datetime)
+                insertMeasureValue.filter((value, index, self) =>
+                    index === self.findIndex((t) => (
+                        t.person_id === value.person_id &&
+                        t.measurement_concept_id === value.measurement_concept_id &&
+                        t.measurement_datetime === value.measurement_datetime
+                    ))
+                );
                 await inserts.insertMultipleMeasurement(insertMeasureValue);
             }
 
-            if (insertObservationValue.length > 0) {
-                await inserts.insertMultipleObservation(insertObservationValue);
-            }
         }
 
         //console.log('Inserted Activity data, end of formatActivityData function');

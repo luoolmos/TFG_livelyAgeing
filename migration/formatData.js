@@ -9,8 +9,8 @@ function generateObservationData(data, value, conceptId, conceptName, unitconcep
     return data = {
         person_id: data.userId,
         observation_concept_id: conceptId,
-        observation_date: data.observationDate,  
-        observation_datetime: data.observationDatetime,
+        observation_date: data.date,  
+        observation_datetime: data.datetime,
         observation_type_concept_id: constants.TYPE_CONCEPT_ID,
         value_as_number: valueAsNumber,
         value_as_string: valueAsString,
@@ -41,8 +41,8 @@ function generateMeasurementData(data, value, conceptId, conceptName, unitconcep
     return data = {
         person_id: data.userId,
         measurement_concept_id: conceptId,
-        measurement_date: data.measurementDate,
-        measurement_datetime: data.measurementDatetime,
+        measurement_date: data.date,
+        measurement_datetime: data.datetime,
         measurement_type_concept_id: constants.TYPE_CONCEPT_ID,
         operator_concept_id: null,
         value_as_number: valueAsNumber,

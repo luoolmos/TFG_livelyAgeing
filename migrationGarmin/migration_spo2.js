@@ -79,8 +79,8 @@ async function formatspo2Data(userId, spo2Rows) {
             const measurementDatetime = formatValue.formatToTimestamp(row.timestamp);
             const baseValues = {
                 userId,
-                measurementDate: measurementDate,
-                measurementDatetime: measurementDatetime,
+                date: measurementDate,
+                datetime: measurementDatetime,
                 releatedId: null
             };
 

@@ -130,13 +130,13 @@ async function formatActivityData(userId, data) {
             return [];
         }
         
-            const observationDate = formatValue.formatDate(data.startTime);
-            const observationDatetime = formatValue.formatToTimestamp(data.startTime);
+            const date = formatValue.formatDate(data.startTime);
+            const datetime = formatValue.formatToTimestamp(data.startTime);
 
             const firstInsertion = {
                 userId,
-                observationDate,
-                observationDatetime,
+                date,
+                datetime,
                 releatedId: null
             };
 
@@ -173,8 +173,8 @@ async function formatActivityData(userId, data) {
 
             const baseValues = {
                 userId,
-                observationDate: observationDate,
-                observationDatetime: observationDatetime,
+                date: observationDate,
+                datetime: observationDatetime,
                 releatedId: insertedId
             };
 

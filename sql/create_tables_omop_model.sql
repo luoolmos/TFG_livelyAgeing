@@ -1035,6 +1035,15 @@ SELECT create_hypertable(
    number_partitions => 100
 );
 
+ALTER TABLE omop_modified.measurement
+ADD CONSTRAINT unique_measurement_entry
+UNIQUE (
+  person_id,
+  measurement_concept_id,
+  measurement_datetime,
+  value_as_number
+);
+
 
 --  OMOP: observation 
     CREATE TABLE omop_modified.observation (
@@ -1074,6 +1083,15 @@ SELECT create_hypertable(
    partitioning_column => 'person_id',
    number_partitions => 100
 )
+
+ALTER TABLE omop_modified.observation
+ADD CONSTRAINT unique_observation_entry
+UNIQUE (
+  person_id,
+  observation_concept_id,
+  observation_datetime,
+  value_as_number
+);
 
 /*hr_min, hr_max, rhr_avg, steps, rr_max, rr_min, spo2_avg, sleep_avg*/
 -- TABLA: daily_summary

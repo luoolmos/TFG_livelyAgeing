@@ -22,13 +22,15 @@ function connectToSQLite(dbPath) {
  * Recupera los Datos de actividad desde SQLite
  */
 function fetchActivityData(date, sqliteDb) {
+    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+
     //date to timestamptz
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT activity_id, start_time, elapsed_time, type, sport, sub_sport, training_load, training_effect, anaerobic_training_effect, distance, calories, avg_hr, max_hr, avg_rr, max_rr, avg_speed, max_speed, avg_cadence, max_cadence, avg_temperature, max_temperature, min_temperature, ascent, descent, self_eval_feel,self_eval_effort 
             FROM activities
             WHERE start_time >= ?`,
-            [date], 
+            [dateIni_timestamp], //,dateEnd_timestamp],
             (err, rows) => (err ? reject(err) : resolve(rows))
         );
     });
@@ -60,6 +62,7 @@ function fetchCycleActivityData(activityId, sqliteDb) {
 }
 
 function fetchPaddleActivityData(activityId, sqliteDb) {
+
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT activity_id, strokes, avg_stroke_distance   
@@ -72,12 +75,14 @@ function fetchPaddleActivityData(activityId, sqliteDb) {
 }
 
 function fetchStepsActivityData(activityId, sqliteDb) {
+    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT activity_id, steps, avg_pace, avg_moving_pace, max_pace, avg_steps_per_min, avg_step_length, avg_ground_contact_time, avg_stance_time_percent, vo2_max
             FROM steps_Activity   
             WHERE activity_id = ?`,
-            [activityId], 
+            [dateIni_timestamp], //,dateEnd_timestamp],
             (err, rows) => (err ? reject(err) : resolve(rows))
         );
     });
@@ -89,12 +94,14 @@ function fetchStepsActivityData(activityId, sqliteDb) {
  */
 function fetchHrData(date, sqliteDb) {
     console.log('Fetching heart rate data from:', date);
+    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT timestamp, heart_rate 
              FROM monitoring_hr 
              WHERE timestamp > ?`,
-            [date],
+            [dateIni_timestamp],
             (err, rows) => {
                 if (err) {
                     reject(err);
@@ -114,12 +121,14 @@ function fetchHrData(date, sqliteDb) {
  */
 function fetchRrData(date, sqliteDb) {
     //console.log('Fetching respiration rate data from:', date);
+    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT timestamp, rr 
              FROM monitoring_rr 
              WHERE timestamp > ?`,
-            [date],
+            [dateIni_timestamp],
             (err, rows) => {
                 if (err) {
                     reject(err);
@@ -139,12 +148,14 @@ function fetchRrData(date, sqliteDb) {
  */
 function fetchStressData(date, sqliteDb) {
     console.log('Fetching stress data from:', date);
+    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT timestamp, stress 
              FROM stress 
              WHERE timestamp > ?`,
-            [date],
+            [dateIni_timestamp],
             (err, rows) => {
                 if (err) {
                     reject(err);
@@ -164,12 +175,14 @@ function fetchStressData(date, sqliteDb) {
  */
 function fetchSpo2Data(date,sqliteDb) {
     //console.log('Fetching spo2 data from:', date);
+    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+    
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT timestamp, pulse_ox 
              FROM monitoring_pulse_ox 
              WHERE timestamp > ?`,
-            [date],
+            [dateIni_timestamp],
             (espo2, rows) => {
                 if (espo2) {
                     reject(espo2);
@@ -189,12 +202,14 @@ function fetchSpo2Data(date,sqliteDb) {
  */
 function fetchSleepData(date,sqliteDb) {
     //date to timestamptz
+    const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+
     return new Promise((resolve, reject) => {
         sqliteDb.all(
             `SELECT start, end, score, day, avg_spo2, avg_rr, avg_stress, total_sleep
              FROM sleep 
              WHERE start >= ?`,
-            [date], 
+            [dateIni_timestamp], 
             (err, rows) => (err ? reject(err) : resolve(rows))
         );
     });
@@ -202,12 +217,13 @@ function fetchSleepData(date,sqliteDb) {
 
 function fetchSleepEventsData(date,sqliteDb) {
     const dateIni_timestamp = new Date(date).toISOString(); // Convertir a formato ISO
+    console.log('Fetching sleep events data from:', dateIni_timestamp);
   return new Promise((resolve, reject) => {
       sqliteDb.all(
           `SELECT timestamp, event, duration 
            FROM sleep_events
            WHERE timestamp >= ?`,
-            [dateIni_timestamp], //,dateEnd_timestamp], 
+            [date], //,dateEnd_timestamp], 
           (err, rows) => (err ? reject(err) : resolve(rows))
       );
   });
@@ -216,12 +232,13 @@ function fetchSleepEventsData(date,sqliteDb) {
 
 function fetchsummaryData(lastSyncDate, sqliteDb) {
     //date to timestamptz
+    const dateIni_timestamp = new Date(lastSyncDate).toISOString().slice(0, 10); // Convertir a formato ISO
     return new Promise((resolve, reject) => {
         sqliteDb.all(
-            `SELECT hr_min, hr_max, rhr_avg, steps, rr_max, rr_min, spo2_avg, sleep_avg
+            `SELECT hr_min, hr_max, rhr_avg, steps, rr_max, rr_min, spo2_avg, sleep_avg, day
              FROM days_summary 
              WHERE day >= ?`,
-            [lastSyncDate], 
+            [dateIni_timestamp], 
             (err, rows) => (err ? reject(err) : resolve(rows))
         );
     });
@@ -240,5 +257,6 @@ module.exports = {
     fetchStressData,
     fetchSpo2Data,
     fetchSleepData,
-    fetchSleepEventsData
+    fetchSleepEventsData,
+    fetchsummaryData
 };

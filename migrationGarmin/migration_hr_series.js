@@ -82,12 +82,12 @@ async function formatHrData(userId, hrRows) {
                 console.warn('Fila de HR inválida:', row);
                 return null;
             }
-            const measurementDate = formatValue.formatDate(row.timestamp);
-            const measurementDatetime = formatValue.formatToTimestamp(row.timestamp);
+            const date = formatValue.formatDate(row.timestamp);
+            const datetime = formatValue.formatToTimestamp(row.timestamp);
             const baseValues = {
                 userId,
-                measurementDate,
-                measurementDatetime,
+                date,
+                datetime,
                 releatedId: null
             };
             //console.log(`Processing HR data for userId: ${userId}, heart_rate: ${row.heart_rate}, timestamp: ${measurementDatetime}`);

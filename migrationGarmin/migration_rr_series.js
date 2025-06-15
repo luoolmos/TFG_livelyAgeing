@@ -71,8 +71,8 @@ async function formatRrData(userId, rrRows) {
             const low = 12;
             const baseValues = {
                 userId,
-                measurementDate: measurementDate,
-                measurementDatetime: measurementDatetime,
+                date: measurementDate,
+                datetime: measurementDatetime,
                 releatedId: null
             };
             const rrMeasurement = generateMeasurementData(baseValues, row.rr, conceptId, conceptName, unitconceptId, unitconceptName, low, high);

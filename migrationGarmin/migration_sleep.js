@@ -104,25 +104,26 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
         }
 
         for (const row of sleepRows) {
-            const observationDate = formatValue.formatDate(row.day);
-            const observationDatetime = formatValue.formatToTimestamp(row.start);
+            const date = formatValue.formatDate(row.day);
+            const datetime = formatValue.formatToTimestamp(row.start);
 
             const firstInsertion = {
                 userId,
-                observationDate,
-                observationDatetime,
+                date,
+                datetime,
                 releatedId: null
             };
             const durartionData = generateObservationData(
                 firstInsertion, 
-                formatValue.stringToMinutes(row.duration), 
+                formatValue.stringToMinutes(row.total_sleep), 
                 concepts.durationConceptId, 
                 concepts.durationConceptName, 
                 concepts.durationUnitId, 
                 concepts.durationUnitName
             );
 
-            try {
+            try {  
+                console.log('[SESSION SLEEP - ' + durartionData.observation_source_value + ']: ' + durartionData.value_source_value);
                 const insertedId = await inserts.insertObservation(durartionData);
                 //console.log('insertedId:', insertedId);
                 //console.log('sleepEventsRows:', sleepEventsRows);
@@ -151,8 +152,8 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
                 
                 const baseValues = {
                     userId,
-                    observationDate,
-                    observationDatetime,
+                    date,
+                    datetime,
                     releatedId: insertedId
                 };
                 
@@ -168,14 +169,16 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
                 // Insert sleep stages
                 for (const session of sessionsForDay) {
                     //console.log('session', session); 
+                    //console.log('Processing sleep row:', row);
+
                     try {
                         const stageObservationDate = formatValue.formatDate(session.timestamp);
                         const stageObservationDatetime = formatValue.formatToTimestamp(session.timestamp);
 
                         const stageValues = {
                             userId,
-                            observationDate: stageObservationDate,
-                            observationDatetime: stageObservationDatetime,
+                            date: stageObservationDate,
+                            datetime: stageObservationDatetime,
                             releatedId: insertedId
                         };
 
@@ -199,15 +202,17 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
                             continue;
                         }
 
-                        const { concept_id: observationConceptId, concept_name: observationSourceValue } = observationResult[0];
+                        const { concept_id: observationConceptId, concept_name: observationSourceValue } = observationResult;
                         const observationData = generateObservationData(
                             stageValues, 
-                            row.duration, 
+                            formatValue.stringToMinutes(session.duration), 
                             observationConceptId, 
                             observationSourceValue, 
                             concepts.durationUnitId, 
                             concepts.durationUnitName
                         );
+                        //console.log('observationData:', observationData);
+                        console.log('[SESSION SLEEP - ' + observationData.observation_source_value + ']: ' + observationData.value_source_value);
                         insertObservationValue.push(observationData);
                     } catch (error) {
                         await logConceptError(
@@ -229,6 +234,7 @@ async function formatSleepData(userId, sleepRows, sleepEventsRows) {
                         if(value != null){
                             const measurementData = generateMeasurementData(baseValues, value, conceptId, conceptName, unitId, unitName, null, null);
                             //console.log('measurementData:', measurementData);
+                            console.log('[SESSION SLEEP - ' + measurementData.observation_source_value + ']: ' + measurementData.value_source_value);
                             insertMeasureValue.push(measurementData);
                         }
                     } catch (error) {

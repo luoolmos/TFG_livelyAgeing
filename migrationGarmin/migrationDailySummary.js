@@ -6,6 +6,7 @@ const formatValue = require('../migration/formatValue.js');
 const sqlLite = require('./sqlLiteconnection.js');
 const inserts = require('../backend/getDBinfo/inserts.js');
 const fs = require('fs');
+const { stringToMinutes } = require('../migration/formatValue.js');
 
 // Configuración de la base de datos SQLite
 const LOG_PATH = path.resolve(__dirname, 'logs', 'concept_errors.log');
@@ -31,20 +32,35 @@ async function migratesummaryData(userId, summaryRows) {
         
         for (const row of summaryRows) {
             // Formatear la fecha
-            const formattedDate = formatValue.formatDate(row.date);
+            //si todos los valores son nulos, no se inserta
+        
+            const formattedDate = row.day;
             const data = {
                 date: formattedDate,
-                personId: userId,
+                person_id: userId,
                 steps: row.steps,
-                min_hr_bpm: row.min_hr_bpm,
-                max_hr_bpm: row.max_hr_bpm,
-                avg_hr_bpm: row.avg_hr_bpm,
-                sleep_duration_minutes: row.sleep_duration_minutes,
-                min_rr_bpm: row.min_rr_bpm,
-                max_rr_bpm: row.max_rr_bpm,
+                min_hr_bpm: row.hr_min,
+                max_hr_bpm: row.hr_max,
+                avg_hr_bpm: row.rhr_avg,
+                sleep_duration_minutes: stringToMinutes(row.sleep_avg),
+                min_rr_bpm: row.rr_min,
+                max_rr_bpm: row.rr_max,
                 spo2_avg: row.spo2_avg
             }
 
+           if (
+                (data.min_hr_bpm == null || data.min_hr_bpm === 0) &&
+                (data.max_hr_bpm == null || data.max_hr_bpm === 0) &&
+                (data.avg_hr_bpm == null || data.avg_hr_bpm === 0) &&
+                (data.steps == null || data.steps === 0) &&
+                (data.min_rr_bpm == null || data.min_rr_bpm === 0) &&
+                (data.max_rr_bpm == null || data.max_rr_bpm === 0) &&
+                (data.spo2_avg == null || data.spo2_avg === 0) &&
+                (data.sleep_duration_minutes == null || data.sleep_duration_minutes === 0)
+            ) {
+                console.log(`Skipping row with all null or zero values for userId ${userId}`);
+                continue;
+            }
 
             // Insertar en la base de datos PostgreSQL
             await inserts.insertDailySummary(data);
@@ -54,9 +70,6 @@ async function migratesummaryData(userId, summaryRows) {
         fs.appendFileSync(LOG_PATH, `Error en migratesummaryData: ${err.message}\n`);
     } finally {
         // tiempo de fin
-        const endTime = Date.now();
-        const duration = endTime - startTime;
-        console.log(`Tiempo de ejecución: ${duration} milisegundos`);
     }
 
 }
@@ -79,7 +92,6 @@ async function updatesummaryData(userId, lastSyncDate){
     const startTime = Date.now();
     try {
         console.log('userId:', userId);
-        //let lastSyncDateG = '2025-04-01'; 
         const summaryRows = await getSummaryData(lastSyncDate, userId);
         await migratesummaryData(userId, summaryRows);
     } catch (err) {

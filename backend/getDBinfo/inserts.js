@@ -8,18 +8,16 @@ async function insertDailySummary(data){
   try {
     const insertQuery = `
       INSERT INTO custom.daily_summary (
-       date, person_id steps, min_hr_bpm, max_hr_bpm, avg_hr_bpm, sleep_duration_minutes, min_rr_bpm, max_rr_bpm, spo2_avg           
+       date, person_id, steps, min_hr_bpm, max_hr_bpm, avg_hr_bpm, sleep_duration_minutes, min_rr_bpm, max_rr_bpm, spo2_avg           
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 , $10, $11)
-      ON CONFLICT (date, person_id) DO UPDATE SET
-      RETURNING daily_summary_id;
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 , $10)
     `;
     const values = [
       data.date, data.person_id, data.steps, data.min_hr_bpm, data.max_hr_bpm, data.avg_hr_bpm,
       data.sleep_duration_minutes, data.min_rr_bpm, data.max_rr_bpm, data.spo2_avg
     ];
     const res = await pool.query(insertQuery, values);
-    return res.rows[0].daily_summary_id;  
+    return res.rows.length > 0 ? res.rows[0] : null; // Return the inserted row or null if no rows were affected
   } catch (err) {
     console.error('Error inserting daily summary:', err);
     throw err; // Propagate the error
@@ -163,6 +161,7 @@ async function insertObservation(data) {
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
         $13, $14, $15, $16, $17, $18, $19, $20
       )
+      ON CONFLICT (person_id, observation_concept_id, observation_datetime) DO NOTHING
       RETURNING observation_id;
     `;
     console.log('inserting observation');
@@ -208,6 +207,7 @@ async function insertMultipleObservation(observations) {
       VALUES 
       ${observations.map((_, i) => `
         (${Array.from({ length: 20 }, (_, j) => `$${i * 20 + j + 1}`).join(', ')})`).join(',')}
+      ON CONFLICT (person_id, observation_concept_id, observation_datetime) DO NOTHING
       RETURNING observation_id;
       `;
 
@@ -251,6 +251,7 @@ async function insertMeasurement(data) {
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
         $13, $14, $15, $16, $17, $18, $19, $20, $21
       )
+      ON CONFLICT (person_id, measurement_concept_id, measurement_datetime) DO NOTHING
       RETURNING measurement_id;
     `;
 
@@ -310,6 +311,7 @@ async function insertMultipleMeasurement(measurements) {
            $${i * 21 + 11}, $${i * 21 + 12}, $${i * 21 + 13}, $${i * 21 + 14}, $${i * 21 + 15},
            $${i * 21 + 16}, $${i * 21 + 17}, $${i * 21 + 18}, $${i * 21 + 19}, $${i * 21 + 20},
            $${i * 21 + 21})`).join(',')}
+        ON CONFLICT (person_id, measurement_concept_id, measurement_datetime) DO NOTHING
         RETURNING measurement_id;
       `;
 

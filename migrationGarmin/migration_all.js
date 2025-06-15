@@ -26,7 +26,7 @@ async function migrateAllData() {
         const deviceId = source.device_id;
         const { userId, lastSyncDate, userDeviceId }  = await getUserDeviceInfo(deviceId); 
 
-        console.log(`Migrating data for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
+        console.log(`Migrating data for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}, and last sync date: ${lastSyncDate}`);
         try {
             await updateActivityData(userId, lastSyncDate);
             console.log(`Activity data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
@@ -64,7 +64,7 @@ async function migrateAllData() {
             console.error(`Error migrating Sleep data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
         }
         try{
-            //await updatesummaryData(userId, lastSyncDate);
+            await updatesummaryData(userId, lastSyncDate);
             console.log(`Summary data migration completed for device ID: ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}`);
         }catch (error) {
             console.error(`Error migrating Summary data for device ID ${deviceId} -- corresponding with model: ${source.model} and manufacturer: ${source.manufacturer}:`, error);
