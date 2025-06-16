@@ -14,10 +14,23 @@ require('dotenv').config({
   path: path.resolve(__dirname, '..', 'backend', 'utils', '.env')
 });
 
-const generateGarminConfig = (configDir, email, password) => {
+const generateGarminConfig = (baseConfigDir, email, password, userId) => {
   if (!email || !password) {
     throw new Error('Faltan GARMIN_USER_EMAIL o GARMIN_USER_PASSWORD en variables de entorno.');
   }
+
+  // Carpeta ~/.GarminDb
+  const homeDir = require('os').homedir();
+  const garminDbDir = path.join(homeDir, '.GarminDb');
+  if (!fs.existsSync(garminDbDir)) {
+    fs.mkdirSync(garminDbDir, { recursive: true });
+  }
+
+  // Siempre se llama GarminConnectConfig.json (se sobrescribe en cada iteración)
+  const configPath = path.join(garminDbDir, 'GarminConnectConfig.json');
+
+  // Cambiar base_dir a HealthData_<userId>
+  const baseDir = `HealthData_${userId}`;
 
   const configJson = {
     "db": {
@@ -32,16 +45,16 @@ const generateGarminConfig = (configDir, email, password) => {
       "password": password
     },
     "data": {
-      "weight_start_date": "2025-03-01",
-      "sleep_start_date": "2025-03-01",
-      "rhr_start_date": "2025-03-01",
-      "monitoring_start_date": "2025-03-01",
+      "weight_start_date": "01/03/2025",
+      "sleep_start_date": "01/03/2025",
+      "rhr_start_date": "01/03/2025",
+      "monitoring_start_date": "01/03/2025",
       "download_latest_activities": 25,
       "download_all_activities": 1000
     },
     "directories": {
       "relative_to_home": true,
-      "base_dir": "HealthData",
+      "base_dir": baseDir, 
       "mount_dir": "/Volumes/GARMIN"
     },
     "enabled_stats": {
@@ -69,13 +82,8 @@ const generateGarminConfig = (configDir, email, password) => {
     }
   };
 
-  if (!fs.existsSync(configDir)) {
-    fs.mkdirSync(configDir, { recursive: true });
-  }
-
-  const configPath = path.join(configDir, 'GarminConnectConfig.json');
   fs.writeFileSync(configPath, JSON.stringify(configJson, null, 2));
-  console.log(` Configuración guardada en ${configPath}`);
+  console.log(`Configuración guardada en ${configPath}`);
 };
 
 
@@ -89,18 +97,30 @@ async function main() {
       return;
     }
 
-    for (const { user_id } of sources) {
+    for (
+      const { user_id } of sources) {
       const userId = user_id;
       console.log(`\nProcesando userId=${userId}`);
       const lastSyncDate = getInfoUserDeviceFromUserId(userId);
       //const date = formatDate(new Date(lastSyncDate));
+
+      // === NUEVO: Borrar y recrear ~/.GarminDb antes de cada iteración ===
+      const homeDir = require('os').homedir();
+      const garminDbDir = path.join(homeDir, '.GarminDb');
+      if (fs.existsSync(garminDbDir)) {
+        fs.rmSync(garminDbDir, { recursive: true, force: true });
+        console.log(`Carpeta eliminada: ${garminDbDir}`);
+      }
+      fs.mkdirSync(garminDbDir, { recursive: true });
+      console.log(`Carpeta creada: ${garminDbDir}`);
+      // === FIN NUEVO ===
 
       // Directorio de configuración que contiene .GarminDb/GarminConnectConfig.json
       const configDir = path.resolve(__dirname, '..', 'GarminDB', 'configs', `garmin_${userId}`);
 
       if (!fs.existsSync(configDir)) {
         fs.mkdirSync(configDir, { recursive: true });
-        console.log(`📁 Directorio creado: ${configDir}`);
+        console.log(`Directorio creado: ${configDir}`);
       }
 
       const emailKey = `GARMIN_USER_EMAIL_${userId}`;
@@ -109,23 +129,20 @@ async function main() {
       const email = process.env[emailKey];
       const password = process.env[passwordKey];
 
-
       try {
-        generateGarminConfig(configDir, email, password);
+        generateGarminConfig(configDir, email, password, userId);
       } catch (err) {
-        console.error(`❌ Error generando config para userId=${userId}:`, err.message);
+        console.error(`Error generando config para userId=${userId}:`, err.message);
         continue;
       }
 
-      
-      // Ajustar HOME para que garmindb use esta configuración
-      process.env.HOME = configDir;
-      // Asegurar que Python encuentre el paquete garmindb
+      // Ajustar PYTHONPATH
+      console.log(`PYTHONPATH ajustado a: ${path.resolve(__dirname, '..', 'GarminDB')}`);
       process.env.PYTHONPATH = path.resolve(__dirname, '..', 'GarminDB');
-      console.log(`Configuración de GarminDB para userId=${userId} en ${configDir}`);
 
-      // Invocar al CLI de GarminDB
+      // Ejecutar CLI de GarminDB
       const cliScript = path.resolve(__dirname, '..', 'GarminDB','scripts', 'garmindb_cli.py');
+      console.log(`Ejecutando CLI: ${cliScript} para userId=${userId}`);
       const result = spawnSync('python', [cliScript, '--all', '--download', '--import', '--analyze'], {
         cwd: path.resolve(__dirname, '..', 'GarminDB'),
         stdio: 'inherit',
@@ -136,53 +153,7 @@ async function main() {
         console.error(`Error ejecutando CLI para userId=${userId}`);
         continue;
       }
-
-      // Renombrar la base de datos resultante a <userId>.db
-      const dbDir = SQLITE_PATH;
-
-      if (!fs.existsSync(dbDir)) {
-        console.warn(`No se encontró carpeta DBs en ${dbDir}`);
-        continue;
-      }
-      // Crear carpeta garmin_${userId} dentro de HealthData y mover los .db
-      const userFolder = path.join(dbDir, `garmin_${userId}`);
-      if (!fs.existsSync(userFolder)) fs.mkdirSync(userFolder, { recursive: true });
-      // Copiar todos los .db de forma atómica con rollback en fallo
-      const dbFiles = fs.readdirSync(dbDir)
-        .filter(name => {
-          const full = path.join(dbDir, name);
-          return fs.statSync(full).isFile() && name.endsWith('.db');
-        });
-      const copied = [];
-      let hasError = false;
-      for (const name of dbFiles) {
-        const src = path.join(dbDir, name);
-        const dest = path.join(userFolder, name);
-        try {
-          fs.copyFileSync(src, dest);
-          copied.push({src, dest});
-          console.log(`Archivo copiado: ${name}`);
-        } catch (err) {
-          console.error(`Error copiando ${name}:`, err);
-          hasError = true;
-          break;
-        }
-      }
-      if (hasError) {
-        // Rollback: eliminar copias parciales
-
-        copied.forEach(({dest}) => {
-          try { fs.unlinkSync(dest); } catch {};
-        });
-        console.error(`Fallo al copiar todos los .db, limpieza realizada.`);
-      } else {
-        // Paso final: eliminar orígenes copiados
-        copied.forEach(({src, dest}) => {
-          try { fs.unlinkSync(src); console.log(`Origen eliminado: ${src}`); } catch {};
-          console.log(`Procesado correctamente: ${dest}`);
-        });
-      }
-      
+      // Ya no es necesario mover los .db, cada usuario tiene su propia carpeta HealthData_<userId>
     } // end for
   } catch (err) {
     console.error('Error en run_garmindb_multiple:', err);
