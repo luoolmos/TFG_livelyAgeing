@@ -7,6 +7,77 @@ const fs = require('fs');
 const pool = require('../backend/models/db');
 const { getGarminDeviceUser } = require('../backend/getDBinfo/getDevice');
 const {SQLITE_PATH} = require('../backend/getDBinfo/constants.js');
+const {formatDate} = require('../migration/formatValue.js');
+const { getInfoUserDeviceFromUserId } = require('../backend/getDBinfo/getUserId.js');
+
+require('dotenv').config({
+  path: path.resolve(__dirname, '..', 'backend', 'utils', '.env')
+});
+
+const generateGarminConfig = (configDir, email, password) => {
+  if (!email || !password) {
+    throw new Error('Faltan GARMIN_USER_EMAIL o GARMIN_USER_PASSWORD en variables de entorno.');
+  }
+
+  const configJson = {
+    "db": {
+      "type": "sqlite"
+    },
+    "garmin": {
+      "domain": "garmin.com"
+    },
+    "credentials": {
+      "user": email,
+      "secure_password": false,
+      "password": password
+    },
+    "data": {
+      "weight_start_date": "2025-03-01",
+      "sleep_start_date": "2025-03-01",
+      "rhr_start_date": "2025-03-01",
+      "monitoring_start_date": "2025-03-01",
+      "download_latest_activities": 25,
+      "download_all_activities": 1000
+    },
+    "directories": {
+      "relative_to_home": true,
+      "base_dir": "HealthData",
+      "mount_dir": "/Volumes/GARMIN"
+    },
+    "enabled_stats": {
+      "monitoring": true,
+      "steps": true,
+      "itime": true,
+      "sleep": true,
+      "rhr": true,
+      "weight": true,
+      "activities": true
+    },
+    "course_views": {
+      "steps": []
+    },
+    "modes": {},
+    "activities": {
+      "display": []
+    },
+    "settings": {
+      "metric": false,
+      "default_display_activities": ["walking", "running", "cycling"]
+    },
+    "checkup": {
+      "look_back_days": 120
+    }
+  };
+
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+
+  const configPath = path.join(configDir, 'GarminConnectConfig.json');
+  fs.writeFileSync(configPath, JSON.stringify(configJson, null, 2));
+  console.log(` Configuración guardada en ${configPath}`);
+};
+
 
 async function main() {
   try {
@@ -21,15 +92,31 @@ async function main() {
     for (const { user_id } of sources) {
       const userId = user_id;
       console.log(`\nProcesando userId=${userId}`);
+      const lastSyncDate = getInfoUserDeviceFromUserId(userId);
+      //const date = formatDate(new Date(lastSyncDate));
 
       // Directorio de configuración que contiene .GarminDb/GarminConnectConfig.json
       const configDir = path.resolve(__dirname, '..', 'GarminDB', 'configs', `garmin_${userId}`);
 
-      // Asegurar que exista
       if (!fs.existsSync(configDir)) {
-        console.warn(`Directorio de config no existe: ${configDir}. Omisión.`);
+        fs.mkdirSync(configDir, { recursive: true });
+        console.log(`📁 Directorio creado: ${configDir}`);
+      }
+
+      const emailKey = `GARMIN_USER_EMAIL_${userId}`;
+      const passwordKey = `GARMIN_USER_PASSWORD_${userId}`;
+
+      const email = process.env[emailKey];
+      const password = process.env[passwordKey];
+
+
+      try {
+        generateGarminConfig(configDir, email, password);
+      } catch (err) {
+        console.error(`❌ Error generando config para userId=${userId}:`, err.message);
         continue;
       }
+
       
       // Ajustar HOME para que garmindb use esta configuración
       process.env.HOME = configDir;
@@ -39,7 +126,7 @@ async function main() {
 
       // Invocar al CLI de GarminDB
       const cliScript = path.resolve(__dirname, '..', 'GarminDB','scripts', 'garmindb_cli.py');
-      const result = spawnSync('python', [cliScript, '--all', '--download', '--import', '--analyze', '--latest'], {
+      const result = spawnSync('python', [cliScript, '--all', '--download', '--import', '--analyze'], {
         cwd: path.resolve(__dirname, '..', 'GarminDB'),
         stdio: 'inherit',
         env: process.env

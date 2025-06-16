@@ -8,3 +8,4 @@ package.json
 testDbConnection.js
 aux_luo.txt
 .env
+GarminDB/configs/garmin_*/GarminConnectConfig.json
