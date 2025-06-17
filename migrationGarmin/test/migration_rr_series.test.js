@@ -3,7 +3,7 @@ jest.mock('../../backend/getDBinfo/getUserId.js', () => ({
 }));
 jest.mock('../sqlLiteconnection.js', () => ({
   connectToSQLite: jest.fn(() => ({ close: jest.fn() })),
-  fetchHrData: jest.fn()
+  fetchRrData: jest.fn()
 }));
 jest.mock('../../backend/getDBinfo/inserts.js', () => ({
   insertMultipleMeasurement: jest.fn()
@@ -11,13 +11,11 @@ jest.mock('../../backend/getDBinfo/inserts.js', () => ({
 jest.mock('../../backend/models/db', () => {
   const mPool = {
     query: jest.fn((sql, params) => {
-      // Mostrar el SQL y los parámetros para depuración
-      console.log('SQL recibido en mock:', sql, 'params:', params);
-      if (sql.includes('FROM omop_cdm.concept') && params && params[0] === 'heart rate') {
-        return Promise.resolve({ rows: [{ concept_id: 1, concept_name: 'heart rate' }] });
+      if (sql.includes('FROM omop_cdm.concept') && params && params[0] === 'respiratory rate') {
+        return Promise.resolve({ rows: [{ concept_id: 3, concept_name: 'respiratory rate' }] });
       }
-      if (sql.includes('FROM omop_cdm.concept') && params && params[0] === 'beats/min') {
-        return Promise.resolve({ rows: [{ concept_id: 2, concept_name: 'beats/min' }] });
+      if (sql.includes('FROM omop_cdm.concept') && params && params[0] === 'breaths/min') {
+        return Promise.resolve({ rows: [{ concept_id: 4, concept_name: 'breaths/min' }] });
       }
       return Promise.resolve({ rows: [] });
     }),
@@ -27,13 +25,13 @@ jest.mock('../../backend/models/db', () => {
   return mPool;
 });
 
-describe('updateHrData', () => {
-  let migrationHr;
+describe('updateRrData', () => {
+  let migrationRr;
   let getUserDeviceInfo, sqlLite, inserts, pool;
 
   beforeEach(() => {
     jest.resetModules();
-    migrationHr = require('../migration_hr_series');
+    migrationRr = require('../migration_rr_series');
     getUserDeviceInfo = require('../../backend/getDBinfo/getUserId.js').getUserDeviceInfo;
     sqlLite = require('../sqlLiteconnection.js');
     inserts = require('../../backend/getDBinfo/inserts.js');
@@ -41,22 +39,19 @@ describe('updateHrData', () => {
     jest.clearAllMocks();
   });
 
-  it('should migrate HR data without errors', async () => {
-    // Mock de datos de usuario y HR
+  it('should migrate RR data without errors', async () => {
     getUserDeviceInfo.mockResolvedValue({
       userId: 1,
       lastSyncDate: '2024-01-01',
       userDeviceId: 123
     });
     sqlLite.connectToSQLite.mockResolvedValue({ close: jest.fn() });
-    sqlLite.fetchHrData.mockResolvedValue([
-      { timestamp: 1710000000, heart_rate: 70 }
+    sqlLite.fetchRrData.mockResolvedValue([
+      { timestamp: 1710000000, rr: 16 }
     ]);
     inserts.insertMultipleMeasurement.mockResolvedValue();
     pool.end.mockResolvedValue();
 
-    // Solo comprobamos que la función se resuelve sin lanzar error
-    await expect(migrationHr.updateHrData('dummySource')).resolves.toBeUndefined();
+    await expect(migrationRr.updateRrData('dummySource')).resolves.toBeUndefined();
   });
-
 });

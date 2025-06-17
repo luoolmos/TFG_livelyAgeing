@@ -25,25 +25,27 @@ function formatToTimestamp(dateString) {
 
 //duration: 00:10:00.000000 --> 10 
 function stringToMinutes(value) {
-    //console.log('stringToMinutes value:', value);
     if (value === null || value === undefined) return null; // Manejo de valores nulos o indefinidos
 
     if (typeof value === 'string') {
-        // Dividir el valor en horas, minutos y segundos
         const parts = value.split(':');
         if (parts.length === 3) {
             const hours = parseInt(parts[0], 10);
             const minutes = parseInt(parts[1], 10);
-            const seconds = parseFloat(parts[2]); // Incluye los microsegundos
-            // Convertir todo a minutos
+            const seconds = parseFloat(parts[2]);
+            if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) return null;
             return hours * 60 + minutes + Math.floor(seconds / 60);
         } else if (parts.length === 2) {
             const hours = parseInt(parts[0], 10);
             const minutes = parseInt(parts[1], 10);
-            return hours * 60 + minutes; // Convertir a minutos
+            if (isNaN(hours) || isNaN(minutes)) return null;
+            return hours * 60 + minutes;
         } else if (parts.length === 1) {
-            return parseInt(parts[0], 10); // Si es solo un número, devolverlo como minutos
+            const num = parseInt(parts[0], 10);
+            if (isNaN(num)) return null;
+            return num;
         }
+        return null;
     } else if (typeof value === 'number') { 
         return value; // Si ya es un número, devolverlo directamente
     } else return null; // Si no es un string o número, devolver null

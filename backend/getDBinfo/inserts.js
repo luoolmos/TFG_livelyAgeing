@@ -76,12 +76,19 @@ async function checkPersonExists(email, name) {
   return {exists: res.rows.length > 0, person_id: res.rows[0].person_id};
 }
 
-async function insertPerson(omop_cdm_person_data, custom_person_data) {
-  const personExists = await checkPersonExists(custom_person_data.email, custom_person_data.name);
+async function insertPerson(
+  omop_cdm_person_data,
+  custom_person_data,
+  {
+    checkPersonExistsFn = checkPersonExists,
+    insertPersonInfoFn = insertPersonInfo
+  } = {}
+) {
+  const personExists = await checkPersonExistsFn(custom_person_data.email, custom_person_data.name);
   if (personExists.exists) {
     console.log('Person already exists');
     return personExists.person_id;
-  }else{
+  } else {
     try {
       const insertQuery = `
         INSERT INTO omop_modified.person (
@@ -99,7 +106,7 @@ async function insertPerson(omop_cdm_person_data, custom_person_data) {
 
       const values = [
         omop_cdm_person_data.gender_concept_id, omop_cdm_person_data.year_of_birth, omop_cdm_person_data.month_of_birth, omop_cdm_person_data.day_of_birth,
-        omop_cdm_person_data.birth_datetime, omop_cdm_person_data.death_datetime, omop_cdm_person_data.race_concept_id, data.ethnicity_concept_id,
+        omop_cdm_person_data.birth_datetime, omop_cdm_person_data.death_datetime, omop_cdm_person_data.race_concept_id, omop_cdm_person_data.ethnicity_concept_id,
         omop_cdm_person_data.location_id, omop_cdm_person_data.provider_id, omop_cdm_person_data.care_site_id, omop_cdm_person_data.person_source_value,
         omop_cdm_person_data.gender_source_value, omop_cdm_person_data.gender_source_concept_id, omop_cdm_person_data.birth_source_value,
         omop_cdm_person_data.death_source_value, omop_cdm_person_data.race_source_value, omop_cdm_person_data.race_source_concept_id,
@@ -109,7 +116,7 @@ async function insertPerson(omop_cdm_person_data, custom_person_data) {
       const res = await pool.query(insertQuery, values);
 
       const personId = res.rows[0].person_id;
-      await insertPersonInfo(personId, custom_person_data);
+      await insertPersonInfoFn(personId, custom_person_data);
       console.log(`Person inserted with ID: ${personId}`);
       return personId;
     } catch (err) {
@@ -348,5 +355,6 @@ module.exports = {
     insertCustomDevice,
     insertPerson,
     insertPersonInfo, 
-    insertDailySummary
+    insertDailySummary,
+    checkPersonExists // Exportar para tests
 };

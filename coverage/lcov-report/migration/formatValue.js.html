@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40.62% </span>
+                <span class="strong">9.37% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/32</span>
+                <span class='fraction'>3/32</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/4</span>
+                <span class='fraction'>1/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">41.93% </span>
+                <span class="strong">9.67% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/31</span>
+                <span class='fraction'>3/31</span>
             </div>
         
             
@@ -130,27 +130,27 @@
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -187,7 +187,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -199,23 +199,23 @@ function formatDate(date) {
     return d.toISOString().split('T')[0]; // 'YYYY-MM-DD'
 }
 &nbsp;
-function formatToTimestamp(dateString) {
+function <span class="fstat-no" title="function not covered" >formatToTimestamp(</span>dateString) {
     // Crear un objeto Date a partir de la cadena ISO
-    const date = new Date(dateString);
+    const date = <span class="cstat-no" title="statement not covered" >new Date(dateString);</span>
 &nbsp;
     // Extraer los componentes de la fecha
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Meses van de 0 a 11
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+    const year = <span class="cstat-no" title="statement not covered" >date.getFullYear();</span>
+    const month = <span class="cstat-no" title="statement not covered" >(date.getMonth() + 1).toString().padStart(2, '0');</span> // Meses van de 0 a 11
+    const day = <span class="cstat-no" title="statement not covered" >date.getDate().toString().padStart(2, '0');</span>
+    const hours = <span class="cstat-no" title="statement not covered" >date.getHours().toString().padStart(2, '0');</span>
+    const minutes = <span class="cstat-no" title="statement not covered" >date.getMinutes().toString().padStart(2, '0');</span>
+    const seconds = <span class="cstat-no" title="statement not covered" >date.getSeconds().toString().padStart(2, '0');</span>
+    const milliseconds = <span class="cstat-no" title="statement not covered" >date.getMilliseconds().toString().padStart(3, '0');</span>
 &nbsp;
     // Formatear la fecha con microsegundos
-    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}000`;
+    const formattedDate = <span class="cstat-no" title="statement not covered" >`${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}000`;</span>
     //console.log('Formatted date:', formattedDate);
-    return formattedDate;
+<span class="cstat-no" title="statement not covered" >    return formattedDate;</span>
 }
 &nbsp;
 //duration: 00:10:00.000000 --&gt; 10 
@@ -265,7 +265,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-14T16:07:37.883Z
+                at 2025-06-17T23:18:29.200Z
             </div>
         <script src="../prettify.js"></script>
         <script>

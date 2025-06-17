@@ -20,6 +20,7 @@ async function migrateAllData() {
     console.log("Migrating data from Garmin devices...");
     if (!sources || sources.length === 0) {
         console.log("No Garmin devices found.");
+        await pool.end();
         return;
     }
     for (const source of sources) {
@@ -89,5 +90,9 @@ async function main() {
     }
 }
 
-main();
+module.exports = { migrateAllData };
+
+if (require.main === module) {
+  main();
+}
 

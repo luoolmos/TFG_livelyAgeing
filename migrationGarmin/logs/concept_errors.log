@@ -1123,3 +1123,19 @@ Error en migratesummaryData: duplicate key value violates unique constraint "dai
 {"timestamp":"2025-06-16T08:40:28.038Z","conceptName":"Stress Update Process","conceptType":"General","error":"SQLITE_CANTOPEN: unable to open database file"}
 {"timestamp":"2025-06-16T08:40:28.209Z","conceptName":"Stress Update Process","conceptType":"General","error":"SQLITE_CANTOPEN: unable to open database file"}
 Error en migratesummaryData: duplicate key value violates unique constraint "daily_summary_pkey"
+[2025-06-17T23:01:48.610Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-17T23:02:26.909Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-17T23:03:33.487Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+[2025-06-17T23:05:18.033Z] [Concept Error] (Measurement): heart rate - Concepto no encontrado
+{"timestamp":"2025-06-17T23:18:29.121Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para spo2ConceptId - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.122Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para rrConceptId - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.122Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para rrConceptName - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.123Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para stressConceptId - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.123Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para stressConceptName - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.124Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptId - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.124Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para scoreConceptName - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.124Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para spo2UnitId - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.125Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para spo2UnitName - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.125Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para rrUnitId - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.127Z","conceptType":"GARMIN SLEEP DATA","error":"Concepto no encontrado para rrUnitName - continuando sin este concepto"}
+{"timestamp":"2025-06-17T23:18:29.128Z","conceptName":"Sleep Data Formatting","conceptType":"General","error":"Invalid time value"}
