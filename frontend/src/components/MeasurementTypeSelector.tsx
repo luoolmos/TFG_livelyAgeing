@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Typography, Grid, CircularProgress, Paper } from '@mui/material';
+import { Box, Button, Typography, CircularProgress, Paper } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { getMeasurementTypes } from '../services/api';
 import type { MeasurementTypeOption } from '../services/api';
 
