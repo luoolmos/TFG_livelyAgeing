@@ -1,5 +1,12 @@
 .measurements-dashboard {
-  margin: 2rem 0;
+  margin: 0;
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  background: #f7f8fa;
 }
 
 .measurements-dashboard .dashboard-title {
@@ -7,6 +14,8 @@
   font-weight: 600;
   color: #333333;
   margin-bottom: 2rem;
+  width: 100%;
+  text-align: center;
 }
 
 .measurements-dashboard .dashboard-paper {
@@ -14,23 +23,22 @@
   border-radius: 16px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
   background-color: #ffffff;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .measurements-dashboard .filters-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-bottom: 2rem;
-}
-
-@media (min-width: 900px) {
-  .measurements-dashboard .filters-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  width: 100%;
 }
 
 .measurements-dashboard .form-control {
-  width: 100%;
+  width: 180px;
 }
 
 .measurements-dashboard .form-control .MuiOutlinedInput-root {
@@ -44,6 +52,8 @@
 .measurements-dashboard .table-container {
   border-radius: 16px !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+  width: 100%;
+  overflow-x: auto;
 }
 
 .measurements-dashboard .table-container .MuiTableHead-root {
@@ -72,4 +82,4 @@
 .measurements-dashboard .source-chip.observation {
   background-color: #6B47DC !important;
   color: #ffffff !important;
-} 
+}

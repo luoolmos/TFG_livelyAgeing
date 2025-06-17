@@ -143,7 +143,7 @@ async function main() {
       // Ejecutar CLI de GarminDB
       const cliScript = path.resolve(__dirname, '..', 'GarminDB','scripts', 'garmindb_cli.py');
       console.log(`Ejecutando CLI: ${cliScript} para userId=${userId}`);
-      const result = spawnSync('python', [cliScript, '--all', '--download', '--import', '--analyze'], {
+      const result = spawnSync('python', [cliScript, '--all', '--download', '--import', '--analyze', '--latest'], {
         cwd: path.resolve(__dirname, '..', 'GarminDB'),
         stdio: 'inherit',
         env: process.env

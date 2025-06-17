@@ -3,7 +3,6 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Typography, CircularProgress, Box, Button, Chip, Avatar, Tooltip
 } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import WatchIcon from '@mui/icons-material/Watch';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -115,27 +114,6 @@ const UserList: React.FC = () => {
         <Typography variant="h4" fontWeight={700} color="#f5f6fa" fontFamily="Inter, Roboto, Arial">
           Usuarios
         </Typography>
-        <Button
-          variant="contained"
-          color="info"
-          startIcon={<RefreshIcon />}
-          onClick={fetchUsers}
-          sx={{
-            fontWeight: 600,
-            fontSize: "1.1rem",
-            borderRadius: 2,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
-            background: "linear-gradient(90deg, #38d39f 0%, #1976d2 100%)",
-            color: "#fff",
-            transition: "all 0.3s",
-            "&:hover": {
-              background: "linear-gradient(90deg, #1976d2 0%, #38d39f 100%)",
-              boxShadow: "0 4px 16px rgba(25, 118, 210, 0.18)"
-            }
-          }}
-        >
-          ACTUALIZAR
-        </Button>
       </Box>
       <TableContainer
         component={Paper}
@@ -176,10 +154,10 @@ const UserList: React.FC = () => {
                         height: 44,
                         fontSize: "1.3rem"
                       }}>
-                        {String(user.user_id)[0]?.toUpperCase() || "U"}
+                        {String(user.device_model)[0]?.toUpperCase() || "D"}
                       </Avatar>
                       <Typography fontWeight={600} fontSize="1.1rem" color="#f5f6fa" fontFamily="Inter, Roboto, Arial">
-                        {String(user.user_id)}
+                        {user.device_model}
                       </Typography>
                     </Box>
                   </TableCell>

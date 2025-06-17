@@ -7,6 +7,7 @@ export interface User {
   device_id: string;
   last_sync_date: string;
   device_model?: string;
+  name?: string;
 }
 
 export interface Device {
@@ -41,6 +42,18 @@ export interface Observation {
   observation_source_value: string;
   unit_source_value: string;
 }
+
+// Get all distinct measurement and observation types
+export type MeasurementTypeOption = {
+  concept_id: number;
+  source_value: string;
+  type: 'measurement' | 'observation';
+};
+
+export const getMeasurementTypes = async (): Promise<MeasurementTypeOption[]> => {
+  const response = await axios.get(`${API_BASE_URL}/measurement-types`);
+  return response.data;
+};
 
 // Export individual functions
 export const getMeasurements = async (params: URLSearchParams): Promise<Measurement[]> => {

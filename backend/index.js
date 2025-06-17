@@ -17,6 +17,7 @@ const update = require('./getDBinfo/upadte.js');
 const { configDotenv } = require('dotenv');
 const { refreshAccessToken, checkToken } = require('./api/auth.js');
 const { getUserProfile } = require('./api/fitbitApi.js');
+const cors = require('cors');
 
 const stepsRoutes = require('./routes/steps');
 const sleepRoutes = require('./routes/sleep');
@@ -33,11 +34,12 @@ const PORT = 5003;
 //app.use(cors());
 app.use(express.json());
 app.use('/api', express.static(path.join(__dirname, 'api')));
+app.use(cors());
 
 // Rutas con prefijos consistentes
 app.use('/api', stepsRoutes);
 app.use('/api/sleep', sleepRoutes);
-app.use('/api/heart-rate', heartRateRoutes);
+app.use('/', heartRateRoutes);
 app.use('/', authRoutes);
 app.use('/', allDataRoutes);
 app.use('/api/dashboard', dashboardRoutes);
@@ -75,8 +77,6 @@ if (require.main === module) {
     .catch((err) => {
       console.error('Error al conectar a la base de datos:', err);
     });
-
-  checkToken();
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor escuchando en http://0.0.0.0:${PORT}`);
