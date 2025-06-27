@@ -27,7 +27,7 @@ const UserSelectorModal: React.FC<Props> = ({ open, onClose, onSelectUser }) => 
   const handleSelect = () => {
     if (selectedUser) {
       onSelectUser(selectedUser);
-      onClose();
+      // NO llamar a onClose aquí
     }
   };
 

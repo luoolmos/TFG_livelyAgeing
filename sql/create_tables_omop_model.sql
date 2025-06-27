@@ -596,6 +596,14 @@ CREATE OR REPLACE VIEW omop_cdm.measurement AS
 ALTER TABLE omop_modified.measurement
   ADD PRIMARY KEY (measurement_id, measurement_datetime, person_id);
 
+ALTER TABLE omop_modified.measurement
+DROP CONSTRAINT IF EXISTS unique_measurement_entry;
+
+ALTER TABLE omop_modified.measurement
+ADD CONSTRAINT unique_measurement_entry
+UNIQUE (person_id, measurement_concept_id, measurement_datetime);
+
+
 
 -- Crear la tabla como hypertable
 SELECT create_hypertable(
@@ -644,6 +652,15 @@ UNIQUE (
 ALTER TABLE omop_modified.observation
   ADD PRIMARY KEY (observation_id, observation_datetime, person_id);
 
+
+ALTER TABLE omop_modified.observation
+DROP CONSTRAINT IF EXISTS unique_observation_entry;
+
+ALTER TABLE omop_modified.observation
+ADD CONSTRAINT unique_observation_entry
+UNIQUE (person_id, observation_concept_id, observation_datetime);
+
+
 CREATE OR REPLACE VIEW omop_cdm.observation AS
   SELECT * FROM omop_modified.observation;
 -- Crear la tabla como hypertable
@@ -676,7 +693,7 @@ CREATE TABLE custom.daily_summary (
 	min_rr_bpm              INTEGER CHECK (min_rr_bpm BETWEEN 0 AND 100),
 	max_rr_bpm              INTEGER CHECK (max_rr_bpm BETWEEN 0 AND 100),
 	spo2_avg              	FLOAT CHECK (spo2_avg BETWEEN 0 AND 100),
-    summary                 JSONB NOT NULL, 
+    summary                 JSONB, 
     PRIMARY KEY (date, person_id)
 );
 
@@ -808,11 +825,11 @@ ALTER TABLE omop_modified.OBSERVATION ADD CONSTRAINT fpk_OBSERVATION_visit_detai
 ALTER TABLE omop_modified.OBSERVATION ADD CONSTRAINT fpk_OBSERVATION_observation_source_concept_id FOREIGN KEY (observation_source_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_modified.OBSERVATION ADD CONSTRAINT fpk_OBSERVATION_obs_event_field_concept_id FOREIGN KEY (obs_event_field_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 
-ALTER TABLE omop_cdm.DEATH ADD CONSTRAINT fpk_DEATH_person_id FOREIGN KEY (person_id) REFERENCES omop_cdm.PERSON (PERSON_ID);
+ALTER TABLE omop_cdm.DEATH ADD CONSTRAINT fpk_DEATH_person_id FOREIGN KEY (person_id) REFERENCES omop_modified.PERSON (PERSON_ID);
 ALTER TABLE omop_cdm.DEATH ADD CONSTRAINT fpk_DEATH_death_type_concept_id FOREIGN KEY (death_type_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.DEATH ADD CONSTRAINT fpk_DEATH_cause_concept_id FOREIGN KEY (cause_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.DEATH ADD CONSTRAINT fpk_DEATH_cause_source_concept_id FOREIGN KEY (cause_source_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
-ALTER TABLE omop_cdm.NOTE ADD CONSTRAINT fpk_NOTE_person_id FOREIGN KEY (person_id) REFERENCES omop_cdm.PERSON (PERSON_ID);
+ALTER TABLE omop_cdm.NOTE ADD CONSTRAINT fpk_NOTE_person_id FOREIGN KEY (person_id) REFERENCES omop_modified.PERSON (PERSON_ID);
 ALTER TABLE omop_cdm.NOTE ADD CONSTRAINT fpk_NOTE_note_type_concept_id FOREIGN KEY (note_type_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.NOTE ADD CONSTRAINT fpk_NOTE_note_class_concept_id FOREIGN KEY (note_class_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.NOTE ADD CONSTRAINT fpk_NOTE_encoding_concept_id FOREIGN KEY (encoding_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
@@ -824,7 +841,7 @@ ALTER TABLE omop_cdm.NOTE ADD CONSTRAINT fpk_NOTE_note_event_field_concept_id FO
 ALTER TABLE omop_cdm.NOTE_NLP ADD CONSTRAINT fpk_NOTE_NLP_section_concept_id FOREIGN KEY (section_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.NOTE_NLP ADD CONSTRAINT fpk_NOTE_NLP_note_nlp_concept_id FOREIGN KEY (note_nlp_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.NOTE_NLP ADD CONSTRAINT fpk_NOTE_NLP_note_nlp_source_concept_id FOREIGN KEY (note_nlp_source_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
-ALTER TABLE omop_cdm.SPECIMEN ADD CONSTRAINT fpk_SPECIMEN_person_id FOREIGN KEY (person_id) REFERENCES omop_cdm.PERSON (PERSON_ID);
+ALTER TABLE omop_cdm.SPECIMEN ADD CONSTRAINT fpk_SPECIMEN_person_id FOREIGN KEY (person_id) REFERENCES omop_modified.PERSON (PERSON_ID);
 ALTER TABLE omop_cdm.SPECIMEN ADD CONSTRAINT fpk_SPECIMEN_specimen_concept_id FOREIGN KEY (specimen_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.SPECIMEN ADD CONSTRAINT fpk_SPECIMEN_specimen_type_concept_id FOREIGN KEY (specimen_type_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.SPECIMEN ADD CONSTRAINT fpk_SPECIMEN_unit_concept_id FOREIGN KEY (unit_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
@@ -841,8 +858,8 @@ ALTER TABLE omop_cdm.PROVIDER ADD CONSTRAINT fpk_PROVIDER_care_site_id FOREIGN K
 ALTER TABLE omop_cdm.PROVIDER ADD CONSTRAINT fpk_PROVIDER_gender_concept_id FOREIGN KEY (gender_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.PROVIDER ADD CONSTRAINT fpk_PROVIDER_specialty_source_concept_id FOREIGN KEY (specialty_source_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.PROVIDER ADD CONSTRAINT fpk_PROVIDER_gender_source_concept_id FOREIGN KEY (gender_source_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
-ALTER TABLE omop_cdm.PAYER_PLAN_PERIOD ADD CONSTRAINT fpk_PAYER_PLAN_PERIOD_payer_plan_period_id FOREIGN KEY (payer_plan_period_id) REFERENCES omop_cdm.PERSON (PERSON_ID);
-ALTER TABLE omop_cdm.PAYER_PLAN_PERIOD ADD CONSTRAINT fpk_PAYER_PLAN_PERIOD_person_id FOREIGN KEY (person_id) REFERENCES omop_cdm.PERSON (PERSON_ID);
+ALTER TABLE omop_cdm.PAYER_PLAN_PERIOD ADD CONSTRAINT fpk_PAYER_PLAN_PERIOD_payer_plan_period_id FOREIGN KEY (payer_plan_period_id) REFERENCES omop_modified.PERSON (PERSON_ID);
+ALTER TABLE omop_cdm.PAYER_PLAN_PERIOD ADD CONSTRAINT fpk_PAYER_PLAN_PERIOD_person_id FOREIGN KEY (person_id) REFERENCES omop_modified.PERSON (PERSON_ID);
 ALTER TABLE omop_cdm.PAYER_PLAN_PERIOD ADD CONSTRAINT fpk_PAYER_PLAN_PERIOD_payer_concept_id FOREIGN KEY (payer_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.PAYER_PLAN_PERIOD ADD CONSTRAINT fpk_PAYER_PLAN_PERIOD_payer_source_concept_id FOREIGN KEY (payer_source_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.PAYER_PLAN_PERIOD ADD CONSTRAINT fpk_PAYER_PLAN_PERIOD_plan_concept_id FOREIGN KEY (plan_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
@@ -856,9 +873,9 @@ ALTER TABLE omop_cdm.COST ADD CONSTRAINT fpk_COST_cost_type_concept_id FOREIGN K
 ALTER TABLE omop_cdm.COST ADD CONSTRAINT fpk_COST_currency_concept_id FOREIGN KEY (currency_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.COST ADD CONSTRAINT fpk_COST_revenue_code_concept_id FOREIGN KEY (revenue_code_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.COST ADD CONSTRAINT fpk_COST_drg_concept_id FOREIGN KEY (drg_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
-ALTER TABLE omop_cdm.DRUG_ERA ADD CONSTRAINT fpk_DRUG_ERA_person_id FOREIGN KEY (person_id) REFERENCES omop_cdm.PERSON (PERSON_ID);
+ALTER TABLE omop_cdm.DRUG_ERA ADD CONSTRAINT fpk_DRUG_ERA_person_id FOREIGN KEY (person_id) REFERENCES omop_modified.PERSON (PERSON_ID);
 ALTER TABLE omop_cdm.DRUG_ERA ADD CONSTRAINT fpk_DRUG_ERA_drug_concept_id FOREIGN KEY (drug_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
-ALTER TABLE omop_cdm.DOSE_ERA ADD CONSTRAINT fpk_DOSE_ERA_person_id FOREIGN KEY (person_id) REFERENCES omop_cdm.PERSON (PERSON_ID);
+ALTER TABLE omop_cdm.DOSE_ERA ADD CONSTRAINT fpk_DOSE_ERA_person_id FOREIGN KEY (person_id) REFERENCES omop_modified.PERSON (PERSON_ID);
 
 ALTER TABLE omop_cdm.DOSE_ERA ADD CONSTRAINT fpk_DOSE_ERA_drug_concept_id FOREIGN KEY (drug_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.DOSE_ERA ADD CONSTRAINT fpk_DOSE_ERA_unit_concept_id FOREIGN KEY (unit_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
@@ -898,7 +915,7 @@ ALTER TABLE omop_cdm.DRUG_STRENGTH ADD CONSTRAINT fpk_DRUG_STRENGTH_ingredient_c
 ALTER TABLE omop_cdm.DRUG_STRENGTH ADD CONSTRAINT fpk_DRUG_STRENGTH_amount_unit_concept_id FOREIGN KEY (amount_unit_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.DRUG_STRENGTH ADD CONSTRAINT fpk_DRUG_STRENGTH_numerator_unit_concept_id FOREIGN KEY (numerator_unit_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.DRUG_STRENGTH ADD CONSTRAINT fpk_DRUG_STRENGTH_denominator_unit_concept_id FOREIGN KEY (denominator_unit_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
-ALTER TABLE omop_cdm.COHORT_DEFINITION ADD CONSTRAINT fpk_COHORT_DEFINITION_cohort_definition_id FOREIGN KEY (cohort_definition_id) REFERENCES omop_cdm.COHORT (COHORT_DEFINITION_ID);
+--ALTER TABLE omop_cdm.COHORT_DEFINITION ADD CONSTRAINT fpk_COHORT_DEFINITION_cohort_definition_id FOREIGN KEY (cohort_definition_id) REFERENCES omop_cdm.COHORT (COHORT_DEFINITION_ID);
 ALTER TABLE omop_cdm.COHORT_DEFINITION ADD CONSTRAINT fpk_COHORT_DEFINITION_definition_type_concept_id FOREIGN KEY (definition_type_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 ALTER TABLE omop_cdm.COHORT_DEFINITION ADD CONSTRAINT fpk_COHORT_DEFINITION_subject_concept_id FOREIGN KEY (subject_concept_id) REFERENCES omop_cdm.CONCEPT (CONCEPT_ID);
 

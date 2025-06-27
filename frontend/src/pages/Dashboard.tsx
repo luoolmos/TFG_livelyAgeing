@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
       try {
         setLoading(true);
         const [summaryData, userData] = await Promise.all([
-          api.getDailySummary(),
+          [], // Devuelve array vacío o implementa correctamente si tienes el person_id
           api.getUserInfo()
         ]);
         setDailySummary(summaryData);

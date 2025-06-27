@@ -72,3 +72,12 @@ FROM custom.insert_person_with_device(
   p_manufacturer  => 'Samsung',
   p_model         => 'Galaxy Watch 4'
 );
+
+SELECT *
+FROM custom.insert_person_with_device(
+  p_email         => 'tfg.unimore.master@gmail.com',
+  p_name          => 'Forerunner 55',
+   p_birth_date => '2000-01-01',
+  p_manufacturer  => 'Garmin',
+  p_model         => 'Forerunner 55'
+);

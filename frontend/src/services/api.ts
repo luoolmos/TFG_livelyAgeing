@@ -47,7 +47,7 @@ export interface Observation {
 export type MeasurementTypeOption = {
   concept_id: number;
   source_value: string;
-  type: 'measurement' | 'observation';
+  type: 'measurement' | 'observation' | 'daily_summary';
 };
 
 export const getMeasurementTypes = async (): Promise<MeasurementTypeOption[]> => {
@@ -63,6 +63,25 @@ export const getMeasurements = async (params: URLSearchParams): Promise<Measurem
 
 export const getObservations = async (params: URLSearchParams): Promise<Observation[]> => {
   const response = await axios.get(`${API_BASE_URL}/observations`, { params });
+  return response.data;
+};
+
+export interface DailySummary {
+  date: string;
+  person_id: number;
+  steps: number;
+  min_hr_bpm: number;
+  max_hr_bpm: number;
+  avg_hr_bpm: number;
+  sleep_duration_minutes: number;
+  min_rr_bpm: number;
+  max_rr_bpm: number;
+  spo2_avg: number;
+  summary: any;
+}
+
+export const getDailySummary = async (person_id: string | number): Promise<DailySummary[]> => {
+  const response = await axios.get(`${API_BASE_URL}/daily-summary`, { params: { person_id } });
   return response.data;
 };
 

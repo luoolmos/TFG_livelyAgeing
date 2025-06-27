@@ -14,7 +14,7 @@ require('dotenv').config({
   path: path.resolve(__dirname, '..', 'backend', 'utils', '.env')
 });
 
-const generateGarminConfig = (baseConfigDir, email, password, userId) => {
+const generateGarminConfig = (baseConfigDir, email, password, userId,lastSyncDate) => {
   if (!email || !password) {
     throw new Error('Faltan GARMIN_USER_EMAIL o GARMIN_USER_PASSWORD en variables de entorno.');
   }
@@ -31,6 +31,8 @@ const generateGarminConfig = (baseConfigDir, email, password, userId) => {
 
   // Cambiar base_dir a HealthData_<userId>
   const baseDir = `HealthData_${userId}`;
+  const date= `${String(lastSyncDate.getDate()).padStart(2, '0')}-${String(lastSyncDate.getMonth() + 1).padStart(2, '0')}-${lastSyncDate.getFullYear()}`;
+  console.log(`Generando configuración para userId=${userId} con fecha ${date}`);
 
   const configJson = {
     "db": {
@@ -45,10 +47,10 @@ const generateGarminConfig = (baseConfigDir, email, password, userId) => {
       "password": password
     },
     "data": {
-      "weight_start_date": "01/03/2025",
-      "sleep_start_date": "01/03/2025",
-      "rhr_start_date": "01/03/2025",
-      "monitoring_start_date": "01/03/2025",
+      "weight_start_date": date,
+      "sleep_start_date": date,
+      "rhr_start_date": date,
+      "monitoring_start_date": date,
       "download_latest_activities": 25,
       "download_all_activities": 1000
     },
@@ -101,7 +103,9 @@ async function main() {
       const { user_id } of sources) {
       const userId = user_id;
       console.log(`\nProcesando userId=${userId}`);
-      const lastSyncDate = getInfoUserDeviceFromUserId(userId);
+      const info = await getInfoUserDeviceFromUserId(userId);
+      const lastSyncDate = info.lastSyncDate;
+      console.log(`Última fecha de sincronización para userId=${userId}: ${lastSyncDate}`);
       //const date = formatDate(new Date(lastSyncDate));
 
       // === NUEVO: Borrar y recrear ~/.GarminDb antes de cada iteración ===
@@ -113,7 +117,6 @@ async function main() {
       }
       fs.mkdirSync(garminDbDir, { recursive: true });
       console.log(`Carpeta creada: ${garminDbDir}`);
-      // === FIN NUEVO ===
 
       // Directorio de configuración que contiene .GarminDb/GarminConnectConfig.json
       const configDir = path.resolve(__dirname, '..', 'GarminDB', 'configs', `garmin_${userId}`);
@@ -130,7 +133,7 @@ async function main() {
       const password = process.env[passwordKey];
 
       try {
-        generateGarminConfig(configDir, email, password, userId);
+        generateGarminConfig(configDir, email, password, userId, lastSyncDate);
       } catch (err) {
         console.error(`Error generando config para userId=${userId}:`, err.message);
         continue;

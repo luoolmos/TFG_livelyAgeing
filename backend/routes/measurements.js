@@ -137,4 +137,22 @@ router.get('/measurement-types', async (req, res) => {
   }
 });
 
+// Obtener daily summarys por usuario
+router.get('/daily-summary', async (req, res) => {
+  const { person_id } = req.query;
+  if (!person_id) return res.status(400).json({ error: 'person_id required' });
+  try {
+    const result = await pool.query(
+      `SELECT date, steps, min_hr_bpm, max_hr_bpm, avg_hr_bpm, sleep_duration_minutes, min_rr_bpm, max_rr_bpm, spo2_avg, summary
+       FROM custom.daily_summary
+       WHERE person_id = $1
+       ORDER BY date DESC`,
+      [person_id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
